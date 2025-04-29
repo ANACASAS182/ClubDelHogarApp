@@ -1,0 +1,23 @@
+.modal-confirmacion .contenido-modal {
+    text-align: center;
+    padding: 20px;
+  
+    .titulo {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+  
+    .detalle {
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+  
+    ion-button {
+      border-radius: 10px;
+      font-weight: bold;
+      height: 44px;
+      margin-top: 10px;
+    }
+  }

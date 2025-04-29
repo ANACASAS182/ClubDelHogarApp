@@ -1,0 +1,83 @@
+<ion-header>
+  <ion-buttons slot="end">
+    <ion-button (click)="cerrarModal()">
+      <ion-icon name="close"></ion-icon>
+    </ion-button>    
+  </ion-buttons>
+</ion-header>
+<ion-content class="ion-padding">
+
+  <ion-content class="ion-padding">
+    <h2 class="form-title ion-text-center">{{referido?.estatusReferenciaDescripcion}}</h2>
+
+    <ion-list>
+      <!-- Referido -->
+      <ion-item lines="none">
+        <ion-grid>
+          <ion-row class="ion-align-items-start">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Nombre:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              {{ referido?.nombreCompleto }}
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="ion-align-items-start">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Celular:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              {{ referido?.celular }}
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="ion-align-items-start">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Empresa:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              {{ referido?.empresaRazonSocial }}
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="ion-align-items-start">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Producto:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              {{ referido?.productoNombre }}
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="ion-align-items-start">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Comision:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              {{ referido?.comision | currency:'MXN':'symbol':'1.2-2' }}
+            </ion-col>
+          </ion-row>
+  
+          <!-- Seguimientos -->
+          <ion-row class="ion-align-items-start" style="margin-top: 5px;">
+            <ion-col size="4" class="ion-text-right">
+              <strong>Seguimientos:</strong>
+            </ion-col>
+            <ion-col size="8" class="ion-text-left">
+              <div *ngFor="let item of seguimientos">
+                {{ formatFecha(item.fechaSeguimiento) }}
+                <p>{{ item.comentario }}</p>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ion-item>
+    </ion-list>
+    <div class="ion-padding-top ion-text-center">
+      <ion-button class="customButton" shape="round" (click)="cerrarModal()">
+        CERRAR
+      </ion-button>
+    </div>
+  </ion-content>
+</ion-content>

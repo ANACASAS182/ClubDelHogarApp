@@ -1,0 +1,168 @@
+<ion-header>
+  <ion-toolbar class="headerColor">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title><ion-icon name="settings" color="white"></ion-icon> Configuración</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="contentCustom">
+  <!-- Usuario -->
+  <ion-card class="customCard">
+    <ion-card-header class="headerCustomCard">
+      <ion-card-title class="titleCustomCard"> <ion-icon name="person" color="white"></ion-icon> Información del perfil</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-grid [formGroup]="formulario">
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-input class="input" label-placement="floating" label="Nombres(s)" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
+              formControlName="nombre" placeholder="Nombre(s)"  type="text"
+              (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('nombre')?.invalid && getControl('nombre')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-input class="input" label-placement="floating" label="Apellido(s)" 
+              [class.invalid]="getControl('apellido')?.invalid && getControl('apellido')?.touched"
+              formControlName="apellido" placeholder="Apellido(s)" type="text"
+              (ionBlur)="getControl('apellido')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('apellido')?.invalid && getControl('apellido')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="4">
+            <ion-input class="input" label-placement="floating" label="WhatsApp"  [class.invalid]="getControl('celular')?.invalid && getControl('celular')?.touched"
+              formControlName="celular" placeholder="WhatsApp" type="text"
+              (ionBlur)="getControl('celular')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('celular')?.invalid && getControl('celular')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-input class="input" label-placement="floating" label="Ciudad" [class.invalid]="getControl('ciudad')?.invalid && getControl('ciudad')?.touched"
+              formControlName="ciudad" placeholder="Ciudad" type="text"
+              (ionBlur)="getControl('ciudad')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('ciudad')?.invalid && getControl('ciudad')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="4" *ngIf="isNacional">
+            <ion-select class="input" [interfaceOptions]="{ header: 'Estado'}" okText="Ok" cancelText="Cancelar" label-placement="floating" label="Estado" [class.invalid]="getControl('estado')?.invalid && getControl('estado')?.touched"
+              formControlName="estado" placeholder="Estado" class="input"
+              (ionBlur)="getControl('estado')?.markAsTouched()">
+              <ion-select-option *ngFor="let estad of estados" [value]="estad.id">
+                {{ estad.nombre }}
+              </ion-select-option>
+            </ion-select>
+            <ion-text color="danger" *ngIf="getControl('estado')?.invalid && getControl('estado')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="4" *ngIf="!isNacional">
+            <ion-input class="input" label-placement="floating" label="Estado"
+              [class.invalid]="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched"
+              formControlName="estadoTexto" placeholder="Estado" type="text"
+              (ionBlur)="getControl('estadoTexto')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+
+          <ion-col size="12" size-md="4">
+            <ion-input class="input" label-placement="floating" label="Correo electrónico"  [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched" 
+              formControlName="email" placeholder="Correo electrónico" type="text"
+              (ionBlur)="getControl('email')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" size-md="4">
+            <ion-text>
+              Fecha registro: {{formatFecha(fechaRegistro)}}
+            </ion-text>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="ion-padding-top ion-text-center">
+        <ion-button class="customButton" shape="round" [disabled]="formUsuarioEnviado" (click)="guardarCambiosUsuario()">
+          GUARDAR CAMBIOS
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Bancos -->
+
+  <ion-card class="customCard">
+    <ion-card-header class="headerCustomCard">
+      <ion-card-title class="titleCustomCard"> <ion-icon name="card-outline" color="white"></ion-icon> Métodos de pago</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-sm="6" size-md="3" *ngFor="let banco of bancos; let i = index">
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>Tarjeta {{i + 1}}</ion-card-title>
+              </ion-card-header>
+            
+              <ion-card-content>
+                <p><strong><!--Nombre:--></strong>{{banco.nombreTitular}}</p>
+                <p><strong><!--Banco:--></strong> {{banco.nombreBanco}}</p>
+                <p><strong><!--Numero de cuenta:--></strong>  {{enmascararCuenta(banco.numeroCuenta)}} </p>
+                <ion-grid>
+                  <ion-row>
+                    <ion-col size="6">
+                      <ion-button color="danger" fill="clear" expand="block" (click)="mostrarAlertaConfirmacion(banco.id)">
+                        <ion-icon slot="start" name="trash"></ion-icon>
+                        Eliminar
+                      </ion-button>
+                    </ion-col>
+                    <ion-col size="6">
+                      <ion-button color="primary" fill="clear" expand="block" (click)="editarTarjeta(banco.id)">
+                        <ion-icon slot="start" name="create"></ion-icon>
+                        Editar
+                      </ion-button>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="ion-padding-top ion-text-center">
+        <ion-button class="customButton" shape="round" (click)="agregarNuevaTarjeta()">
+          AGREGAR TARJETA
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+
+  </ion-card>
+
+
+</ion-content>

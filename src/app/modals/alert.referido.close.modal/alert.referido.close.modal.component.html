@@ -1,0 +1,13 @@
+<ion-content class="fondo-blanco">
+  <div class="contenido-modal">
+    <p class="titulo"><strong>Está por cerrar el registro<br>sin haber agregado los datos.</strong></p>
+    <p class="detalle">Si lo cierra perderá toda la información que no haya sido guardada.</p>
+
+    <ion-button expand="block" color="success" (click)="dismiss(false)">
+      CONTINUAR CON EL REGISTRO
+    </ion-button>
+    <ion-button expand="block" color="primary" (click)="dismiss(true)">
+      CERRAR SIN GUARDAR LOS DATOS
+    </ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,77 @@
+<ion-header>
+  <ion-buttons slot="end">
+    <ion-button (click)="close()">
+      <ion-icon name="close"></ion-icon>
+    </ion-button>    
+  </ion-buttons>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="formulario">
+    <h2 class="form-title ion-text-center">AGREGAR NUEVO REFERIDO</h2>
+
+    <ion-input class="input" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
+      formControlName="nombre" placeholder="Nombre completo*" type="text"
+      (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>
+
+    <ion-text color="danger" *ngIf="getControl('nombre')?.invalid && getControl('nombre')?.touched">
+      Campo obligatorio*
+    </ion-text>
+
+    <ion-input class="input" [class.invalid]="getControl('correo')?.invalid && getControl('correo')?.touched"
+      formControlName="correo" placeholder="Correo electrónico*" type="text"
+      (ionBlur)="getControl('correo')?.markAsTouched()"></ion-input>
+    <ion-text color="danger" *ngIf="getControl('correo')?.invalid && getControl('correo')?.touched">
+      Campo obligatorio*
+    </ion-text>
+
+    <ion-input class="input" [class.invalid]="getControl('celular')?.invalid && getControl('celular')?.touched"
+      formControlName="celular" placeholder="Celular" type="text"
+      (ionBlur)="getControl('celular')?.markAsTouched()"></ion-input>
+    <ion-text color="danger" *ngIf="getControl('celular')?.invalid && getControl('celular')?.touched">
+      Campo obligatorio*
+    </ion-text>
+
+    <ion-select class="input" [interfaceOptions]="{ header: 'Empresa'}" okText="Ok" cancelText="Cancelar"
+      [class.invalid]="getControl('empresa')?.invalid && getControl('empresa')?.touched" formControlName="empresa"
+      placeholder="Empresa*" (ionBlur)="getControl('empresa')?.markAsTouched()" (ionChange)="onEmpresaChange($event)">
+      <ion-select-option *ngFor="let empresa of empresas" [value]="empresa.id">
+        {{ empresa.nombreComercial }}
+      </ion-select-option>
+    </ion-select>
+    <ion-text color="danger" *ngIf="getControl('empresa')?.invalid && getControl('empresa')?.touched">
+      Campo obligatorio*
+    </ion-text>
+
+    <div [hidden]="hideProducto">
+      <ion-select class="input"
+        [interfaceOptions]="{ header: 'Producto', subHeader: (productos.length == 0) ? 'No se encontraron productos en la empresa seleccionada' : '', }"
+        okText="Ok" cancelText="Cancelar"
+        [class.invalid]="getControl('producto')?.invalid && getControl('producto')?.touched" formControlName="producto"
+        placeholder="Producto*" (ionBlur)="getControl('producto')?.markAsTouched()">
+        <ion-select-option *ngFor="let producto of productos" [value]="producto.id">
+          {{ producto.nombre }}
+        </ion-select-option>
+      </ion-select>
+      <ion-text color="danger" *ngIf="getControl('producto')?.invalid && getControl('producto')?.touched">
+        Campo obligatorio*
+      </ion-text>
+    </div>
+
+    <p class="leyendaRequired">*CAMPOS OBLIGATORIOS</p>
+
+
+    <ion-button class="customButton" shape="round" [disabled]="formEnviado"
+      (click)="enviarFormulario()">AGREGAR</ion-button>
+
+    <p class="leyendaFinal">Gana comisión por cada persona que recomiendas y recibe el pago una vez cerrada que la venta tenga estatus de <span class="greenText">CERRADA</span>
+    </p>
+
+
+    <div class="inner-curve">
+      <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+        <path d="M0,0 C150,100 350,0 500,100 L500,150 L0,150 Z" fill="#d6eaf8"></path>
+      </svg>
+    </div>
+  </form>
+</ion-content>

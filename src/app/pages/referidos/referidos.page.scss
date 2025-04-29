@@ -1,0 +1,45 @@
+.input {
+    margin: 12px 0;
+    --background: #f1f1f1;
+    --border-radius: 30px;
+    --padding-start: 16px;
+    --padding-end: 16px;
+    width: 80%;
+    color: #2c3e50 !important;
+
+    border: 1px solid transparent;
+    border-radius: 30px;
+    border-color: black;
+    transition: border-color 0.3s ease;
+    text-align: left;
+}
+
+.referidosHeader {
+    background-color: #272727;
+}
+
+.title {
+    color: white;
+}
+
+.estatus-creado {
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+.estatus-seguimiento {
+    color: green;
+    font-weight: bold;
+}
+
+.estatus-cerrado {
+    color: red;
+    font-weight: bold;
+}
+
+.estatus-other {
+    color: gray;
+}
+.fechaLabel{
+    font-size: 8px;
+}

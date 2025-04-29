@@ -1,0 +1,187 @@
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+/* Core CSS required for Ionic components to work properly */
+@import "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@import "@ionic/angular/css/normalize.css";
+@import "@ionic/angular/css/structure.css";
+@import "@ionic/angular/css/typography.css";
+@import "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@import "@ionic/angular/css/padding.css";
+@import "@ionic/angular/css/float-elements.css";
+@import "@ionic/angular/css/text-alignment.css";
+@import "@ionic/angular/css/text-transformation.css";
+@import "@ionic/angular/css/flex-utils.css";
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @import "@ionic/angular/css/palettes/dark.always.css"; */
+/* @import "@ionic/angular/css/palettes/dark.class.css"; */
+// @import "@ionic/angular/css/palettes/dark.system.css";
+
+ion-content {
+  height: 100%;
+}
+
+.custom-alert {
+  border-radius: 8px;
+  font-weight: bold;
+  margin: 10px 0;
+  width: 100%;
+
+  &.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  &.danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+
+  &.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+
+  &.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  ion-menu.custom-menu {
+    --width: 200px !important;
+    width: 200px !important;
+    max-width: 200px !important;
+  }
+}
+
+.modal-redondeado .modal-wrapper,
+.modal-redondeado .ion-modal {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+.modal-redondeado::part(content) {
+  border-radius: 20px !important;
+  overflow: hidden;
+}
+
+ion-menu.custom-menu {
+  --ion-background-color: #001744;
+}
+
+.custom-menu ion-item {
+  --color: white !important;
+}
+
+.custom-menu ion-item.selected {
+  --background: #272727 !important;
+  --color: white !important;
+}
+
+.headerColor {
+  --background: #272727;
+  color: white;
+}
+
+.contentCustom {
+  --background: #dfdfdf;
+}
+
+.headerCustomCard {
+  background-color: #001744;
+}
+.customCard{
+  border: 2px solid #001744;
+}
+
+.titleCustomCard {
+  color: white;
+  font-size: clamp(14px, 4vw, 20px); /* mínimo 14px, ideal 4vw, máximo 24px */
+}
+
+th.mat-mdc-header-cell {
+  font-weight: bold;
+}
+
+.customButton {
+  --background: #0d3b66;
+  font-weight: bold;
+  color:white;
+}
+
+.customGreenButton {
+  --background: #4a9a09;
+  font-weight: bold;
+  color:white;
+}
+.logo {
+  width: 300px;
+}
+
+.alerta-personalizada {
+  --background: #fff;
+  --border-radius: 14px;
+
+  .alert-message {
+    padding: 0 12px;
+    white-space: pre-line;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .alert-button-group {
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+    gap: 10px;
+    text-align: center !important;
+  }
+
+  .alert-button {
+    font-weight: bold;
+    border-radius: 30px;
+    padding: 10px;
+    width: 90%;
+    text-align: center !important;
+  }
+
+  .btn-continuar {
+    background-color: #4CAF50;
+    color: white;
+    text-align: center !important;
+  }
+
+  .btn-cerrar {
+    background-color: #0D47A1;
+    color: white;
+    text-align: center !important;
+  }
+  .alert-button-inner.sc-ion-alert-md {
+    justify-content: center;
+}
+}

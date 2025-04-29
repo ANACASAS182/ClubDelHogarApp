@@ -1,0 +1,46 @@
+<ion-content class="login-page" fullscreen>
+  <div class="center-wrapper">
+    <div class="login-card" [formGroup]="loginForm">
+      <img src="assets/logo.png" alt="Logo" class="logo" />
+      <h2 class="form-title">Inicia Sesión</h2>
+
+      @if (hasError) {
+      <div class="ion-padding custom-alert warning">
+        <ion-text> {{ messageError }}</ion-text>
+      </div>
+      }
+
+      <ion-input class="input" [class.invalid]="getControl('user')?.invalid && getControl('user')?.touched"
+        formControlName="user" placeholder="Usuario (Correo de contacto)" type="text"
+        (ionBlur)="getControl('user')?.markAsTouched()"></ion-input>
+
+      <ion-text color="danger" *ngIf="getControl('user')?.invalid && getControl('user')?.touched">
+        Ingresa un email válido.
+      </ion-text>
+
+      <ion-input class="input" [class.invalid]="getControl('password')?.invalid && getControl('password')?.touched"
+        formControlName="password" placeholder="Contraseña" type="password"
+        (ionBlur)="getControl('password')?.markAsTouched()">
+        <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+      </ion-input>
+
+      <ion-text color="danger" *ngIf="getControl('password')?.invalid && getControl('password')?.touched">
+        Ingrese su contraseña.
+      </ion-text>
+      
+
+      <div class="form-links">
+        <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
+        <a [routerLink]="'/registro'">¿No tienes una cuenta?</a>
+      </div>
+
+      <ion-button expand="block" shape="round" class="login-button" [disabled]="formEnviado" (click)="onSubmit()">ENTRAR</ion-button>
+
+      <div class="inner-curve">
+        <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+          <path d="M0,0 C150,100 350,0 500,100 L500,150 L0,150 Z" fill="#d6eaf8"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</ion-content>

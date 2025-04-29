@@ -1,0 +1,97 @@
+<ion-header>
+  <ion-toolbar class="headerColor">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title><ion-icon name="git-network" color="white"></ion-icon> Mi Network</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="contentCustom">
+  <!-- Info Empresa -->
+  <ion-card>
+    <ion-grid>
+      <ion-row class="ion-align-items-center">
+
+        <ion-col size="12" size-md="3" class="ion-text-center">
+          <img [src]="logoEmpresa" alt="Imagen" style="width: 300px;" />
+        </ion-col>
+
+        <ion-col size="12" size-md="6">
+          <h2>{{nombreComercial}}</h2>
+          <p><b>Razón social: </b>{{razonSocial}}</p>
+          <p>{{descripcionEmpresa}}</p>
+        </ion-col>
+
+        <ion-col size="12" size-md="3" class="ion-text-center">
+          <ion-button expand="block" shape="round" class="customGreenButton" (click)="abrirModal()">AGREGAR NUEVO
+            REFERIDO</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+    <!-- Productos -->
+    <ion-card class="customCard">
+      <ion-card-header class="headerCustomCard">
+        <ion-card-title class="titleCustomCard"> <ion-icon name="cube-outline" color="white"></ion-icon> Producto
+          Vigentes</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+
+        <div style="overflow-x: auto;">
+          <table mat-table [dataSource]="dataSourceTable" matSort>
+
+            <ng-container matColumnDef="Nombre">
+              <th mat-header-cell style="padding-left: 1rem;" *matHeaderCellDef mat-sort-header> Nombre/Descripción
+              </th>
+              <td mat-cell style="padding-left: 1rem;" *matCellDef="let element"> {{ element.nombre }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ComisionCantidad">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Comision $ </th>
+              <td mat-cell *matCellDef="let element">
+                {{ (element.comisionCantidad === 0 || element.comisionCantidad == undefined)
+                ? 'No aplica'
+                : (element.comisionCantidad | currency:'MXN':'symbol':'1.2-2') + ' MXN'
+                }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ComisionPorcentaje">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Comision % </th>
+              <td mat-cell *matCellDef="let element">
+                {{ (element.comisionPorcentaje === 0 || element.comisionPorcentaje == undefined)
+                  ? 'No aplica'
+                  : (element.comisionPorcentaje | currency:'MXN':'symbol':'1.2-2') + ' %'
+                  }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="ComisionPorcentajeCantidad">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Valor del % </th>
+              <td mat-cell *matCellDef="let element"> 
+                {{ (element.comisionPorcentajeCantidad === 0 || element.comisionPorcentajeCantidad == undefined)
+                  ? 'No aplica'
+                  : (element.comisionPorcentajeCantidad | currency:'MXN':'symbol':'1.2-2')
+                  }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="FechaCaducidad">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> CADUCIDAD </th>
+              <td mat-cell *matCellDef="let element"> {{ formatFecha(element.fechaCaducidad) }} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="mydivoutermulti elemento-renglon">
+            </tr>
+          </table>
+        </div>
+        <mat-paginator [length]="total" [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons [pageSize]="50">
+        </mat-paginator>
+      </ion-card-content>
+    </ion-card>
+
+  </ion-card>
+
+
+</ion-content>

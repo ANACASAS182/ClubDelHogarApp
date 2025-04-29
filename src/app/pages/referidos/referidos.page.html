@@ -1,0 +1,95 @@
+<ion-header>
+  <ion-toolbar class="headerColor">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <!-- <ion-title></ion-title> -->
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="contentCustom">
+
+  <div>
+    <ion-grid>
+      <ion-row class="ion-align-items-center">
+
+        <ion-col size="12" size-md="9"  class="ion-text-center">
+          <ion-input class="input"
+          (ionInput)="inputBuscar.next($event.detail.value || '')"
+          placeholder="Buscar por Nombre, Numero de celular, Empresa, Producto o Estatus">
+          <ion-icon slot="end" name="search" aria-hidden="true"></ion-icon>
+          </ion-input>
+        </ion-col>
+
+        <!-- Botón a la derecha -->
+        <ion-col size="12" size-md="3" class="ion-text-center">
+          <ion-button expand="block" shape="round" class="customGreenButton" (click)="abrirModal()">AGREGAR NUEVO REFERIDO</ion-button>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+
+  <!-- Panel inferior con tabla básica -->
+  <ion-card>
+    <ion-card-header class="referidosHeader">
+      <ion-card-title class="title"><ion-icon name="star" color="white"></ion-icon> Referidos</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+
+      <div style="overflow-x: auto;">
+        <table mat-table [dataSource]="dataSourceTable" matSort>
+
+          <ng-container matColumnDef="Nombre">
+            <th mat-header-cell style="padding-left: 1rem;" *matHeaderCellDef mat-sort-header> Referido </th>
+            <td mat-cell style="padding-left: 1rem;" *matCellDef="let element"> {{ element.nombreCompleto }} <br> <span class="fechaLabel">{{formatFecha(element.fechaRegistro)}}</span> </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="Celular">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Celular </th>
+            <td mat-cell *matCellDef="let element"> {{ element.celular }} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="Empresa">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Empresa </th>
+            <td mat-cell *matCellDef="let element"> {{ element.empresaRazonSocial }} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="Producto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Producto </th>
+            <td mat-cell *matCellDef="let element"> {{ element.productoNombre }} </td>
+          </ng-container>
+      
+          <ng-container matColumnDef="Comision">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Comision </th>
+            <td mat-cell *matCellDef="let element">  {{ element.comision | currency:'MXN':'symbol':'1.2-2' }}</td>
+          </ng-container>
+      
+          <ng-container matColumnDef="Estatus">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header> Estatus </th>
+            <td mat-cell *matCellDef="let element" [ngClass]="getColorEstatus(element.estatusReferenciaEnum)">
+              {{ element.estatusReferenciaDescripcion }}
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="Visualizar">
+            <th mat-header-cell *matHeaderCellDef> Visualizar </th>
+            <td mat-cell *matCellDef="let element">
+              <ion-button shape="round" fill="clear" (click)="abrirModalVisualizacion(element)">
+                <ion-icon slot="icon-only" name="eye" ></ion-icon>
+              </ion-button>
+            </td>
+          </ng-container>
+  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+          <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="mydivoutermulti elemento-renglon">
+          </tr>
+        </table>
+      </div>
+
+      <mat-paginator [length]="total" [pageSizeOptions]="[20, 50, 100]" showFirstLastButtons
+        [pageSize]="50">
+      </mat-paginator>
+      
+    </ion-card-content>
+  </ion-card>
+</ion-content>

@@ -1,0 +1,7 @@
+{
+  "name": "EmbassyBusinessFront",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

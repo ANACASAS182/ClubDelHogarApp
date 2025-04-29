@@ -1,0 +1,182 @@
+<ion-content class="page" fullscreen>
+  <div class="center-wrapper">
+
+    <div class="card" [formGroup]="formularioRegistro">
+      <img src="assets/logo.png" alt="Logo" class="logo" />
+      <h1 class="form-title">¡TE DAMOS LA BIENVENIDA!</h1>
+      <h3 class="form-title">Date de alta como enbajador</h3>
+
+      <ion-grid>
+        <ion-row>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
+              formControlName="nombre" placeholder="Nombre(s)" type="text"
+              (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('nombre')?.invalid && getControl('nombre')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input"
+              [class.invalid]="getControl('apellido')?.invalid && getControl('apellido')?.touched"
+              formControlName="apellido" placeholder="Apellido(s)" type="text"
+              (ionBlur)="getControl('apellido')?.markAsTouched()"></ion-input>
+            <ion-text color="danger" *ngIf="getControl('apellido')?.invalid && getControl('apellido')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-select [interfaceOptions]="{ header: 'Pais'}" class="input" okText="Ok" cancelText="Cancelar" [class.invalid]="getControl('pais')?.invalid && getControl('pais')?.touched"
+              formControlName="pais" placeholder="Pais" (ionChange)="onPaisChange($event)"
+              (ionBlur)="getControl('pais')?.markAsTouched()">
+              <ion-select-option *ngFor="let pais of paises" [value]="pais.id">
+                {{ pais.descripcion }}
+              </ion-select-option>
+            </ion-select>
+            <ion-text color="danger" *ngIf="getControl('pais')?.invalid && getControl('pais')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" *ngIf="isNacional">
+            <ion-select [interfaceOptions]="{ header: 'Estado'}" okText="Ok" cancelText="Cancelar" class="input" [class.invalid]="getControl('estado')?.invalid && getControl('estado')?.touched"
+              formControlName="estado" placeholder="Estado" class="input"
+              (ionBlur)="getControl('estado')?.markAsTouched()">
+              <ion-select-option *ngFor="let estad of estados" [value]="estad.id">
+                {{ estad.nombre }}
+              </ion-select-option>
+            </ion-select>
+            <ion-text color="danger" *ngIf="getControl('estado')?.invalid && getControl('estado')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6" *ngIf="!isNacional">
+            <ion-input class="input"
+              [class.invalid]="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched"
+              formControlName="estadoTexto" placeholder="Estado" type="text"
+              (ionBlur)="getControl('estadoTexto')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input" [class.invalid]="getControl('ciudad')?.invalid && getControl('ciudad')?.touched"
+              formControlName="ciudad" placeholder="Ciudad" type="text"
+              (ionBlur)="getControl('ciudad')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('ciudad')?.invalid && getControl('ciudad')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-select class="input" [interfaceOptions]="{ header: '¿Como suspiste del programa?'}" okText="Ok" cancelText="Cancelar"
+              [class.invalid]="getControl('fuenteOrigen')?.invalid && getControl('fuenteOrigen')?.touched"
+              formControlName="fuenteOrigen" placeholder="¿Como suspiste del programa?" class="input"
+              (ionBlur)="getControl('fuenteOrigen')?.markAsTouched()">
+              <ion-select-option *ngFor="let fuenteO of fuentesOrigen" [value]="fuenteO.id">
+                {{ fuenteO.nombre }}
+              </ion-select-option>
+            </ion-select>
+            <ion-text color="danger" *ngIf="getControl('fuenteOrigen')?.invalid && getControl('fuenteOrigen')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="12">
+            <ion-input class="input" [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched"
+              formControlName="email" placeholder="Correo de contacto (este será tu usuario)" type="text"
+              (ionBlur)="getControl('email')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input"
+              [class.invalid]="getControl('telefono')?.invalid && getControl('telefono')?.touched"
+              formControlName="telefono" placeholder="WhatsApp" type="text"
+              (ionBlur)="getControl('telefono')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('telefono')?.invalid && getControl('telefono')?.touched">
+              Campo requerido
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input"
+              [class.invalid]="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched"
+              formControlName="confirmTelefono" placeholder="Confirmar WhatsApp" type="text"
+              (ionBlur)="getControl('confirmTelefono')?.markAsTouched()">
+            </ion-input>
+            <ion-text color="danger"
+              *ngIf="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched">
+              Campo requerido
+            </ion-text>
+
+            <ion-text color="danger"
+              *ngIf="getControl('confirmTelefono')?.errors?.['mustMatch'] && getControl('confirmTelefono')?.touched">
+              WhatsApp no coincide
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input"
+              [class.invalid]="getControl('password')?.invalid && getControl('password')?.touched"
+              formControlName="password" placeholder="Crear tu contraseña" type="password"
+              (ionBlur)="getControl('password')?.markAsTouched()" (ionInput)="checkStrength()">
+              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+            </ion-input>
+            <ion-progress-bar [value]="passwordStrengthValue" [color]="passwordStrengthColor"></ion-progress-bar>
+            <ion-text color="{{ passwordStrengthColor }}">
+              {{ passwordStrengthText }}
+            </ion-text>
+            <ion-text color="danger" *ngIf="getControl('password')?.hasError('required') && getControl('password')?.touched">
+              Campo requerido
+            </ion-text>
+            <ion-text color="danger" *ngIf="getControl('password')?.hasError('minlength') && getControl('password')?.touched">
+              La contraseña debe tener al menos 6 caracteres.
+            </ion-text>
+          </ion-col>
+
+          <ion-col size="12" size-md="6">
+            <ion-input class="input"
+              [class.invalid]="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched"
+              formControlName="confirmPassword" placeholder="Confirmar contraseña" type="password"
+              (ionBlur)="getControl('confirmPassword')?.markAsTouched()">
+              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
+            </ion-input>
+            <ion-text color="danger"
+              *ngIf="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched">
+              Campo requerido
+            </ion-text>
+            <ion-text color="danger"
+              *ngIf="getControl('confirmPassword')?.errors?.['mustMatch'] && getControl('confirmPassword')?.touched">
+              Contraseña no coincide
+            </ion-text>
+          </ion-col>
+
+        </ion-row>
+      </ion-grid>
+
+      <ion-button class="customButton" shape="round" expand="block" type="submit" [disabled]="formEnviado" (click)="enviarFormulario()">
+        CREAR CUENTA
+      </ion-button>
+
+      <div class="inner-curve">
+        <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+          <path d="M0,0 C150,100 350,0 500,100 L500,150 L0,150 Z" fill="#d6eaf8"></path>
+        </svg>
+      </div>
+    </div>
+
+
+  </div>
+</ion-content>
