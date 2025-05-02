@@ -1,0 +1,32 @@
+.celula-card{
+    position: relative;
+
+    min-width: 128px;
+    max-width: 256px;
+    padding: 24px;
+    background-color: rgb(234, 237, 238);
+    border: 1px solid #aaa;
+    
+    border-radius: 4px;
+    margin:auto;
+    margin-top: 8px;
+    margin-bottom: 8px;
+
+    text-align: center;
+}
+
+.celula-card-hijo{
+    position: relative;
+}
+
+.celula-card-hijo::before {
+  content: '';
+  position: absolute;
+  bottom: 100%; /* justo arriba del div */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 16px;
+  background-color: #585757; /* o el color que quieras */
+  z-index: -1;
+}

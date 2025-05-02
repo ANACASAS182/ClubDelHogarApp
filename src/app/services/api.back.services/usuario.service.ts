@@ -8,6 +8,7 @@ import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { PasswordRecoveryDTO } from 'src/app/models/DTOs/PasswordRecoveryDTO';
 import { PasswordResetDTO } from 'src/app/models/DTOs/PasswordResetDTO';
 import { Usuario } from 'src/app/models/Usuario';
+import { UsuarioCelula } from 'src/app/models/DTOs/CelulaDTO';
 
 @Injectable({
   providedIn: 'root',
@@ -70,6 +71,10 @@ export class UsuarioService {
     }
     const options = { headers };
     return this.http.get<GenericResponseDTO<Usuario>>(`${this.apiUrl}/GetUsuarioLogeado`, options);
+  }
+  
+  getCelulaLocal(userID:number): Observable<UsuarioCelula> {
+    return this.http.get<UsuarioCelula>(`${this.apiUrl}/GetCelulaLocal?UsuarioID=${userID}`);
   }
 
   updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {

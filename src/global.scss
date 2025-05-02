@@ -36,6 +36,43 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 // @import "@ionic/angular/css/palettes/dark.system.css";
 
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('./assets/fonts/Montserrat-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: normal;
+}
+
+:root {
+  --ion-color-success: #12184e !important; // Tu nuevo color de highlight
+  --ion-color-primary: #3880ff; // Por ejemplo, si quieres cambiar el color primario también
+}
+
+html.md{
+  --ion-default-font:'Montserrat', sans-serif  !important;
+}
+
+strong,
+h1,
+h2,
+h3 {
+  font-family: 'Montserrat', sans-serif  !important;
+  font-weight: bold;
+}
+
 ion-content {
   height: 100%;
 }

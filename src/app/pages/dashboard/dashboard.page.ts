@@ -18,9 +18,11 @@ export class DashboardPage implements OnInit {
   userRol:string = "Embajador"; //ROLES AUN NO ESTAN DEFINIDOS
 
   public appPages = [
-    { title: 'Mi network', url: '/dashboard/network', icon: 'git-network' },
-    { title: 'Referidos', url: '/dashboard/referidos', icon: 'star' },
-    { title: 'Configuracion', url: '/dashboard/configuracion', icon: 'settings' },
+    { title: 'Mi network', url: '/dashboard/network', icon: 'network' },
+    { title: 'Referidos', url: '/dashboard/referidos', icon: 'referidos' },
+    { title: 'Mi Célula', url: '/dashboard/celula', icon: 'network' },
+    { title: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
+    
   ];
   constructor(private router: Router, private tokenService : TokenService, private datePipe: DatePipe, private usuarioService: UsuarioService) { }
 

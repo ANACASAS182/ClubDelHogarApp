@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar class="headerColor">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>
+      <img src="assets/icons/configuracion.png" alt="Icono Network"
+        style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
+      Mi Célula</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content class="contentCustom">
+  <!-- Usuario -->
+  <ion-card class="customCard">
+    <ion-card-header class="headerCustomCard">
+      <ion-card-title class="titleCustomCard"> <ion-icon name="person" color="white"></ion-icon> Célula</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ng-container *ngIf="this.celula">
+        <div class="celula-card" *ngIf="this.celula!.padre">
+          <strong>{{this.celula!.padre!.nombres}} {{this.celula!.padre!.apellidos}}</strong>
+        </div>
+
+        <div class="celula-card celula-card-hijo" *ngIf="this.celula.yo">
+          <strong>{{this.celula!.yo!.nombres}} {{this.celula!.yo!.apellidos}}</strong>
+        </div>
+
+        <ng-container *ngIf="this.celula!.hijos">
+          <div class="celula-card celula-card-hijo" *ngFor="let hijo of this.celula!.hijos!">
+            <strong>{{hijo.nombres}} {{hijo.apellidos}}</strong>
+          </div>
+        </ng-container>
+      </ng-container>
+
+
+
+    </ion-card-content>
+  </ion-card>
+
+
+</ion-content>

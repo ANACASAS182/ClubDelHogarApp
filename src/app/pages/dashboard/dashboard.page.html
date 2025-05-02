@@ -47,8 +47,7 @@
           <ion-menu-toggle auto-hide="false">
             <ion-item routerDirection="root" [routerLink]="p.url" lines="none" detail="false"
               routerLinkActive="selected">
-              <ion-icon color="white" aria-hidden="true" slot="start" [ios]="p.icon + '-outline'"
-                [md]="p.icon + '-sharp'"></ion-icon>
+              <img [src]="'assets/icons/' + p.icon + '.png'" alt="Icono Network" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
               <ion-label>{{ p.title }}</ion-label>
             </ion-item>
           </ion-menu-toggle>
