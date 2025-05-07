@@ -31,7 +31,7 @@ export interface SolicitudCodigoQrRequest {
   embajadorID:number;
 
   nombres:string;
-  celular:string;
+  InformacionContacto:string;
 
 }
 

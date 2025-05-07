@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://localhost:7146/"
+  //apiUrl: "https://localhost:7146/"
+  apiUrl: "https://ebg-api.bithub.com.mx/" //cambiar por Dominio de produccion
+
 };
 
 /*
@@ -15,3 +17,4 @@ export const environment = {
  * on performance if an error is thrown.
  */
 // import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
+ 

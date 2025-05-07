@@ -80,7 +80,7 @@ export class PromocionComponent implements OnInit {
     let solicitud: SolicitudCodigoQrRequest = {
       ProductoID: 1,
       embajadorID: 1,
-      celular: "6565303760",
+      InformacionContacto: "6565303760",
       nombres: "PRUEBA PRUEBA"
     };
 
