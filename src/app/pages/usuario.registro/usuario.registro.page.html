@@ -4,27 +4,45 @@
     <div class="card" [formGroup]="formularioRegistro">
       <img src="assets/logo.png" alt="Logo" class="logo" />
       <h1 class="form-title">¡TE DAMOS LA BIENVENIDA!</h1>
-      <h3 class="form-title">Date de alta como embajador</h3>
+      <h3 class="form-title">Crea tu cuenta como embajador </h3>
+
+      <div class="codigo-cupon" *ngIf="codigo != ''">
+        <p class="invitador-texto">Fuiste invitado a unirte por <br/><strong>{{ nombreInvitador }}</strong></p>
+      </div>
 
       <ion-grid>
         <ion-row>
 
+          <ion-col size="12" size-md="12">
+            <ion-input class="input" [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched"
+              formControlName="email" label-placement="floating" label="Correo electrónico" type="text"
+              (ionBlur)="getControl('email')?.markAsTouched()"  [readonly]="codigo != ''">
+            </ion-input>
+            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
+              Es obligatorio ingresar tu correo electrónico
+            </ion-text>
+          </ion-col>
+
           <ion-col size="12" size-md="6">
             <ion-input class="input" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
-              formControlName="nombre" placeholder="Nombre(s)" type="text"
+              formControlName="nombre" label-placement="floating" label="Nombre(s)" type="text"
+              
               (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>
             <ion-text color="danger" *ngIf="getControl('nombre')?.invalid && getControl('nombre')?.touched">
-              Campo requerido
+              Es obligatorio ingresar tu nombre
             </ion-text>
+
+
+
           </ion-col>
 
           <ion-col size="12" size-md="6">
             <ion-input class="input"
               [class.invalid]="getControl('apellido')?.invalid && getControl('apellido')?.touched"
-              formControlName="apellido" placeholder="Apellido(s)" type="text"
+              formControlName="apellido" label-placement="floating" label="Apellido(s)" type="text"
               (ionBlur)="getControl('apellido')?.markAsTouched()"></ion-input>
             <ion-text color="danger" *ngIf="getControl('apellido')?.invalid && getControl('apellido')?.touched">
-              Campo requerido
+              Es obligatorio ingresar tus apellidos
             </ion-text>
           </ion-col>
 
@@ -37,7 +55,7 @@
               </ion-select-option>
             </ion-select>
             <ion-text color="danger" *ngIf="getControl('pais')?.invalid && getControl('pais')?.touched">
-              Campo requerido
+              Es obligatorio ingresar el país al que perteneces
             </ion-text>
           </ion-col>
 
@@ -50,7 +68,7 @@
               </ion-select-option>
             </ion-select>
             <ion-text color="danger" *ngIf="getControl('estado')?.invalid && getControl('estado')?.touched">
-              Campo requerido
+              Es obligatorio ingresar el estado al que perteneces
             </ion-text>
           </ion-col>
 
@@ -67,11 +85,11 @@
 
           <ion-col size="12" size-md="6">
             <ion-input class="input" [class.invalid]="getControl('ciudad')?.invalid && getControl('ciudad')?.touched"
-              formControlName="ciudad" placeholder="Ciudad" type="text"
+              formControlName="ciudad" label-placement="floating" label="Ciudad" type="text"
               (ionBlur)="getControl('ciudad')?.markAsTouched()">
             </ion-input>
             <ion-text color="danger" *ngIf="getControl('ciudad')?.invalid && getControl('ciudad')?.touched">
-              Campo requerido
+              Es obligatorio ingresar el nombre de tu ciudad
             </ion-text>
           </ion-col>
 
@@ -85,45 +103,37 @@
               </ion-select-option>
             </ion-select>
             <ion-text color="danger" *ngIf="getControl('fuenteOrigen')?.invalid && getControl('fuenteOrigen')?.touched">
-              Campo requerido
+              Es obligatorio seleccionar la forma en la que supiste de Embassy 
             </ion-text>
           </ion-col>
 
-          <ion-col size="12" size-md="12">
-            <ion-input class="input" [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched"
-              formControlName="email" placeholder="Correo de contacto (este será tu usuario)" type="text"
-              (ionBlur)="getControl('email')?.markAsTouched()">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
-              Campo requerido
-            </ion-text>
-          </ion-col>
+         
 
           <ion-col size="12" size-md="6">
             <ion-input class="input"
               [class.invalid]="getControl('telefono')?.invalid && getControl('telefono')?.touched"
-              formControlName="telefono" placeholder="WhatsApp" type="text"
+              formControlName="telefono" label-placement="floating" label="Número de teléfono" type="text"
               (ionBlur)="getControl('telefono')?.markAsTouched()">
             </ion-input>
             <ion-text color="danger" *ngIf="getControl('telefono')?.invalid && getControl('telefono')?.touched">
-              Campo requerido
+              Es obligatorio ingresar tu número de teléfono
             </ion-text>
           </ion-col>
 
           <ion-col size="12" size-md="6">
             <ion-input class="input"
               [class.invalid]="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched"
-              formControlName="confirmTelefono" placeholder="Confirmar WhatsApp" type="text"
+              formControlName="confirmTelefono" label-placement="floating" label="Confirma tú número de teléfono" type="text"
               (ionBlur)="getControl('confirmTelefono')?.markAsTouched()">
             </ion-input>
             <ion-text color="danger"
               *ngIf="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched">
-              Campo requerido
+              Es obligatorio confirmar tu número de teléfono
             </ion-text>
 
             <ion-text color="danger"
               *ngIf="getControl('confirmTelefono')?.errors?.['mustMatch'] && getControl('confirmTelefono')?.touched">
-              WhatsApp no coincide
+              <br/>Los números de teléfono ingresados no son iguales
             </ion-text>
           </ion-col>
 
@@ -139,7 +149,7 @@
               {{ passwordStrengthText }}
             </ion-text>
             <ion-text color="danger" *ngIf="getControl('password')?.hasError('required') && getControl('password')?.touched">
-              Campo requerido
+              Es obligatorio ingresar tu contraseña
             </ion-text>
             <ion-text color="danger" *ngIf="getControl('password')?.hasError('minlength') && getControl('password')?.touched">
               La contraseña debe tener al menos 6 caracteres.
@@ -155,26 +165,24 @@
             </ion-input>
             <ion-text color="danger"
               *ngIf="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched">
-              Campo requerido
+              Es obligatorio confirmar tu contraseña
             </ion-text>
             <ion-text color="danger"
               *ngIf="getControl('confirmPassword')?.errors?.['mustMatch'] && getControl('confirmPassword')?.touched">
-              Contraseña no coincide
+              <br/>La contraseña no coincide
             </ion-text>
           </ion-col>
 
         </ion-row>
       </ion-grid>
 
+      
+
+
       <ion-button class="customButton" shape="round" expand="block" type="submit" [disabled]="formEnviado" (click)="enviarFormulario()">
         CREAR CUENTA
       </ion-button>
 
-      <div class="inner-curve">
-        <svg viewBox="0 0 500 150" preserveAspectRatio="none">
-          <path d="M0,0 C150,100 350,0 500,100 L500,150 L0,150 Z" fill="#d6eaf8"></path>
-        </svg>
-      </div>
     </div>
 
 

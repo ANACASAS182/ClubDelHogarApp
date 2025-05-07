@@ -10,5 +10,8 @@ export interface UsuarioDTO {
     ciudad: string;
     estadoTexto: string;
     fuenteOrigenID?: number;
+    codigoInvitacion?: string;
+    //Abraham Casas
+    UsuarioParent?: number;
   }
   

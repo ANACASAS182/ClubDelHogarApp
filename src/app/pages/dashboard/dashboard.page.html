@@ -1,4 +1,4 @@
-<ion-header>
+<!-- <ion-header>
   <ion-toolbar>
     <ion-grid>
       <ion-row class="ion-align-items-center">
@@ -10,39 +10,34 @@
             <ion-col size="12">
               <div style="display: inline-flex; align-items: center;">
                 <div>
-                  <span class="userLabel"> {{userRol}}: {{ userName }}</span>
-                  <!-- <br> <span></span> -->
+                  <span class="userLabel">{{ userName }}</span>
+                  
                 </div>
-                <!-- <ion-icon name="person-circle-outline" size="large"></ion-icon> -->
+            
               </div>
             </ion-col>
-            <ion-col size="12">
-              <div style="display: inline-flex; align-items: center;">
-                <span class="fechaLabel">{{ currentDate }}</span>
-                <!-- <ion-icon name="calendar-outline" size="large"></ion-icon> -->
-              </div>
-            </ion-col>
-
-            <!-- <ion-col size="12">
-              <div style="display: inline-flex; align-items: center;">
-                <ion-button class="buttonHeader" fill="clear" (click)="logout()">
-                  CERRAR SESIÓN 
-                </ion-button>
-                <ion-icon name="power-outline"  size="large"></ion-icon>
-              </div>
-            </ion-col> -->
+            
           </ion-row>
         </ion-col>
       </ion-row>
     </ion-grid>
   </ion-toolbar>
-</ion-header>
+</ion-header> -->
 
 <ion-content>
   <ion-split-pane contentId="main-content">
     <ion-menu class="custom-menu" contentId="main-content" type="overlay">
       <ion-content>
+
         <ion-list id="inbox-list">
+
+          <ion-item  lines="none" detail="false"
+              routerLinkActive="selected">
+              <img src="assets/logo_white.png" alt="Logo">
+            </ion-item>
+
+            
+
           @for (p of appPages; track p; let i = $index) {
           <ion-menu-toggle auto-hide="false">
             <ion-item routerDirection="root" [routerLink]="p.url" lines="none" detail="false"
@@ -54,6 +49,11 @@
           }
 
           <div class="menu-separator"></div>
+
+          <ion-item  lines="none" detail="false"
+            routerLinkActive="selected">
+            <span class="userLabel">{{ userName }}</span>
+          </ion-item>
 
           <ion-menu-toggle auto-hide="false">
             <div class="logout-button-container">

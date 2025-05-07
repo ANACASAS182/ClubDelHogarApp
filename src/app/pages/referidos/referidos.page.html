@@ -13,7 +13,7 @@
     <ion-grid>
       <ion-row class="ion-align-items-center">
 
-        <ion-col size="12" size-md="9"  class="ion-text-center">
+        <ion-col size="12" size-md="12"  class="ion-text-center">
           <ion-input class="input"
           (ionInput)="inputBuscar.next($event.detail.value || '')"
           placeholder="Buscar por Nombre, Numero de celular, Empresa, Producto o Estatus">
@@ -22,9 +22,9 @@
         </ion-col>
 
         <!-- Botón a la derecha -->
-        <ion-col size="12" size-md="3" class="ion-text-center">
+        <!-- <ion-col size="12" size-md="3" class="ion-text-center">
           <ion-button expand="block" shape="round" class="customGreenButton" (click)="abrirModal()">AGREGAR NUEVO REFERIDO</ion-button>
-        </ion-col>
+        </ion-col> -->
       </ion-row>
     </ion-grid>
   </div>
@@ -92,4 +92,11 @@
       
     </ion-card-content>
   </ion-card>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-button class="fab-rectangular" (click)="abrirModal()">
+      <span class="fab-text">Agregar</span>
+    </ion-button>
+  </ion-fab>
+
 </ion-content>

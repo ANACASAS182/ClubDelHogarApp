@@ -1,0 +1,81 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">{{promocion!.nombre}}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding custom-content">
+  <div class="content-container">
+
+    <ng-container *ngIf="!qrGenerado">
+
+
+      <!-- <img src="assets/promocion_ejemplo.jpg" alt="Imagen" /> -->
+
+      <ng-container *ngIf="!capturarReferido">
+
+        <h3>{{promocion!.nombre}}</h3>
+        <div>
+          <p>{{promocion!.descripcion}}</p>
+          <hr />
+          <div><small>Por cada uno de los referidos que haga válida esta promoción de</small></div>
+          <div>{{promocion!.empresaNombre}}</div>
+          <div><small>Recibirás una comisión de</small></div>
+          <div>
+            <h3>{{promocion!.comision}}</h3>
+          </div>
+          <div>Promoción vigente hasta {{promocion!.vigencia}}</div>
+        </div>
+
+        <p><ion-button expand="block" shape="round" class="login-button"
+            (click)="habilitarCapturaReferido()">Compartir</ion-button></p>
+      </ng-container>
+
+      <ng-container *ngIf="capturarReferido">
+        <h3>{{promocion!.nombre}}</h3>
+        <label>Ingresa el nombre y apellido de la persona con quien compartirás este cupón</label>
+        <ion-input class="input" placeholder="Nombre y apellido" type="text"></ion-input>
+        <label>Ingresa el teléfono o correo electrónico de la persona con quien compartirás este cupón</label>
+        <ion-input class="input" placeholder="teléfono o correo electrónico" type="text"></ion-input>
+
+
+        <p><ion-button expand="block" shape="round" class="login-button" (click)="generarQR()">Generar
+            Cupón</ion-button>
+        </p>
+        <p><ion-button expand="block" shape="round" class="login-button"
+            (click)="capturarReferido=false">Regresar</ion-button>
+        </p>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="qrGenerado">
+      <p>Comparte este cupón personalizado. Puedes consultar tu cupón en la sección <strong>Referidos</strong></p>
+      <div #captureDiv class="coupon-capture">
+        <div class="coupon-name">{{ promocion!.nombre }}</div>
+        <div class="coupon-company">Promoción de {{ promocion!.empresaNombre }}</div>
+        <div class="coupon-description">{{ promocion!.descripcion }}</div>
+    
+        <div class="coupon-qr-title">Haz válida tu promoción presentando el siguiente Código QR</div>
+        <div class="coupon-qr">
+          <img [src]="'data:image/png;base64,' + codigoQrBase64" alt="Código QR" class="qr-img" />
+        </div>
+    
+        <div class="coupon-usage">Este cupón solo puede ser utilizado una sola vez</div>
+        <div class="coupon-expiry">Cupón vigente hasta {{promocion!.vigencia}}</div>
+    
+        <img src="assets/logo_white.png" alt="Logo" class="coupon-logo" />
+      </div>
+      <ion-button expand="block" shape="round" (click)="descargarImagen()">Descargar</ion-button>
+      <hr />
+      <ion-button expand="block" shape="round" (click)="close()">Cerrar</ion-button>
+    </ng-container>
+
+
+  </div>
+
+</ion-content>

@@ -15,8 +15,16 @@ const routes: Routes = [
     canActivate: [NoAuthGuard],
   },
   {
-    path: 'registro',
-    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module').then( m => m.UsuarioRegistroPageModule),
+    path: 'registro',  // Aquí agregamos el parámetro :codigo
+    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module').then(m => m.UsuarioRegistroPageModule),
+    canActivate: [NoAuthGuard],
+    resolve: {
+      resolverData: UsuarioRegistroResolver
+    }
+  },
+  {
+    path: 'registro/:codigo',  // Aquí agregamos el parámetro :codigo
+    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module').then(m => m.UsuarioRegistroPageModule),
     canActivate: [NoAuthGuard],
     resolve: {
       resolverData: UsuarioRegistroResolver

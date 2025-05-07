@@ -30,3 +30,24 @@
   background-color: #585757; /* o el color que quieras */
   z-index: -1;
 }
+
+
+/** pseudo fab ***/
+
+.fab-rectangular {
+  --border-radius: 20px;
+  --background: #3880ff;
+  --color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 24px;
+  height: 48px;
+  //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+}
+
+.fab-text {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}

@@ -10,28 +10,28 @@ import { TokenService } from 'src/app/services/token.service';
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
-  standalone:false
+  standalone: false
 })
 export class DashboardPage implements OnInit {
-  userName :string = ''; 
-  currentDate: string  = "";
-  userRol:string = "Embajador"; //ROLES AUN NO ESTAN DEFINIDOS
+  userName: string = '';
+  currentDate: string = "";
+  userRol: string = "Embajador"; //ROLES AUN NO ESTAN DEFINIDOS
 
   public appPages = [
     { title: 'Mi network', url: '/dashboard/network', icon: 'network' },
     { title: 'Referidos', url: '/dashboard/referidos', icon: 'referidos' },
     { title: 'Mi Célula', url: '/dashboard/celula', icon: 'network' },
-    { title: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
-    
+    { title: 'Configuración', url: '/dashboard/configuracion', icon: 'configuracion' }
+
   ];
-  constructor(private router: Router, private tokenService : TokenService, private datePipe: DatePipe, private usuarioService: UsuarioService) { }
+  constructor(private router: Router, private tokenService: TokenService, private datePipe: DatePipe, private usuarioService: UsuarioService) { }
 
   ngOnInit() {
     const now = new Date();
     this.currentDate = this.datePipe.transform(now, 'fullDate') + ' - ' + this.datePipe.transform(now, 'hh:mm a');
 
     this.usuarioService.getUsuario().subscribe({
-      next: (response: GenericResponseDTO<Usuario>)=>{
+      next: (response: GenericResponseDTO<Usuario>) => {
         this.userName = response.data.nombres + " " + response.data.apellidos;
       }
     });

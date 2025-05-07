@@ -43,3 +43,23 @@
 .fechaLabel{
     font-size: 8px;
 }
+
+/** pseudo fab ***/
+
+.fab-rectangular {
+    --border-radius: 20px;
+    --background: #1a9953;
+    --color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0 24px;
+    height: 48px;
+    //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+  }
+  
+  .fab-text {
+    font-size: 16px;
+    letter-spacing: 0.5px;
+  }

@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Haz crecer tu núcleo</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding custom-content">
+  <div class="content-container">
+    <p class="motivational-text">
+      ¡Haz crecer tu núcleo! Invita nuevos embajadores y genera nuevas células.
+    </p>
+
+    <form [formGroup]="formulario" class="formulario" *ngIf="!invitacionEnviada">
+      <h2 class="form-title">Invitar nuevo embajador</h2>
+      <p>Ingresa el correo electrónico de la persona a quien deseas invitar.</p>
+      <ion-input class="input" formControlName="email" placeholder="Escribe aquí el correo electrónico" type="email"></ion-input>
+
+
+      <ion-button expand="block" class="customButton" shape="round" [disabled]="formEnviado"
+        (click)="enviarFormulario()">Invitar</ion-button>
+    </form>
+    <div *ngIf="invitacionEnviada" >
+      <ng-container *ngIf="invitacionEnviadaCorrectamente">
+        <div class="invitacion-exitosa">
+          <ion-icon name="checkmark-circle-outline" color="success" style="font-size: 48px;"></ion-icon>
+          <h2 class="mensaje-titulo">¡Invitación enviada!</h2>
+          <p class="mensaje-detalle">
+            {{mensaje_invitacion}}
+          </p>
+          <ion-button expand="block" shape="round" (click)="close()">Cerrar</ion-button>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="!invitacionEnviadaCorrectamente">
+        <div class="invitacion-fallida">
+          <ion-icon name="close-circle-outline" color="danger" style="font-size: 48px;"></ion-icon>
+          <h2 class="mensaje-titulo">¡Invitación no enviada!</h2>
+          <p class="mensaje-detalle">
+            {{mensaje_invitacion}}
+          </p>
+          <ion-button expand="block" shape="round" (click)="close()">Cerrar</ion-button>
+        </div>
+      </ng-container>
+      
+    </div>
+  </div>
+</ion-content>

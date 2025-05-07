@@ -11,11 +11,11 @@
       }
 
       <ion-input class="input" [class.invalid]="getControl('user')?.invalid && getControl('user')?.touched"
-        formControlName="user" placeholder="Usuario (Correo de contacto)" type="text"
+        formControlName="user" placeholder="Correo electrónico" type="text"
         (ionBlur)="getControl('user')?.markAsTouched()"></ion-input>
 
       <ion-text color="danger" *ngIf="getControl('user')?.invalid && getControl('user')?.touched">
-        Ingresa un email válido.
+        Ingresa un correo electrónico válido.
       </ion-text>
 
       <ion-input class="input" [class.invalid]="getControl('password')?.invalid && getControl('password')?.touched"
@@ -28,13 +28,13 @@
         Ingrese su contraseña.
       </ion-text>
       
+      <ion-button expand="block" shape="round" class="login-button" [disabled]="formEnviado" (click)="onSubmit()">ENTRAR</ion-button>
 
       <div class="form-links">
         <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
-        <a [routerLink]="'/registro'">Regístrate</a>
       </div>
 
-      <ion-button expand="block" shape="round" class="login-button" [disabled]="formEnviado" (click)="onSubmit()">ENTRAR</ion-button>
+      
 
       <div class="inner-curve">
         <svg viewBox="0 0 500 150" preserveAspectRatio="none">

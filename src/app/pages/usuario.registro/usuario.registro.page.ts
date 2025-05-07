@@ -10,6 +10,7 @@ import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { matchValidator } from 'src/app/validators/custom.validators';
+import { EmbajadoresService } from '../../services/api.back.services/embajadores.service';
 
 @Component({
   selector: 'app-usuario.registro',
@@ -18,6 +19,11 @@ import { matchValidator } from 'src/app/validators/custom.validators';
   standalone: false
 })
 export class UsuarioRegistroPage implements OnInit {
+
+  codigo: string = ""; //codigo de invitacion
+  nombreInvitador:string = "Nombre Embajador";
+  EmbajadorReferenteId:number = 0;
+
   formularioRegistro: FormGroup;
   paises: CatalogoPais[] = [];
   estados: CatalogoEstado[] = [];
@@ -36,6 +42,7 @@ export class UsuarioRegistroPage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private toastController: ToastController,
+    private embajadoresService:EmbajadoresService,
     private usuarioService: UsuarioService) {
     this.formularioRegistro = this.fb.group({
       nombre: ['', Validators.required],
@@ -71,6 +78,21 @@ export class UsuarioRegistroPage implements OnInit {
       pais: mexico?.id
     });
     this.isNacional = true;
+
+
+    // Capturamos el parámetro 'codigo' de la URL
+    this.route.paramMap.subscribe(params => {
+      this.codigo = params.get('codigo') || '';
+      console.log('Código recibido:', this.codigo);
+      this.embajadoresService.GetDatosInvitacion(this.codigo).subscribe({
+        next : (data) =>{
+          this.nombreInvitador = data.nombreInvitador;
+          this.formularioRegistro.controls['email'].setValue(data.correoElectronicoInvitacion);
+          this.EmbajadorReferenteId = data.embajadorReferenteId;
+        }
+      });
+    });
+
   }
 
   enviarFormulario() {
@@ -84,17 +106,19 @@ export class UsuarioRegistroPage implements OnInit {
     }
 
     var user: UsuarioDTO = {
+      email: this.formularioRegistro.controls["email"].value,
       apellidos: this.formularioRegistro.controls["apellido"].value,
       catalogoPaisID: this.formularioRegistro.controls["pais"].value,
       celular: this.formularioRegistro.controls["telefono"].value,
       ciudad: this.formularioRegistro.controls["ciudad"].value,
       confirmPassword: this.formularioRegistro.controls["confirmPassword"].value,
-      email: this.formularioRegistro.controls["email"].value,
       estadoTexto: this.formularioRegistro.controls["estadoTexto"].value,
       fuenteOrigenID: this.formularioRegistro.controls["fuenteOrigen"].value,
       nombres: this.formularioRegistro.controls["nombre"].value,
       password: this.formularioRegistro.controls["password"].value,
       catalogoEstadoID: this.formularioRegistro.controls["estado"].value,
+      codigoInvitacion:this.codigo,
+      UsuarioParent:this.EmbajadorReferenteId
     }
     this.usuarioService.register(user).pipe(
       finalize(() => {
@@ -108,7 +132,7 @@ export class UsuarioRegistroPage implements OnInit {
           duration: 3000,
           color: "success",
           position: 'top'
-        }).then(toast => toast.present());   
+        }).then(toast => toast.present());
       }
     });
   }
@@ -144,20 +168,20 @@ export class UsuarioRegistroPage implements OnInit {
   checkStrength() {
     const password = this.formularioRegistro.get('password')?.value;
     let strength = 0;
-  
+
     if (!password) {
       this.passwordStrengthValue = 0;
       this.passwordStrengthColor = 'danger';
       this.passwordStrengthText = 'Seguridad BAJA';
       return;
     }
-  
+
     if (password.length >= 6) strength++;
     if (/[A-Z]/.test(password)) strength++;
     if (/[0-9]/.test(password)) strength++;
     if (password.match(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) strength += 1;
     if (password.length >= 10) strength++;
-  
+
     switch (strength) {
       case 0:
       case 1:

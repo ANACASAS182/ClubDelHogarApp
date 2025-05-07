@@ -5,3 +5,8 @@ export interface GenericResponseDTO<T> {
     errors?: string[];
     autoShowError:boolean;
   }
+
+  export interface RespuestaEstatusMensaje{
+    estatus:number;
+    mensaje:string;
+  }
