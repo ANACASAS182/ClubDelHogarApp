@@ -1,0 +1,20 @@
+/* Ocultar en pantallas pequeñas */
+.descripcion-desktop {
+    display: none;
+  }
+  
+  .descripcion-mobile-row {
+    display: block;
+  }
+  
+  /* Mostrar solo en pantallas medianas en adelante */
+  @media (min-width: 768px) {
+    .descripcion-desktop {
+      display: block;
+    }
+  
+    .descripcion-mobile-row {
+      display: none;
+    }
+  }
+  

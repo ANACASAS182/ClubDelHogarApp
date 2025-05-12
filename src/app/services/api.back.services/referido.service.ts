@@ -27,6 +27,11 @@ export class ReferidoService {
     return this.http.get<GenericResponseDTO<PaginationModelDTO<ReferidoDTO[]>>>(`${this.apiUrl}/GetReferidosUsuarioPaginated`, {params : parameters});
   }
 
+  getReferidosSimple(usuarioID : number): Observable<ReferidoDTO[]>{
+    let params = new HttpParams().set("usuarioID", usuarioID);
+    return this.http.get<ReferidoDTO[]>(`${this.apiUrl}/getReferidosSimple`,{params});
+  }
+
   getReferidosUsuario(usuarioID : number) : Observable<GenericResponseDTO<ReferidoDTO[]>> {
     let params = new HttpParams().set("usuarioID", usuarioID);
     return this.http.get<GenericResponseDTO<ReferidoDTO[]>>(`${this.apiUrl}/GetReferidosUsuario`,{params});

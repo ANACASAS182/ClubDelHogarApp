@@ -10,21 +10,21 @@
   <form [formGroup]="formulario">
     <h2 class="form-title ion-text-center">{{title}} TARJETA BANCARIA</h2>
 
-    <ion-input class="input" label-placement="floating" label="Nombre del titular" [class.invalid]="getControl('titular')?.invalid && getControl('titular')?.touched"
+    <ion-input class="embassy_input" label-placement="floating" label="Nombre del titular" [class.invalid]="getControl('titular')?.invalid && getControl('titular')?.touched"
       formControlName="titular" placeholder="Nombre del titular*" type="text"
       (ionBlur)="getControl('titular')?.markAsTouched()"></ion-input>
     <ion-text color="danger" *ngIf="getControl('titular')?.invalid && getControl('titular')?.touched">
       Campo obligatorio*
     </ion-text>
 
-    <ion-input class="input" label-placement="floating" label="Banco" [class.invalid]="getControl('banco')?.invalid && getControl('banco')?.touched"
+    <ion-input class="embassy_input" label-placement="floating" label="Banco" [class.invalid]="getControl('banco')?.invalid && getControl('banco')?.touched"
       formControlName="banco" placeholder="Banco*" type="text"
       (ionBlur)="getControl('banco')?.markAsTouched()"></ion-input>
     <ion-text color="danger" *ngIf="getControl('banco')?.invalid && getControl('banco')?.touched">
       Campo obligatorio*
     </ion-text>
 
-    <ion-input class="input" label-placement="floating" label="Número de tarjeta o CLABE" [class.invalid]="getControl('cuenta')?.invalid && getControl('cuenta')?.touched"
+    <ion-input class="embassy_input" label-placement="floating" label="Número de tarjeta o CLABE" [class.invalid]="getControl('cuenta')?.invalid && getControl('cuenta')?.touched"
       formControlName="cuenta" placeholder="Número de tarjeta o CLABE*" type="text"
       (ionBlur)="getControl('cuenta')?.markAsTouched()"></ion-input>
     <ion-text color="danger" *ngIf="getControl('cuenta')?.invalid && getControl('cuenta')?.touched">
@@ -32,7 +32,7 @@
     </ion-text>
 
 
-    <ion-button class="customButton" shape="round" [disabled]="formEnviado" (click)="enviarFormulario()">{{btnName}}</ion-button>
+    <ion-button class="customButton" shape="default" [disabled]="formEnviado" (click)="enviarFormulario()">{{btnName}}</ion-button>
 
   </form>
 </ion-content>

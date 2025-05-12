@@ -9,9 +9,15 @@
   }
   
   .img-effect:hover img {
-    transform: scale(1.05);
+    transform: scale(1.02);
   }
 
-  .card_promocion{
-    padding:8px;
+  .ion-card-embassy{
+    user-select: none;
+    border: 1px solid #ffffff00;
+  }
+
+  .ion-card-embassy:hover{
+    transition: 0.1s;
+    border: 1px solid #111822b4;
   }

@@ -19,7 +19,12 @@
     </ion-card-header>
 
     <ion-card-content>
-      Aquí se va a visualizar la célula, sección en desarrollo
+      <app-loader *ngIf="cargandoCelula"></app-loader>
+      <ng-container *ngIf="!cargandoCelula">
+
+        Aquí se va a visualizar la célula, sección en desarrollo
+      </ng-container>
+      
       <!-- <ng-container *ngIf="this.celula">
         <div class="celula-card" *ngIf="this.celula!.padre">
           <strong>{{this.celula!.padre!.nombres}} {{this.celula!.padre!.apellidos}}</strong>
@@ -43,7 +48,7 @@
 
  <!-- Otros contenidos de la página -->
 
- <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+ <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!cargandoCelula">
   <ion-button class="fab-rectangular" (click)="onFabClick()">
     <span class="fab-text">Invitar</span>
   </ion-button>

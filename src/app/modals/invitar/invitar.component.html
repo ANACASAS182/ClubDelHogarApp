@@ -18,7 +18,7 @@
     <form [formGroup]="formulario" class="formulario" *ngIf="!invitacionEnviada">
       <h2 class="form-title">Invitar nuevo embajador</h2>
       <p>Ingresa el correo electrónico de la persona a quien deseas invitar.</p>
-      <ion-input class="input" formControlName="email" placeholder="Escribe aquí el correo electrónico" type="email"></ion-input>
+      <ion-input class="embassy_input" formControlName="email" labelPlacement="floating" label="Escribe aquí el correo electrónico" type="email"></ion-input>
 
 
       <ion-button expand="block" class="customButton" shape="round" [disabled]="formEnviado"

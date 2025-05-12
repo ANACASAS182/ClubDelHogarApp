@@ -14,23 +14,26 @@
   <ion-card>
     <ion-grid>
       <ion-row class="ion-align-items-center">
-
-        <ion-col size="12" size-md="3" class="ion-text-center">
-          <img [src]="logoEmpresa" alt="Imagen" style="width: 300px;" />
+        <ion-col size="4" size-md="3" class="ion-text-center">
+          <img [src]="logoEmpresa" alt="Imagen" style="width: 128px;" />
         </ion-col>
-
-        <ion-col size="12" size-md="6">
+    
+        <ion-col size="8" size-md="9">
           <h2>{{nombreComercial}}</h2>
-          <p><b>Razón social: </b>{{razonSocial}}</p>
-          <p>{{descripcionEmpresa}}</p>
-        </ion-col>
-
-        <ion-col size="12" size-md="3" class="ion-text-center">
-          <ion-button expand="block" shape="round" class="customGreenButton" (click)="abrirModal()">AGREGAR NUEVO
-            REFERIDO</ion-button>
+          <p class="descripcion-desktop">{{descripcionEmpresa}}</p>
+    
+          
         </ion-col>
       </ion-row>
+<!--     
+      
+      <ion-row class="descripcion-mobile-row">
+        <ion-col size="12">
+          <p class="descripcion-mobile">{{descripcionEmpresa}}</p>
+        </ion-col>
+      </ion-row> -->
     </ion-grid>
+    
     <!-- Productos -->
     <ion-card class="customCard">
       <ion-card-header class="headerCustomCard">

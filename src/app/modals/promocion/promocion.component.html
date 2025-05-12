@@ -1,6 +1,6 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title class="ion-text-center">{{promocion!.nombre}}</ion-title>
+    <ion-title class="ion-text-center">{{promocion!.nombre}} {{promoSeleccionada!.iD}}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="close()">
         <ion-icon name="close"></ion-icon>
@@ -39,9 +39,9 @@
       <ng-container *ngIf="capturarReferido">
         <h3>{{promocion!.nombre}}</h3>
         <label>Ingresa el nombre y apellido de la persona con quien compartirás este cupón</label>
-        <ion-input class="input" placeholder="Nombre y apellido" type="text"></ion-input>
+        <ion-input class="embassy_input" placeholder="Nombre y apellido" type="text"  [(ngModel)] ="NombreReferenciado" ></ion-input>
         <label>Ingresa el teléfono o correo electrónico de la persona con quien compartirás este cupón</label>
-        <ion-input class="input" placeholder="teléfono o correo electrónico" type="text"></ion-input>
+        <ion-input class="embassy_input" placeholder="Teléfono o correo electrónico"  [(ngModel)] ="ContactoReferenciado" type="text"></ion-input>
 
 
         <p><ion-button expand="block" shape="round" class="login-button" (click)="generarQR()">Generar

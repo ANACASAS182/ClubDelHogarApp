@@ -7,14 +7,16 @@ import { IonicModule } from '@ionic/angular';
 import { EmpresasNetworkPageRoutingModule } from './empresas.network-routing.module';
 
 import { EmpresasNetworkPage } from './empresas.network.page';
+import { LoaderComponent } from "../../loader/loader.component";
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    EmpresasNetworkPageRoutingModule
-  ],
+    EmpresasNetworkPageRoutingModule,
+    LoaderComponent
+],
   declarations: [EmpresasNetworkPage]
 })
 export class EmpresasNetworkPageModule {}

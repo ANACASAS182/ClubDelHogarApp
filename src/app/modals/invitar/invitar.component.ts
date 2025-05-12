@@ -30,7 +30,7 @@ export class InvitarComponent implements OnInit {
   formEnviado: boolean = false;
   hideProducto: boolean = true;
 
-  @Input() empresaID: number = 0;
+  @Input() EmbajadorReferenteID: number = 0;
   @Input() setFormDirtyStatus: ((dirty: boolean) => void) | undefined;
 
   constructor(
@@ -68,7 +68,7 @@ export class InvitarComponent implements OnInit {
     if (this.formulario.valid) {
 
       let invitado: EmbajadorInvitadoDTO = {
-        referente_id:1,
+        referente_id:this.EmbajadorReferenteID,
         email: this.formulario.controls["email"].value
       }
 

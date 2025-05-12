@@ -14,5 +14,6 @@ export interface ReferidoDTO{
     empresaRazonSocial?: string;
     productoNombre?: string;
     comision?: number;
+    comisionTexto?: string;
     fechaRegistro?: Date
 }

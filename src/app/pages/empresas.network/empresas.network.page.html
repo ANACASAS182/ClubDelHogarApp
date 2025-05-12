@@ -6,18 +6,23 @@
     <ion-title>
       <img src="assets/icons/network.png" alt="Icono Network"
         style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
-      Mi Network</ion-title>
+      Mi Network ({{UsuarioID}})</ion-title>
   </ion-toolbar>
 </ion-header>
 
+
+
 <ion-content class="contentCustom ion-padding">
+
+  
+
   <!--grid promociones -->
   <p><strong>Empresas en tu Network</strong></p>
   <p><small>Promocionas los productos y servicios de las siguientes empresas</small></p>
   <ion-grid>
     <ion-row>
-      <ion-col size="6" size-sm="6" size-md="4" size-lg="4" size-xl="2" *ngFor="let item of empresas">
-        <ion-card (click)="verMas(item)">
+      <ion-col size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2" *ngFor="let item of empresas">
+        <ion-card (click)="verMas(item)" class = "ion-card-embassy">
           <div class="img-effect">
             <img [src]="item.logotipoPath" alt="Imagen" />
           </div>
@@ -32,14 +37,20 @@
     </ion-row>
   </ion-grid>
 
+
+  
+
   <!--grid promociones -->
   <p><strong>Productos y promociones vigentes</strong></p>
   <p><small>¡Manténte al día con las promociones más recientes y obten las mejores comisiones!</small></p>
+  
+  <app-loader *ngIf="cargandoPromociones"></app-loader>
+
   <ion-grid>
     <ion-row>
       <ion-col size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4" *ngFor="let promocion of promociones">
-        <ion-card (click)="abrirModalPromocion(promocion)">
-          <div class="card_promocion" style="padding: 16px;">
+        <ion-card (click)="abrirModalPromocion(promocion)" class = "ion-card-embassy">
+          <div  style="padding: 16px;">
         
             <!-- Título y empresa -->
             <div style="margin-bottom: 8px;">

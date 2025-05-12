@@ -10,6 +10,7 @@ import { ReferidosPage } from './referidos.page';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
+import { LoaderComponent } from "../../loader/loader.component";
 
 @NgModule({
   imports: [
@@ -19,8 +20,9 @@ import { MatSortModule } from '@angular/material/sort';
     ReferidosPageRoutingModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
-  ],
+    MatSortModule,
+    LoaderComponent
+],
   declarations: [ReferidosPage]
 })
 export class ReferidosPageModule {}

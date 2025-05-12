@@ -17,11 +17,10 @@ export class PromocionesService {
     return this.http.post<SolicitudCodigoQrResponse>(`${this.apiUrl}/GenerarCodigoPromocion`, solicitud);
   }
 
-  GetPromociones() : Observable<Promocion[]> {
-    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromociones`);
+  GetPromociones(UsuarioID:number) : Observable<Promocion[]> {
+    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromociones?UsuarioID=${UsuarioID}`);
   }
 
- 
   
 }
 

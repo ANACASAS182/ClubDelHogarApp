@@ -222,3 +222,25 @@ th.mat-mdc-header-cell {
     justify-content: center;
 }
 }
+
+
+ion-input.embassy_input {
+  color: #111822;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  --padding-start: 8px;
+}
+
+ion-select.embassy_input {
+  color: #111822;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  --padding-start: 8px;
+}
+
+
+hr.spacer_embassy{
+  margin-bottom: 24px;
+}

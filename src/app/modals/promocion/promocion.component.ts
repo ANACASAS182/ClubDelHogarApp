@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AlertController, IonicModule, LoadingController, ModalController, NavParams, ToastController } from '@ionic/angular';
 import { IonInput, IonButton, IonHeader, IonItem, IonToolbar } from "@ionic/angular/standalone";
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
@@ -23,7 +23,7 @@ import html2canvas from 'html2canvas';
   templateUrl: './promocion.component.html',
   styleUrls: ['./promocion.component.scss'],
   standalone: true,
-  imports: [IonicModule, ReactiveFormsModule, CommonModule],
+  imports: [IonicModule, ReactiveFormsModule, CommonModule, FormsModule],
 })
 export class PromocionComponent implements OnInit {
 
@@ -36,11 +36,13 @@ export class PromocionComponent implements OnInit {
 
 
   @Input() promoSeleccionada?: Promocion;
+  @Input() UsuarioID: number = 0;
   @Input() setFormDirtyStatus: ((dirty: boolean) => void) | undefined;
 
   @ViewChild('captureDiv') captureDiv!: ElementRef;
 
   promocion?: Promocion;
+
 
   constructor(
     private modalCtrl: ModalController,
@@ -74,14 +76,17 @@ export class PromocionComponent implements OnInit {
 
   }
 
+  NombreReferenciado:string ="";
+  ContactoReferenciado:string = "";
+
   qrGenerado: boolean = false;
   codigoQrBase64:string = "";
   generarQR() {
     let solicitud: SolicitudCodigoQrRequest = {
-      ProductoID: 1,
-      embajadorID: 1,
-      InformacionContacto: "6565303760",
-      nombres: "PRUEBA PRUEBA"
+      ProductoID: this.promoSeleccionada!.iD,
+      embajadorID: this.UsuarioID,
+      InformacionContacto: this.ContactoReferenciado,
+      nombres: this.NombreReferenciado
     };
 
 

@@ -5,6 +5,7 @@ import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Usuario } from 'src/app/models/Usuario';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { TokenService } from 'src/app/services/token.service';
+import { UsuarioRegistroPageModule } from '../usuario.registro/usuario.registro.module';
 
 @Component({
   selector: 'app-dashboard',
@@ -26,13 +27,18 @@ export class DashboardPage implements OnInit {
   ];
   constructor(private router: Router, private tokenService: TokenService, private datePipe: DatePipe, private usuarioService: UsuarioService) { }
 
+
+  UsuarioID:number = 0;
+
   ngOnInit() {
     const now = new Date();
     this.currentDate = this.datePipe.transform(now, 'fullDate') + ' - ' + this.datePipe.transform(now, 'hh:mm a');
 
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
+        console.log(response.data);
         this.userName = response.data.nombres + " " + response.data.apellidos;
+        this.UsuarioID = response.data.id;
       }
     });
   }
