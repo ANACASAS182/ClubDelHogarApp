@@ -11,6 +11,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { LoaderComponent } from "../../loader/loader.component";
+import { MensajeTemporalComponent } from 'src/app/mensaje-temporal/mensaje-temporal.component';
+
 
 @NgModule({
   imports: [
@@ -21,7 +23,8 @@ import { LoaderComponent } from "../../loader/loader.component";
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
-    LoaderComponent
+    LoaderComponent,
+    MensajeTemporalComponent
 ],
   declarations: [ReferidosPage]
 })

@@ -20,9 +20,9 @@
 
     <ion-card-content>
       <app-loader *ngIf="cargandoCelula"></app-loader>
-      <ng-container *ngIf="!cargandoCelula">
+      <ng-container >
 
-        Aquí se va a visualizar la célula, sección en desarrollo
+        <canvas #orgCanvas width="1000" height="600"></canvas>
       </ng-container>
       
       <!-- <ng-container *ngIf="this.celula">

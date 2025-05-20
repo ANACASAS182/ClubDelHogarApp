@@ -11,6 +11,9 @@
         <h2 class="form-title">Bienvenido</h2>
         <p class="subtitle"><small>Accede a tu cuenta para continuar</small></p>
 
+
+        
+
         @if (hasError) {
           <div class="custom-alert warning">
             <ion-text>{{ messageError }}</ion-text>
@@ -42,7 +45,8 @@
           Ingresa tu contraseña de Embassy
         </ion-text> -->
         <hr class = "spacer_embassy"/>
-        <ion-button expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
+        <ion-progress-bar *ngIf ="iniciandoSesion"  type="indeterminate"></ion-progress-bar>
+        <ion-button *ngIf ="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
           Ingresar
         </ion-button>
         <hr class = "spacer_embassy"/>

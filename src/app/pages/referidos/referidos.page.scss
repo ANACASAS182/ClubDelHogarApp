@@ -70,14 +70,13 @@
     display: flex;
     flex-direction: column;
     
-    gap: 12px;
+    gap: 4px;
     position: relative;
     cursor: pointer;
     transition: transform 0.2s ease;
   }
-  
- 
-  
+
+
   /* === Sección 1: Identidad === */
   .referido-identidad {
     display: flex;
@@ -86,12 +85,13 @@
   }
   
   .referido-nombre {
-    font-size: 1.4rem;
+    font-size: 1rem;
     font-weight: 800;
     color: #222;
   }
   
   .referido-contacto span {
+    font-size: .8rem;
     display: inline-flex;
     align-items: center;
     gap: 4px; /* espacio entre el ícono y el texto */
@@ -119,7 +119,7 @@
   }
   
   .producto-nombre {
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #333;
   }
@@ -138,16 +138,25 @@
   }
   
   .referido-comision .label {
-    font-size: 0.7rem;
+    font-size: 0.5rem;
     color: #888;
     margin-bottom: 2px;
   }
   
   .referido-comision .monto {
-    font-size: 1.6rem;
+    font-size: 1rem;
     font-weight: 900;
     color: #ffffff;
-    background-color: #3880ff;
+    background-color: #349721;
+    padding: 6px 14px;
+    border-radius: 8px;
+  }
+
+  .referido-comision .monto-pendiente {
+    font-size: 1rem;
+    font-weight: 900;
+    color: #ffffff;
+    background-color: #748299;
     padding: 6px 14px;
     border-radius: 8px;
   }
@@ -158,7 +167,7 @@
       flex-direction: row;
       justify-content: space-between;
       align-items: flex-start;
-      padding: 20px;
+      padding: 0px;
     }
   
     .referido-identidad, .referido-producto {
@@ -216,5 +225,27 @@
 
   .referido-comision {
     justify-content: flex-end;
+  }
+}
+
+
+
+
+
+/* ANIMACION DLE DINEROS */
+
+.jump {
+  animation: jumpEffect 0.4s ease-out;
+}
+
+@keyframes jumpEffect {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+  100% {
+    transform: translateY(0);
   }
 }

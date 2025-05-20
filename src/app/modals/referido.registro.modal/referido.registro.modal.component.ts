@@ -120,6 +120,7 @@ export class ReferidoRegistroModalComponent implements OnInit {
         empresaID: this.formulario.controls["empresa"].value
       }
 
+      model.comisionTexto = "";
       this.referidoService.guardarReferido(model).pipe(
         finalize(() => {
           this.formEnviado = false;

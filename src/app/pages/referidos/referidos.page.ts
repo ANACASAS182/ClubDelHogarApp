@@ -23,6 +23,10 @@ import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.
 })
 export class ReferidosPage implements OnInit, AfterViewInit {
 
+
+  IngresoPotencialView: string = "";
+  IngresoGeneradoView: string = "";
+
   //table
   dataSourceTable = new MatTableDataSource<ReferidoDTO>();
   displayedColumns: string[] = ['Nombre', 'Celular', 'Empresa', 'Producto', 'Comision', 'Estatus', 'Visualizar'];
@@ -46,112 +50,156 @@ export class ReferidosPage implements OnInit, AfterViewInit {
   }
 
   referidos: ReferidoDTO[] = [];
-  cargandoReferidos:boolean = false;
+  cargandoReferidos: boolean = false;
   ngOnInit() {
 
+
+    this.cargarReferidos();
+
+  }
+
+  cargarReferidos() {
     this.cargandoReferidos = true;
-    
+    this.referidos = [];
+
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         console.log(response.data);
         response.data.id;
-  
+
         // Usamos setTimeout para introducir un retraso de 1 segundo (1000 ms)
         setTimeout(() => {
           this.referidoService.getReferidosSimple(response.data.id).subscribe({
             next: (data) => {
               this.referidos = data;
               this.cargandoReferidos = false;
+
+              let ingresoGenerado = 0;
+              let ingresoPotencial = 0;
+
+              this.referidos.forEach((r) => {
+                ingresoPotencial += r.comision!;
+                if(r.estatusReferenciaID === 3){ 
+                  ingresoGenerado += r.comision!;
+                }
+              });
+
+              this.IngresoGeneradoView = "$" + ingresoGenerado.toFixed(2);
+              this.IngresoPotencialView = "$"+ ingresoPotencial.toFixed(2);
+
+              this.animateIngreso();
+
             }
           });
         }, 2000);  // Retraso de 1 segundo
       }
     });
-
-    
   }
 
-  
 
-   async abrirModal() {
-  let formDirty = false;
 
-  const modal = await this.modalCtrl.create({
-    component: ReferidoRegistroModalComponent,
-    cssClass: 'modal-redondeado',
-    componentProps: {
-      setFormDirtyStatus: (dirty: boolean) => formDirty = dirty
-    },
-    canDismiss: async () => {
-      if (!formDirty) return true;
+  async abrirModal() {
+    let formDirty = false;
 
-      const shouldClose = await this.modalAlert.confirmarCierreModal();
-      return shouldClose;
+    const modal = await this.modalCtrl.create({
+      component: ReferidoRegistroModalComponent,
+      cssClass: 'modal-redondeado',
+      componentProps: {
+        setFormDirtyStatus: (dirty: boolean) => formDirty = dirty
+      },
+      canDismiss: async () => {
+        if (!formDirty) return true;
+
+        const shouldClose = await this.modalAlert.confirmarCierreModal();
+        return shouldClose;
+      }
+    });
+
+    await modal.present();
+
+    //respuesta de modal (El modal ya se encarga de guardar/mostrar mensajes, no es necesario tratar los datos.)
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      console.log(data);
+      this.cargarReferidos();
     }
-  });
-
-  await modal.present();
-
-  //respuesta de modal (El modal ya se encarga de guardar/mostrar mensajes, no es necesario tratar los datos.)
-  const { data } = await modal.onDidDismiss();
-  if (data) {
-    console.log(data);
-
   }
-}
-  
-    async abrirModalVisualizacion(model : ReferidoDTO) {
 
-  const modal = await this.modalCtrl.create({
-    component: ReferidoSeguimientoModalComponent,
-    cssClass: 'modal-redondeado',
-    componentProps: {
-      referido: model
+  async abrirModalVisualizacion(model: ReferidoDTO) {
+
+    const modal = await this.modalCtrl.create({
+      component: ReferidoSeguimientoModalComponent,
+      cssClass: 'modal-redondeado',
+      componentProps: {
+        referido: model
+      }
+    });
+
+    await modal.present();
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      console.log(data);
+
     }
-  });
-
-  await modal.present();
-  const { data } = await modal.onDidDismiss();
-  if (data) {
-    console.log(data);
-
-  }
-}
-
-getColorEstatus(estatus: EstatusReferenciaEnum): string {
-  switch (estatus) {
-    case EstatusReferenciaEnum.Creado:
-      return 'estatus-creado';
-    case EstatusReferenciaEnum.Seguimiento:
-      return 'estatus-seguimiento';
-    case EstatusReferenciaEnum.Cerrado:
-      return 'estatus-cerrado';
-    default:
-      return 'estatus-other';
-  }
-}
-formatFecha(fecha ?: Date): string {
-
-  if (fecha == undefined) {
-    return "No aplica";
   }
 
-  const f = new Date(fecha);
-  const dia = f.getDate().toString().padStart(2, '0');
-  let mes = f.toLocaleString('es-MX', { month: 'short' });
-  mes = mes.charAt(0).toUpperCase() + mes.slice(1);
-  const anio = f.getFullYear();
-  let horas = f.getHours();
-  const minutos = f.getMinutes().toString().padStart(2, '0');
+  getColorEstatus(estatus: EstatusReferenciaEnum): string {
+    switch (estatus) {
+      case EstatusReferenciaEnum.Creado:
+        return 'estatus-creado';
+      case EstatusReferenciaEnum.Seguimiento:
+        return 'estatus-seguimiento';
+      case EstatusReferenciaEnum.Cerrado:
+        return 'estatus-cerrado';
+      default:
+        return 'estatus-other';
+    }
+  }
+  formatFecha(fecha?: Date): string {
 
-  // Si quieres formato 12 horas con AM/PM:
-  const ampm = horas >= 12 ? 'PM' : 'AM';
-  horas = horas % 12;
-  horas = horas ? horas : 12; // el 0 se convierte en 12
-  const horaFormateada = horas.toString().padStart(2, '0');
+    if (fecha == undefined) {
+      return "No aplica";
+    }
 
-  return `${dia} ${mes} ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
-}
-  
+    const f = new Date(fecha);
+    const dia = f.getDate().toString().padStart(2, '0');
+    let mes = f.toLocaleString('es-MX', { month: 'short' });
+    mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+    const anio = f.getFullYear();
+    let horas = f.getHours();
+    const minutos = f.getMinutes().toString().padStart(2, '0');
+
+    // Si quieres formato 12 horas con AM/PM:
+    const ampm = horas >= 12 ? 'PM' : 'AM';
+    horas = horas % 12;
+    horas = horas ? horas : 12; // el 0 se convierte en 12
+    const horaFormateada = horas.toString().padStart(2, '0');
+
+    return `${dia} ${mes} ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
+  }
+
+
+
+  /* ANIMACION DEL DINEROS */
+
+  showJump = false;
+
+
+
+  animateIngreso() {
+    this.showJump = true;
+    setTimeout(() => {
+      this.showJump = false;
+      setTimeout(() => {
+        this.animateIngreso();
+      }, 3000);
+    }, 500); // duración de la animación
+
+  }
+
+  formatCurrency(value: number): string {
+    return value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+  }
+
 
 }

@@ -35,6 +35,14 @@ const routes: Routes = [
         loadChildren: () => import('../celula/celula.module').then(m => m.CelulaPageModule),
       },
       {
+        path: 'productos',
+        loadChildren: () => import('../productos/productos.module').then(m => m.ProductosPageModule),
+      },
+      {
+        path: 'activaciones',
+        loadChildren: () => import('../activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
+      },
+      {
         path: 'empresa/detalle',
         loadChildren: () => import('../empresa.details/empresa.details.module').then(m => m.EmpresaDetailsPageModule),
       },
