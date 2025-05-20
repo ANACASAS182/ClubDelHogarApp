@@ -1,0 +1,10 @@
+<ng-container *ngIf="!this.mensajeMostrado">
+
+  <div class="blackhole-container" [ngClass]="{ 'blackhole-effect': triggerBlackhole }">
+    <span class="blackhole-text" *ngIf="!textHidden">
+      <small>
+        {{mensaje}}
+      </small>
+    </span>
+  </div>
+</ng-container>

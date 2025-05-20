@@ -9,11 +9,13 @@
 
 <ion-content class="contentCustom ion-padding">
 
-  <strong>Referidos</strong><br />
-  <small>Generaste las siguentes referencias, una vez que tus referidos hagan válidas sus promociones, recibiras el
-    importe acumulado de las comisiones</small>
+  <!-- <strong>Referidos</strong><br /> -->
+  <!--Generaste las siguentes referencias, una vez que tus referidos hagan válidas sus promociones, recibiras el
+  importe acumulado de las comisiones-->
 
-  <div>
+
+
+  <!-- OCULTAR POR EL MOMENTO <div>
     <ion-grid>
 
 
@@ -25,15 +27,34 @@
           </ion-input>
         </ion-col>
 
-        <!-- Botón a la derecha -->
-        <!-- <ion-col size="12" size-md="3" class="ion-text-center">
-          <ion-button expand="block" shape="round" class="customGreenButton" (click)="abrirModal()">AGREGAR NUEVO REFERIDO</ion-button>
-        </ion-col> -->
+        
       </ion-row>
     </ion-grid>
-  </div>
+  </div> -->
 
-  <app-loader *ngIf="cargandoReferidos" ></app-loader>
+  <app-mensaje-temporal
+    [DuracionSegundos]="3"
+    [mensaje]="'Generaste las siguentes referencias, una vez que tus referidos hagan válidas sus promociones, recibirás el importe acumulado de las comisiones'">
+  </app-mensaje-temporal>
+
+  <ion-card *ngIf="IngresoPotencialView != ''">
+  <ion-card-content>
+    <div 
+      [ngClass]="{ 'jump': showJump }" 
+      style="color:#349721;font-size: 2rem; font-weight: bold; text-align: center;">
+      {{IngresoGeneradoView}}
+    </div>
+    <div style="color:#748299; font-weight: bold; text-align: center;">
+      {{IngresoPotencialView}}
+    </div>
+  </ion-card-content>
+</ion-card>
+
+
+ 
+
+   <app-loader *ngIf="cargandoReferidos"></app-loader>
+
 
   <ng-container *ngFor="let referido of referidos">
     <ion-card>
@@ -41,29 +62,32 @@
         <div class="referido-card" (click)="abrirModalVisualizacion(referido)">
 
           <!-- Sección 1: Identidad -->
-          <section class="referido-identidad"> 
-            
-            <div class="referido-nombre">{{ referido.nombreCompleto }}</div>
+          <section class="referido-identidad">
+
+
+            <div class="referido-nombre">{{ referido.nombreCompleto }} </div>
             <div class="referido-contacto">
               <span *ngIf="referido.email != ''"><ion-icon name="mail-outline"></ion-icon> {{ referido.email }}</span>
-              <span *ngIf="referido.email != '' && referido.celular != ''" > | </span>
-              <span *ngIf="referido.celular != ''"><ion-icon name="logo-whatsapp"></ion-icon> {{ referido.celular }}</span>
+              <span *ngIf="referido.email != '' && referido.celular != ''"> - </span>
+              <span *ngIf="referido.celular != ''"><ion-icon name="logo-whatsapp"></ion-icon> {{ referido.celular
+                }}</span>
             </div>
             <div class="referido-contacto">
               <span><ion-icon name="calendar-outline"></ion-icon> {{ referido.fechaRegistro | date:'shortDate' }}</span>
             </div>
-            
+
           </section>
 
           <!-- Sección 2: Producto y empresa -->
-          <section class="referido-producto">  
+          <section class="referido-producto">
             <div class="producto-nombre">{{ referido.productoNombre }}</div>
             <div class="empresa-nombre">{{ referido.empresaRazonSocial }}</div>
           </section>
 
           <!-- Sección 3: Comisión -->
-          <section class="referido-comision">  
-            <div class="monto">{{ referido.comisionTexto}}</div>
+          <section class="referido-comision" >
+            <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto}}</div>
+            <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto}}</div>
           </section>
         </div>
       </ion-card-content>
@@ -74,6 +98,8 @@
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-button class="fab-rectangular" (click)="abrirModal()">
+      <img [src]="'assets/icons/add.png'" alt="Icono Network"
+        style="width: 20px; height: 20px; margin-right: 8px;  vertical-align: middle;" />
       <span class="fab-text">Agregar</span>
     </ion-button>
   </ion-fab>

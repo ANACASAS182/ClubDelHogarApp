@@ -1,0 +1,124 @@
+/* Contenedor principal */
+.promo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  gap: 16px;
+}
+
+/* Título */
+.promo-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #15803d; /* Verde */
+}
+
+/* Código mostrado */
+.promo-code {
+  font-family: monospace;
+  background-color: #f3f4f6;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 1.1rem;
+}
+
+/* Loader y mensajes */
+.promo-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.promo-message {
+  color: #4b5563;
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+
+/* Estados */
+.promo-status-active {
+  color: #15803d;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.promo-success {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.promo-error {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+/* Motivo de inactividad */
+.promo-reason {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* Botón */
+.promo-button {
+  background-color: #2563eb;
+  color: white;
+  font-size: large;
+  font-weight: 600;
+  padding: 15px 30px;
+  width: 100%;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background-color 0.2s ease-in-out;
+}
+
+.promo-button:hover {
+  background-color: #1d4ed8;
+}
+
+/* QR reader container */
+.promo-qr-reader {
+  margin-top: 24px;
+}
+
+
+
+/* ------------------------ */
+
+.promo-info {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 16px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.promo-info-nombre {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.promo-info-descripcion {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.promo-info-vigencia {
+  font-size: 14px;
+  color: #666;
+}
+
+.promo-info-vigencia span {
+  font-weight: bold;
+  color: #2e7d32; /* verde que transmite vigencia/validez */
+}

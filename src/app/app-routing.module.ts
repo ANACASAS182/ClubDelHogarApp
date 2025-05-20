@@ -43,7 +43,12 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
-  }
+  },
+  {
+    path: 'activaciones',
+    loadChildren: () => import('./pages/activaciones/activaciones.module').then( m => m.ActivacionesPageModule)
+  },
+  
  
 ];
 

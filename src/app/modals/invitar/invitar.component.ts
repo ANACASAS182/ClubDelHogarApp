@@ -36,8 +36,8 @@ export class InvitarComponent implements OnInit {
   constructor(
     private modalCtrl: ModalController,
     private fb: FormBuilder,
-    private embajadoresService:EmbajadoresService
-    ) {
+    private embajadoresService: EmbajadoresService
+  ) {
     this.formulario = this.fb.group({
       email: ['', Validators.required]
     });
@@ -54,41 +54,41 @@ export class InvitarComponent implements OnInit {
     });
 
   }
- 
+
 
   cerrarModal() {
     this.modalCtrl.dismiss();
   }
 
-  invitacionEnviada:boolean = false;
-  invitacionEnviadaCorrectamente:boolean = true;
-  mensaje_invitacion:string = "";
+  invitacionEnviada: boolean = false;
+  invitacionEnviadaCorrectamente: boolean = true;
+  mensaje_invitacion: string = "";
 
   enviarFormulario() {
     if (this.formulario.valid) {
 
       let invitado: EmbajadorInvitadoDTO = {
-        referente_id:this.EmbajadorReferenteID,
+        referente_id: this.EmbajadorReferenteID,
         email: this.formulario.controls["email"].value
       }
 
       this.embajadoresService.postInvitarNuevoEmbajador(invitado).subscribe({
-        next:(data) => {
+        next: (data) => {
           this.invitacionEnviada = true;
           this.invitacionEnviadaCorrectamente = data.estatus > 0;
           this.mensaje_invitacion = data.mensaje;
         },
-        error:(err) => {},
-        complete:() => {},
+        error: (err) => { },
+        complete: () => { },
       });
 
 
-     
+
     } else {
       this.formulario.markAllAsTouched();
       this.formEnviado = false;
     }
-    
+
   }
 
   getControl(name: string) {

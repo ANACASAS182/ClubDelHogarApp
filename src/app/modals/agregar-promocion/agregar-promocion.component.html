@@ -1,0 +1,169 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Agregar Promoción</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="close()">
+        <ion-icon name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding custom-content">
+  <app-loader *ngIf="CambiandoSeccion"></app-loader>
+  <div *ngIf="CapturandoInformacionGeneral">
+    <div><strong>Ingresa la información del producto o promoción</strong></div>
+  <hr/>
+    <ion-input class="embassy_input" [(ngModel)]="NombrePromocion" labelPlacement="floating"
+      label="Nombre del producto o promoción" type="text"></ion-input>
+
+    <ion-textarea class="embassy_input" [(ngModel)]="DescripcionPromocion" labelPlacement="floating"
+      label="Descripción del producto o promoción" rows="4"></ion-textarea>
+<!-- 
+      <ion-select label="Modelo de referencias" placeholder="No seleccionado">
+        <ion-select-option value="apple">Referencias personales</ion-select-option>
+        <ion-select-option value="banana">Cupones personales</ion-select-option>
+        <ion-select-option value="orange">Cupones abiertos</ion-select-option>
+      </ion-select> -->
+
+    <div class="FeedBackValidaciones" *ngIf="MensajeValidacionDatosGenerales != ''">
+      <small>{{MensajeValidacionDatosGenerales}}</small>
+    </div>
+
+    <ion-button expand="block" class="customButton" shape="round"
+      (click)="HabilitarCapturaVigencia()">Siguiente</ion-button>
+  </div>
+  <div *ngIf="CapturandoVigencia">
+    <div>
+      <small style="font-weight: bold;color: #666;">Título</small>
+      <h4 style="margin-top: 1px;">{{NombrePromocion}}</h4>
+    </div>
+    <div><strong>Vigencia</strong></div>
+    <small>Selecciona la fecha hasta la cual tu producto o promoción estará disponible</small>
+    <app-mensaje-temporal
+      [mensaje]="'Nota de desarrollo: Aquí falta definir las políticas para la duración mínima, máxima y cualquier otra condición'"></app-mensaje-temporal>
+
+      <app-mensaje-temporal
+      [mensaje]="'Nota de desarrollo: Tambien tengo duda sobre si puedo crear una promocion que inicie a futuro, por ejemplo que este disponible a partir de mañana'"></app-mensaje-temporal>
+    <div>
+      
+      <ion-datetime style="margin:auto;" presentation="date" [(ngModel)]="VigenciaPromocionISO"
+        placeholder="Selecciona una fecha"></ion-datetime>
+    </div>
+    <div class="FeedBackValidaciones" *ngIf="MensajeValidacionVigencia != ''">
+      <small>{{MensajeValidacionVigencia}}</small>
+    </div>
+
+    <ion-button expand="block" class="customButton" shape="round"
+      (click)="HabilitarCapturaTablaComisiones()">Siguiente</ion-button>
+  </div>
+  <div *ngIf="CapturandoTablaComisiones">
+    <div>
+      <small style="font-weight: bold;color: #666;">Título</small>
+      <h4 style="margin-top: 1px;">{{NombrePromocion}}</h4>
+    </div>
+    <div>
+      <small style="font-weight: bold;color: #666;">Estará vigente hasta</small>
+      <h4 style="margin-top: 1px;">{{VigenciaPromocionTexto}}</h4>
+    </div>
+    <div><strong>Tabla de comisiones</strong></div>
+    <small>Ajusta la cantidad de las comisiones en diferentes niveles.</small>
+ <app-mensaje-temporal
+      [mensaje]="'Nota de desarrollo: Aquí falta definir las políticas para las comisiones, por ejemplo, la comision mínima para master'">
+    </app-mensaje-temporal>
+    
+
+
+    <div style="display: table; width: 100%; margin-top: 10px;">
+      <!-- Nivel 1 -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; width: 40%; vertical-align: middle;">Nivel 1</div>
+        <div style="display: table-cell; width: 60%;">
+          <ion-input class="embassy_input" [(ngModel)]="comisionNivel1" type="text" inputmode="numeric" pattern="[0-9]*"
+            style="text-align: center;"></ion-input>
+        </div>
+      </div>
+
+      <!-- Nivel 2 -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; vertical-align: middle;">Nivel 2</div>
+        <div style="display: table-cell;">
+          <ion-input class="embassy_input" [(ngModel)]="comisionNivel2" type="text" inputmode="numeric" pattern="[0-9]*"
+            style="text-align: center;"></ion-input>
+        </div>
+      </div>
+
+      <!-- Nivel 3 -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; vertical-align: middle;">Nivel 3</div>
+        <div style="display: table-cell;">
+          <ion-input class="embassy_input" [(ngModel)]="comisionNivel3" type="text" inputmode="numeric" pattern="[0-9]*"
+            style="text-align: center;"></ion-input>
+        </div>
+      </div>
+
+      <!-- Nivel 4 -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; vertical-align: middle;">Nivel 4</div>
+        <div style="display: table-cell;">
+          <ion-input class="embassy_input" [(ngModel)]="comisionNivel4" type="text" inputmode="numeric" pattern="[0-9]*"
+            style="text-align: center;"></ion-input>
+        </div>
+      </div>
+
+      <!-- Nivel Máster -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; vertical-align: middle;">Nivel Máster</div>
+        <div style="display: table-cell;">
+          <ion-input class="embassy_input" [(ngModel)]="comisionNivelMaster" type="text" inputmode="numeric"
+            pattern="[0-9]*" style="text-align: center;"></ion-input>
+        </div>
+      </div>
+
+      <!-- Comisión Total -->
+      <div style="display: table-row;">
+        <div style="display: table-cell; vertical-align: middle;">
+          <div>
+            <span style="font-weight: bold; margin-top: 4px;"> Comisión Total</span>
+          </div>
+
+        </div>
+        <div style="display: table-cell;" style="text-align: center;">
+          <div style="border-top: 1px dashed #666;">
+            <span style="font-weight: bold; font-size: 1.2rem;margin-top: 8px;">${{comisionTotal | number:'1.2'}}
+              MXN</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+     <div class="FeedBackValidaciones" *ngIf="MensajeValidacionComisiones != ''">
+      <small>{{MensajeValidacionComisiones}}</small>
+    </div>
+
+    <ion-button expand="block" class="customButton" shape="round"
+      (click)="HabilitarConfirmarDatos()">Continuar</ion-button>
+  </div>
+
+  <div *ngIf="ConfirmandoDatosIngresados" style="text-align: center;">
+
+    <div>
+      <small style="font-weight: bold;color: #666;">Título</small>
+      <h4 style="margin-top: 1px;">{{NombrePromocion}}</h4>
+    </div>
+    <div>
+      <small style="font-weight: bold;color: #666;">Descripcion</small>
+      <p style="margin-top: 1px;">{{DescripcionPromocion}}</p>
+    </div>
+    <div>
+      <small style="font-weight: bold;color: #666;">Estará vigente hasta</small>
+      <h4 style="margin-top: 1px;">{{VigenciaPromocionTexto}}</h4>
+    </div>
+    <div>
+      <small style="font-weight: bold;color: #666;">Por cada referencia activada pagarás</small>
+      <h4 style="margin-top: 1px;font-weight: bold;font-size: 2rem;">${{comisionTotal | number:'1.2' }} MXN</h4>
+    </div>
+
+    <ion-button expand="block" class="customButton" shape="round" (click)="agregarPromocion()">Guardar y publicar</ion-button>
+  </div>
+</ion-content>

@@ -1,3 +1,5 @@
+import { Promocion } from "../Promocion";
+
 export interface GenericResponseDTO<T> {
     success: boolean;
     message: string;
@@ -9,4 +11,10 @@ export interface GenericResponseDTO<T> {
   export interface RespuestaEstatusMensaje{
     estatus:number;
     mensaje:string;
+  }
+
+   export interface RespuestaEstatusPromocion{
+    estatus:number;
+    mensaje:string;
+    promocion:Promocion;
   }

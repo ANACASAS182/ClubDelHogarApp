@@ -223,6 +223,13 @@ th.mat-mdc-header-cell {
 }
 }
 
+ion-textarea.embassy_input {
+  color: #111822;
+  border: 1px solid #d6d6d6;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  --padding-start: 8px;
+}
 
 ion-input.embassy_input {
   color: #111822;
@@ -249,3 +256,16 @@ ion-title{
   padding-top: 48px !important;
   padding-bottom: 12px;
 }
+
+
+/* - - - - - - */
+
+  ion-card{
+  border: 1px solid #eee;
+ }
+  
+ ion-card:hover{
+  border: 1px solid #666;
+  transition: .1s;
+ }
+  

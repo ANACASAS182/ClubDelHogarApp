@@ -36,10 +36,13 @@ export class LoginPage implements OnInit {
   ngOnInit() {
   }
 
+  iniciandoSesion:boolean = false;
+
   onSubmit() {
     if (this.formEnviado) return;
 
     this.formEnviado = true;
+    this.iniciandoSesion = true;
 
     if (!this.loginForm.valid) {
       this.loginForm.markAllAsTouched();
@@ -55,6 +58,7 @@ export class LoginPage implements OnInit {
     this.usuarioService.login(user, true).pipe(
       finalize(() => {
         this.formEnviado = false;
+        this.iniciandoSesion = false;
       })
     ).subscribe({
       next: (res) => {
