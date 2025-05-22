@@ -30,7 +30,7 @@ export class DashboardPage implements OnInit {
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos', icon: 'referidos' },
     { title: 'Mi Célula', tituloMovil: 'Célula', url: '/dashboard/celula', icon: 'network' },
     { title: 'Mis Productos', tituloMovil: 'Productos', url: '/dashboard/productos', icon: 'configuracion' },
-    { title: 'Activaciones', tituloMovil: 'Activaciones', url: '/dashboard/activaciones', icon: 'configuracion' },
+    //{ title: 'Activaciones', tituloMovil: 'Activaciones', url: '/dashboard/activaciones', icon: 'configuracion' },
     { title: 'Configuración', tituloMovil: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
 
   ];

@@ -1,26 +1,26 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GenericResponseDTO, RespuestaEstatusMensaje, RespuestaEstatusPromocion } from 'src/app/models/DTOs/GenericResponseDTO';
+import { GenericResponseDTO, RespuestaEstatusMensaje } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Promocion } from 'src/app/models/Promocion';
 import { environment } from 'src/environments/environment';
-
 
 @Injectable({
   providedIn: 'root'
 })
 export class PromocionesService {
-  private apiUrl = environment.apiUrl + "api/Promociones";
+  private apiUrl = environment.apiUrl + "api/Promociones"; 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  GenerarCodigoPromocion(solicitud: SolicitudCodigoQrRequest): Observable<SolicitudCodigoQrResponse> {
+  GenerarCodigoPromocion(solicitud:SolicitudCodigoQrRequest) : Observable<SolicitudCodigoQrResponse> {
     return this.http.post<SolicitudCodigoQrResponse>(`${this.apiUrl}/GenerarCodigoPromocion`, solicitud);
   }
 
-  GetPromociones(UsuarioID: number): Observable<Promocion[]> {
+  GetPromociones(UsuarioID:number) : Observable<Promocion[]> {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromociones?UsuarioID=${UsuarioID}`);
   }
+
 
   GetPromocionesEmpresa(UsuarioID: number): Observable<Promocion[]> {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesEmpresa?UsuarioID=${UsuarioID}`);
@@ -44,6 +44,7 @@ export class PromocionesService {
 
 
 }
+
 
 export interface CrearPromocionRequest {
   usuarioID: number;
@@ -80,5 +81,7 @@ export interface ValidarPromocionQrRequest {
 
   UsuarioID: number;
   codigoPromocion: string;
+
+}
 
 }
