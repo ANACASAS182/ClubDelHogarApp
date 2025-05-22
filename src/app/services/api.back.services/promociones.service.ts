@@ -21,22 +21,67 @@ export class PromocionesService {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromociones?UsuarioID=${UsuarioID}`);
   }
 
-  
+
+  GetPromocionesEmpresa(UsuarioID: number): Observable<Promocion[]> {
+    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesEmpresa?UsuarioID=${UsuarioID}`);
+  }
+
+  ConsultarEstatusDelCodigoQr(request: ValidarPromocionQrRequest): Observable<RespuestaEstatusPromocion> {
+    return this.http.post<RespuestaEstatusPromocion>(`${this.apiUrl}/ConsultarEstatusDelCodigoQr`, request);
+  }
+
+  PostHacerPromocionValida(request: ValidarPromocionQrRequest): Observable<RespuestaEstatusMensaje> {
+    return this.http.post<RespuestaEstatusMensaje>(`${this.apiUrl}/PostHacerPromocionValida`, request);
+  }
+
+
+
+  CrearNuevaPromocion(request: CrearPromocionRequest): Observable<RespuestaEstatusPromocion> {
+    return this.http.post<RespuestaEstatusPromocion>(`${this.apiUrl}/CrearNuevaPromocion`, request);
+  }
+
+
+
+
 }
 
 
+export interface CrearPromocionRequest {
+  usuarioID: number;
+
+  nombre: string;
+  descripcion: string;
+  VigenciaISO: string;
+
+  comisionNivel1: number;
+  comisionNivel2: number;
+  comisionNivel3: number;
+  comisionNivel4: number;
+  comisionNivelMaster: number;
+
+}
+
 export interface SolicitudCodigoQrRequest {
 
-  ProductoID:number;
-  embajadorID:number;
+  ProductoID: number;
+  embajadorID: number;
 
-  nombres:string;
-  InformacionContacto:string;
+  nombres: string;
+  InformacionContacto: string;
 
 }
 
 export interface SolicitudCodigoQrResponse {
 
-  qr64:string;
+  qr64: string;
+
+}
+
+export interface ValidarPromocionQrRequest {
+
+  UsuarioID: number;
+  codigoPromocion: string;
+
+}
 
 }
