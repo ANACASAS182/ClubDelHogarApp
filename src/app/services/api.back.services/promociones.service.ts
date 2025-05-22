@@ -34,13 +34,15 @@ export class PromocionesService {
     return this.http.post<RespuestaEstatusMensaje>(`${this.apiUrl}/PostHacerPromocionValida`, request);
   }
 
+
+
   CrearNuevaPromocion(request: CrearPromocionRequest): Observable<RespuestaEstatusPromocion> {
     return this.http.post<RespuestaEstatusPromocion>(`${this.apiUrl}/CrearNuevaPromocion`, request);
   }
 
 
 
-  
+
 }
 
 export interface CrearPromocionRequest {
