@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { GenericResponseDTO, RespuestaEstatusMensaje } from 'src/app/models/DTOs/GenericResponseDTO';
+import { GenericResponseDTO, RespuestaEstatusMensaje, RespuestaEstatusPromocion } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Promocion } from 'src/app/models/Promocion';
 import { environment } from 'src/environments/environment';
 
@@ -84,4 +84,3 @@ export interface ValidarPromocionQrRequest {
 
 }
 
-}
