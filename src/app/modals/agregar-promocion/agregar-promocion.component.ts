@@ -23,7 +23,7 @@ export class AgregarPromocionComponent implements OnInit {
   CapturandoTablaComisiones: boolean = false;
   ConfirmandoDatosIngresados: boolean = false;
   CambiandoSeccion: boolean = false;
-
+  estatusNuevaPromocion:number = 0;
 
   NombrePromocion: string = "";
   DescripcionPromocion: string = "";

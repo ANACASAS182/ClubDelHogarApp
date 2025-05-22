@@ -164,6 +164,17 @@
       <h4 style="margin-top: 1px;font-weight: bold;font-size: 2rem;">${{comisionTotal | number:'1.2' }} MXN</h4>
     </div>
 
-    <ion-button expand="block" class="customButton" shape="round" (click)="agregarPromocion()">Guardar y publicar</ion-button>
+    <div *ngIf="estatusNuevaPromocion == 0">
+      <ion-button expand="block" class="customButton" shape="round" (click)="agregarPromocion()">Guardar y publicar</ion-button>
+    </div>
+    <div *ngIf="estatusNuevaPromocion == 1">
+      Creando promocion
+    </div>
+    <div *ngIf="estatusNuevaPromocion == 2">
+     Promocion Creada correctamente
+    </div>
+    <div *ngIf="estatusNuevaPromocion == -1">
+      Ocurrio un error al crear la promocion
+    </div>
   </div>
 </ion-content>
