@@ -4,16 +4,14 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     <ion-title>
-      <img src="assets/icons/network.png" alt="Icono Network"
-        style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
-      Mis productos y promociones
+      Mis productos
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 
 
-<ion-content class="contentCustom ion-padding">
+<ion-content class="contentCustom">
   
   <!--grid promociones -->
   <p><strong>Productos y promociones vigentes</strong></p>
@@ -21,9 +19,8 @@
 
   <app-loader *ngIf="cargandoPromociones"></app-loader>
 
-  <ion-grid>
-    <ion-row>
-      <ion-col size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4" *ngFor="let promocion of promociones">
+  
+      <ng-container *ngFor="let promocion of promociones">
         <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
           <div style="padding: 16px;">
 
@@ -51,9 +48,8 @@
 
 
 
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+      </ng-container>
+    
 
 </ion-content>
 

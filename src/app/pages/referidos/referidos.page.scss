@@ -1,17 +1,8 @@
-.input {
-    margin: 12px 0;
-    --background: #f1f1f1;
-    --border-radius: 30px;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    width: 80%;
-    color: #2c3e50 !important;
 
-    border: 1px solid transparent;
-    border-radius: 30px;
-    border-color: black;
-    transition: border-color 0.3s ease;
-    text-align: left;
+.itemReferencia{
+  padding-top: 8px;
+  padding-bottom: 4px;
+  user-select: none;
 }
 
 .referidosHeader {
@@ -85,16 +76,17 @@
   }
   
   .referido-nombre {
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 800;
-    color: #222;
+    color: #272727;
   }
   
   .referido-contacto span {
     font-size: .8rem;
     display: inline-flex;
     align-items: center;
-    gap: 4px; /* espacio entre el ícono y el texto */
+    gap: 4px;
+    color:#666; /* espacio entre el ícono y el texto */
   }
   
   .referido-contacto ion-icon {
@@ -161,73 +153,10 @@
     border-radius: 8px;
   }
   
-  /* Responsive (pantalla grande) */
-  @media (min-width: 768px) {
-    .referido-card {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 0px;
-    }
   
-    .referido-identidad, .referido-producto {
-      flex: 1;
-    }
-  
-    .referido-comision {
-      align-items: flex-end;
-      justify-content: flex-end;
-      margin-top: 0;
-    }
-  }
   
 
-  /* Estilos generales de cada sección */
-.referido-identidad,
-.referido-producto,
-.referido-comision {
-  box-sizing: border-box;
-}
-
-/* Distribución en pantallas grandes (desktop) */
-@media (min-width: 768px) {
-  .referido-identidad {
-    width: 40%;
-    border-right: 1px solid #dfdfdf;
-  }
-
-  .referido-producto {
-    width: 40%;
-    border-right: 1px solid #dfdfdf;
-  }
-
-  .referido-comision {
-    width: 20%;
-    display: flex;
-    align-items: end;
-    justify-content: flex-end;
-  }
-}
-
-/* Distribución en pantallas pequeñas (mobile) */
-@media (max-width: 767px) {
-  .referido-identidad {
-    width: 100%;
-    border-right: none;
-  }
-  .referido-producto {
-    width: 100%;
-    border-right: none;
-  }
-  .referido-comision {
-    width: 100%;
-  }
-
-  .referido-comision {
-    justify-content: flex-end;
-  }
-}
-
+/* Distribución en pantallas pequeñas (mobile) 
 
 
 

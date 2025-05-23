@@ -224,7 +224,7 @@ export class AgregarPromocionComponent implements OnInit {
   promocionCreada: number = 0;
   agregarPromocion() {
 
-    
+    this.estatusNuevaPromocion = 1;
 
     this.usuarioService.getUsuario().subscribe({
       next: (u) => {
@@ -240,10 +240,19 @@ export class AgregarPromocionComponent implements OnInit {
           comisionNivelMaster: this.comisionNivelMaster
         }
 
+
+
         this.promocionesService.CrearNuevaPromocion(r).subscribe({
           next: (p) => {
 
             this.promocionCreada = p.estatus;
+
+            if(this.promocionCreada){
+              this.estatusNuevaPromocion = 2;
+            } else {
+              this.estatusNuevaPromocion = -1;
+
+            }
 
           }
         });

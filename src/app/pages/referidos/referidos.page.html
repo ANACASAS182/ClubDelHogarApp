@@ -3,11 +3,11 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <!-- <ion-title></ion-title> -->
+    <ion-title>Referidos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="contentCustom ion-padding">
+<ion-content class="contentCustom">
 
   <!-- <strong>Referidos</strong><br /> -->
   <!--Generaste las siguentes referencias, una vez que tus referidos hagan válidas sus promociones, recibiras el
@@ -32,21 +32,23 @@
     </ion-grid>
   </div> -->
 
-  <app-mensaje-temporal
-    [DuracionSegundos]="3"
-    [mensaje]="'Generaste las siguentes referencias, una vez que tus referidos hagan válidas sus promociones, recibirás el importe acumulado de las comisiones'">
-  </app-mensaje-temporal>
+  
 
   <ion-card *ngIf="IngresoPotencialView != ''">
   <ion-card-content>
+    
+    <div style="color:#272727; font-weight: bold; text-align: start;">
+      Ingresos acumulados
+    </div>
     <div 
       [ngClass]="{ 'jump': showJump }" 
-      style="color:#349721;font-size: 2rem; font-weight: bold; text-align: center;">
+      style="color:#349721;font-size: 2rem; font-weight: bold; text-align: start;">
       {{IngresoGeneradoView}}
     </div>
-    <div style="color:#748299; font-weight: bold; text-align: center;">
-      {{IngresoPotencialView}}
+    <div style="color:#748299; font-size:.8em; text-align: start;">
+      Recibirás tus ingresos el 5 de Junio del 2026  
     </div>
+    
   </ion-card-content>
 </ion-card>
 
@@ -55,46 +57,59 @@
 
    <app-loader *ngIf="cargandoReferidos"></app-loader>
 
+   <ion-item>
+    <strong>Referencias generadas</strong>
+
+   </ion-item>
 
   <ng-container *ngFor="let referido of referidos">
-    <ion-card>
-      <ion-card-content>
-        <div class="referido-card" (click)="abrirModalVisualizacion(referido)">
+    
+        <ion-item  (click)="abrirModalVisualizacion(referido)">
+<div class = "itemReferencia">
+  <ion-grid>
+    <ion-row>
+      <ion-col>
+        <section class="referido-identidad">
 
+
+          <div class="referido-nombre">{{ referido.nombreCompleto }} </div>
+          <div class="referido-contacto">
+            <span *ngIf="referido.email != ''"><ion-icon name="mail-outline"></ion-icon> {{ referido.email }}</span>
+            <span *ngIf="referido.email != '' && referido.celular != ''"> - </span>
+            <span *ngIf="referido.celular != ''"><ion-icon name="logo-whatsapp"></ion-icon> {{ referido.celular
+              }}</span>
+          </div>
+          <div class="referido-contacto">
+            <span><ion-icon name="calendar-outline"></ion-icon> {{ referido.fechaRegistro | date:'shortDate' }}</span>
+          </div>
+
+        </section>
+
+        <!-- Sección 2: Producto y empresa -->
+        <section class="referido-producto">
+          <div class="producto-nombre">{{ referido.productoNombre }}</div>
+          <div class="empresa-nombre">{{ referido.empresaRazonSocial }}</div>
+        </section>
+      </ion-col>
+      <ion-col>
+        <section class="referido-comision" >
+          <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto}}</div>
+          <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto}}</div>
+        </section>
+      </ion-col>
+    </ion-row>  
+  </ion-grid>
           <!-- Sección 1: Identidad -->
-          <section class="referido-identidad">
-
-
-            <div class="referido-nombre">{{ referido.nombreCompleto }} </div>
-            <div class="referido-contacto">
-              <span *ngIf="referido.email != ''"><ion-icon name="mail-outline"></ion-icon> {{ referido.email }}</span>
-              <span *ngIf="referido.email != '' && referido.celular != ''"> - </span>
-              <span *ngIf="referido.celular != ''"><ion-icon name="logo-whatsapp"></ion-icon> {{ referido.celular
-                }}</span>
-            </div>
-            <div class="referido-contacto">
-              <span><ion-icon name="calendar-outline"></ion-icon> {{ referido.fechaRegistro | date:'shortDate' }}</span>
-            </div>
-
-          </section>
-
-          <!-- Sección 2: Producto y empresa -->
-          <section class="referido-producto">
-            <div class="producto-nombre">{{ referido.productoNombre }}</div>
-            <div class="empresa-nombre">{{ referido.empresaRazonSocial }}</div>
-          </section>
+          
 
           <!-- Sección 3: Comisión -->
-          <section class="referido-comision" >
-            <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto}}</div>
-            <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto}}</div>
-          </section>
+          
         </div>
-      </ion-card-content>
-    </ion-card>
-
+        </ion-item>
+      
 
   </ng-container>
+
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-button class="fab-rectangular" (click)="abrirModal()">
