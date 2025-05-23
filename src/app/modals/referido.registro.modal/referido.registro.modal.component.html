@@ -1,15 +1,17 @@
 <ion-header>
-  <ion-buttons slot="end">
-    <ion-button (click)="close()">
-      <ion-icon name="close"></ion-icon>
-    </ion-button>    
-  </ion-buttons>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Agregar nuevo referido</ion-title>
+  </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
   <form [formGroup]="formulario">
-    <h2 class="form-title ion-text-center">AGREGAR NUEVO REFERIDO</h2>
-
+    
     <ion-input class="input" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
       formControlName="nombre" placeholder="Nombre completo*" type="text"
       (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>

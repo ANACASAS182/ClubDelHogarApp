@@ -1,10 +1,14 @@
 <ion-header>
-  <ion-buttons slot="end">
-    <ion-button (click)="cerrarModal()">
-      <ion-icon name="close"></ion-icon>
-    </ion-button>    
-  </ion-buttons>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cerrarModal()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="ion-text-center">{{referido!.nombreCompleto}}</ion-title>
+  </ion-toolbar>
 </ion-header>
+
 <ion-content class="ion-padding">
 
   <ion-content class="ion-padding">
