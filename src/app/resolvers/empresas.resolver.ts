@@ -9,9 +9,9 @@ import { EmpresaService } from '../services/api.back.services/empresa.service';
 export class EmpresaResolver implements Resolve<any> {
   constructor(private empresaService: EmpresaService) {}
 
-  resolve(): Observable<any> {
-    return forkJoin({
-      empresas: this.empresaService.getAllEmpresas().pipe(map(response => response.data),catchError(() => of([])))
-    });
+  resolve() {
+    //return forkJoin({
+      //empresas: this.empresaService.getAllEmpresas().pipe(map(response => response.data),catchError(() => of([])))
+    //});
   }
 }

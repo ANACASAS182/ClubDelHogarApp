@@ -33,7 +33,7 @@ export class ProductosPage implements OnInit {
 
         // Usamos setTimeout para introducir un retraso de 1 segundo (1000 ms)
         setTimeout(() => {
-          this.promocionesService.GetPromocionesEmpresa(this.UsuarioID).subscribe({
+          this.promocionesService.GetPromocionesSocio(this.UsuarioID).subscribe({
             next: (data) => {
               this.promociones = data;
               this.cargandoPromociones = false;

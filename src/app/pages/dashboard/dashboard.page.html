@@ -19,7 +19,7 @@
                 </ion-item>
               </ion-menu-toggle>
             }
-
+<!-- 
             <ion-menu-toggle auto-hide="false">
               <div class="logout-button-container">
                 <ion-button expand="block" color="light" size="small" (click)="abrirModalQr()">
@@ -27,7 +27,7 @@
                   Validar promoción
                 </ion-button>
               </div>
-            </ion-menu-toggle>
+            </ion-menu-toggle> -->
 
             <ion-item lines="none" detail="false" routerLinkActive="selected">
               <span class="userLabel">{{ userName }}</span>
@@ -45,7 +45,7 @@
         </ion-content>
       </ion-menu>
 
-      <div class="ion-page" id="main-content">
+      <div class="ion-page"  id="main-content">
         <ion-router-outlet></ion-router-outlet>
       </div>
     </ion-split-pane>
@@ -53,6 +53,7 @@
 
   <!-- Menú móvil -->
   <ng-template #mobileTabs>
+    
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
 

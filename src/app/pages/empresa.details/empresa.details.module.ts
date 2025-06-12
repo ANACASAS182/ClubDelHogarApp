@@ -11,6 +11,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.service';
+import { LoaderComponent } from "../../loader/loader.component";
+import { ProductoComponent } from "../../utils/producto/producto.component";
 
 @NgModule({
   imports: [
@@ -20,8 +22,10 @@ import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.
     EmpresaDetailsPageRoutingModule,
     MatTableModule,
     MatPaginatorModule,
-    MatSortModule
-  ],
+    MatSortModule,
+    LoaderComponent,
+    ProductoComponent
+],
   declarations: [EmpresaDetailsPage],
 })
 export class EmpresaDetailsPageModule {}

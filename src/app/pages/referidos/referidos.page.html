@@ -34,32 +34,20 @@
 
   
 
-  <ion-card *ngIf="IngresoPotencialView != ''">
-  <ion-card-content>
-    
-    <div style="color:#272727; font-weight: bold; text-align: start;">
-      Ingresos acumulados
-    </div>
-    <div 
-      [ngClass]="{ 'jump': showJump }" 
-      style="color:#349721;font-size: 2rem; font-weight: bold; text-align: start;">
-      {{IngresoGeneradoView}}
-    </div>
-    <div style="color:#748299; font-size:.8em; text-align: start;">
-      Recibirás tus ingresos el 5 de Junio del 2026  
-    </div>
-    
-  </ion-card-content>
-</ion-card>
+  
 
 
+  <app-resumen [MostrarIngresos]="true" [MostrarInvitados]="false"></app-resumen>
  
 
    <app-loader *ngIf="cargandoReferidos"></app-loader>
 
-   <ion-item>
+   <ion-item *ngIf="!cargandoReferidos">
     <strong>Referencias generadas</strong>
-
+   </ion-item>
+   
+   <ion-item *ngIf="!cargandoReferidos && referidos.length == 0">
+    Aun no tienes referidos, promociona los productos para crear referidos y generar ingresos
    </ion-item>
 
   <ng-container *ngFor="let referido of referidos">

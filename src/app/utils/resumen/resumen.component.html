@@ -1,0 +1,87 @@
+<ion-card *ngIf="cargaCompletada">
+  <ion-card-content>
+    <ng-container *ngIf="MostrarIngresos">
+      <!-- esta es la parte del dinero-->
+
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div style="color:#272727; font-weight: bold; text-align: start;">
+              Ingresos acumulados
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <span style="font-size: .5rem; font-weight: bold;">Directos</span>
+            <div style="color:#444444;font-size: 1.2rem; font-weight: bold; text-align: start;">
+              {{ingresosDirectosTexto}} <span style="font-variant: small-caps;">mxn</span>
+            </div>
+          </ion-col>
+          <ion-col>
+            <span style="font-size: .5rem; font-weight: bold;">Indirectos</span>
+            <div style="color:#444444;font-size: 1.2rem; font-weight: bold; text-align: start;">
+              {{ingresosIndirectosTexto}} <span style="font-variant: small-caps;">mxn</span>
+            </div>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col>
+            <span style="font-size: .5rem; font-weight: bold;">Total</span>
+            <div [ngClass]="{ 'jump': showJump }"
+              style="color:#349721;font-size: 2rem; font-weight: bold; text-align: start;">
+              {{ingresosAcumuladosTexto}} <span style="font-variant: small-caps;">mxn</span>
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+
+            <div style="color:#748299; font-size:.8em; text-align: start;">
+              Recibirás tus ingresos el <br /><strong>{{fechaTexto}}</strong>
+            </div>
+          </ion-col>
+        </ion-row>
+
+      </ion-grid>
+
+
+
+
+    </ng-container>
+
+    <ng-container *ngIf="MostrarIngresos && MostrarInvitados">
+      <ion-item-divider></ion-item-divider>
+    </ng-container>
+
+    <ng-container *ngIf="MostrarInvitados">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <div style="color:#272727; font-weight: bold; text-align: start;">
+              Embajadores invitados {{CuantosDeCuantos}}
+            </div>
+          </ion-col>  
+        </ion-row>  
+
+        <ion-row  *ngFor="let e of resumen?.embajadoresInvitados">
+          <ion-col>
+            <div style="color:#748299; font-size:.8em; text-align: start;">
+              {{e.fechaInvitacionTexto}}<br />
+              <strong>{{e.nombre}} - </strong>
+              <span *ngIf="e.estatus == 'Aceptado'" style="font-weight: bold;font-variant: small-caps;color: #349721;">
+                {{e.estatus}}</span>
+              <span *ngIf="e.estatus == 'Pendiente'" style="font-weight: bold;font-variant: small-caps;">
+                {{e.estatus}}</span>
+  
+            </div>
+          </ion-col>  
+        </ion-row> 
+
+      </ion-grid>
+    
+    </ng-container>
+    <!-- esta es la parte de los embajadores invitados-->
+  </ion-card-content>
+</ion-card>

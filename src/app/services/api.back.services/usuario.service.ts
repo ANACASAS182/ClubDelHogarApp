@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LoginUsuarioDTO } from 'src/app/models/DTOs/LoginUsuarioDTO';
-import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
+import { UsuarioDTO, UsuarioRegistrarBasicoDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { PasswordRecoveryDTO } from 'src/app/models/DTOs/PasswordRecoveryDTO';
 import { PasswordResetDTO } from 'src/app/models/DTOs/PasswordResetDTO';
@@ -32,7 +32,17 @@ export class UsuarioService {
     return this.http.post<GenericResponseDTO<string>>(url, user, options);
   }
 
-  register(user: UsuarioDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {
+  
+
+  postOnboardingA(user:UsuarioDTO):Observable<boolean>{
+    return this.http.post<boolean>(`${this.apiUrl}/postOnboardingA`, user);
+  }
+
+  postOnboardingB(user:UsuarioDTO):Observable<boolean>{
+    return this.http.post<boolean>(`${this.apiUrl}/postOnboardingB`, user);
+  }
+
+  registerCodigoInvitacion(user: UsuarioRegistrarBasicoDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {
     let headers = new HttpHeaders();
 
     if (skipErrorHandler) {
@@ -40,7 +50,7 @@ export class UsuarioService {
     }
     const options = { headers };
 
-    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/RegistroUsuario`, user, options);
+    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/RegistroUsuarioCodigoInvitacion`, user, options);
   }
 
   passwordRecovery(model: PasswordRecoveryDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {

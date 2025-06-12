@@ -9,8 +9,10 @@ import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Empresa } from 'src/app/models/Empresa';
 import { Producto } from 'src/app/models/Producto';
+import { Promocion } from 'src/app/models/Promocion';
 import { EmpresaService } from 'src/app/services/api.back.services/empresa.service';
 import { ProductoService } from 'src/app/services/api.back.services/producto.service';
+import { PromocionesService } from 'src/app/services/api.back.services/promociones.service';
 import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.service';
 
 @Component({
@@ -36,7 +38,7 @@ export class EmpresaDetailsPage implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   
   constructor(private route: ActivatedRoute,
-     private productoService: ProductoService, 
+     private promocionesService: PromocionesService, 
      private modalCtrl: ModalController,
      private modalAlert: ModalAlerReferidoService,
      private empresaService : EmpresaService) {
@@ -47,33 +49,21 @@ export class EmpresaDetailsPage implements OnInit, AfterViewInit {
     this.loadtable();
   }
 
-  loadtable() {
-    this.sort.sortChange.subscribe(() => (this.paginator.pageIndex = 0));
+   promociones:Promocion[] = [];
+     cargandoPromociones:boolean = true;
 
-    merge(this.sort.sortChange, this.paginator.page)
-      .pipe(
-        startWith({}),
-        switchMap(() => {
-          return this.productoService.getProductoPaginated({
-            id: this.empresaID,
-            page: this.paginator.pageIndex,
-            size: this.paginator.pageSize,
-            sortBy: this.sort.active,
-            sortDir: this.sort.direction
-          })
-            .pipe(catchError(() => of(null)));
-        }),
-        map(response => {
-          if (response === null) {
-            return [];
-          }
-          this.total = response.data.total;
-          return response.data.items;
-        }),
-      )
-      .subscribe(response => {
-        this.dataSourceTable = new MatTableDataSource(response);
+  loadtable() {
+    this.cargandoPromociones = true;
+        
+     // Usamos setTimeout para introducir un retraso de 1 segundo (1000 ms)
+     setTimeout(() => {
+      this.promocionesService.GetPromocionesEmpresa(this.empresaID).subscribe({
+        next: (data) => {
+          this.promociones = data;
+          this.cargandoPromociones = false;
+        }
       });
+    }, 2000);  // Retraso de 1 segundo
   }
 
 

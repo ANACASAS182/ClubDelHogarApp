@@ -27,4 +27,9 @@ export class UtilitiesService {
     return `${diaSemana}, ${diaMes} de ${mes} de ${anio}`;
   }
 
+
+  formatCurrency(value: number): string {
+    return value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
+  }
+
 }

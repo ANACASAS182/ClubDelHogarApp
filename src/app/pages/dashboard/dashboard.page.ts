@@ -8,6 +8,7 @@ import { TokenService } from 'src/app/services/token.service';
 import { UsuarioRegistroPageModule } from '../usuario.registro/usuario.registro.module';
 import { ModalController } from '@ionic/angular';
 import { ModalQRComponent } from 'src/app/modals/modal-qr/modal-qr.component';
+import { OnboardingComponent } from 'src/app/modals/onboarding/onboarding.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,7 +30,7 @@ export class DashboardPage implements OnInit {
     { title: 'Network', tituloMovil: 'Network', url: '/dashboard/network', icon: 'network' },
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos', icon: 'referidos' },
     { title: 'Mi Célula', tituloMovil: 'Célula', url: '/dashboard/celula', icon: 'network' },
-    { title: 'Mis Productos', tituloMovil: 'Productos', url: '/dashboard/productos', icon: 'configuracion' },
+    //{ title: 'Mis Productos', tituloMovil: 'Productos', url: '/dashboard/productos', icon: 'configuracion' },
     //{ title: 'Activaciones', tituloMovil: 'Activaciones', url: '/dashboard/activaciones', icon: 'configuracion' },
     { title: 'Configuración', tituloMovil: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
 
@@ -40,6 +41,8 @@ export class DashboardPage implements OnInit {
 
 
   UsuarioID: number = 0;
+
+    
 
   ngOnInit() {
 
@@ -53,6 +56,12 @@ export class DashboardPage implements OnInit {
         console.log(response.data);
         this.userName = response.data.nombres + " " + response.data.apellidos;
         this.UsuarioID = response.data.id;
+
+        if(response.data.mostrarOnboarding){
+          this.appPages = [];
+          this.mostrarOnboarding();
+        }
+
       }
     });
   }
@@ -93,6 +102,25 @@ export class DashboardPage implements OnInit {
     if (data) {
       console.log(data);
     }
+  }
+
+  async mostrarOnboarding(){
+    let formDirty = false;
+        const modal = await this.modalCtrl.create({
+          component: OnboardingComponent,
+          cssClass: 'modal-redondeado',
+          componentProps: {
+            usuarioId: this.UsuarioID,
+            setFormDirtyStatus: (dirty: boolean) => formDirty = dirty
+          },
+          canDismiss: async () => {
+            if (!formDirty) return true;
+    
+            const shouldClose = true;
+            return shouldClose;
+          }
+        });
+        await modal.present();
   }
 
 

@@ -7,4 +7,5 @@ export interface Promocion{
     marketing:string;
     comision:string;
     vigencia:string;
+    logotipoBase64:string;
 }

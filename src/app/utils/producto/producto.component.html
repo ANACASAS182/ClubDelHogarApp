@@ -1,0 +1,43 @@
+<div style="padding: 16px;">
+
+  <!-- Título y empresa -->
+  <div style="margin-bottom: 8px;">
+    <ion-grid>
+      <ion-row>
+       
+        <ion-col size="10">
+          <h2 style="margin: 0; font-size: 1.5em;">{{promocion!.nombre}}</h2>
+          <span style="font-size: 0.9em; color: #666;">{{promocion!.empresaNombre}}</span>
+        </ion-col>
+        <ion-col size="2">
+          <img  style ="width: 100%; border-radius: 4px; border:1px solid #eee;" [src]="promocion?.logotipoBase64" alt="Imagen" />
+      </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <p style="margin: 0 0 12px 0; font-size: 1em; color: #444;">
+            {{promocion!.descripcion}}
+          </p>
+        </ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col>
+          <div style="text-align: right;">
+            <small style="font-size: 0.9em; color: #666;">Comisión</small><br />
+            <span style="font-size: 1.5em; font-weight: bold; color: #007b00;">
+              {{promocion!.comision}}
+            </span>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
+  </div>
+
+  <!-- Descripción -->
+  
+
+  <!-- Comisión alineada a la derecha -->
+  
+
+</div>

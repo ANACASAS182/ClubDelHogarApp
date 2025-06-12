@@ -18,6 +18,11 @@ export class EmpresaService {
     return this.http.get<GenericResponseDTO<Empresa[]>>(`${this.apiUrl}/GetAllEmpresas`);
   }
 
+  getAllEmpresasByUsuarioId(usuarioId:number) : Observable<GenericResponseDTO<Empresa[]>> {
+    return this.http.get<GenericResponseDTO<Empresa[]>>(`${this.apiUrl}/getAllEmpresasByUsuarioId?usuarioId=${usuarioId}`);
+  }
+
+
   getEmpresaByID(id: number) : Observable<GenericResponseDTO<Empresa>> {
     var params = new HttpParams().set("empresaID",id);
     return this.http.get<GenericResponseDTO<Empresa>>(`${this.apiUrl}/GetEmpresaByID`, {params});

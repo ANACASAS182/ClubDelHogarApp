@@ -12,6 +12,7 @@
 
 
 <ion-content class="contentCustom">
+  <app-resumen [MostrarInvitados]="true"></app-resumen>
   <!-- Usuario -->
   <ion-card class="customCard">
     <ion-card-header class="headerCustomCard">
@@ -20,10 +21,10 @@
 
     <ion-card-content>
       <app-loader *ngIf="cargandoCelula"></app-loader>
-      <ng-container >
+      <!-- <ng-container >
 
-        <canvas #orgCanvas width="1000" height="600"></canvas>
-      </ng-container>
+        <canvas #orgCanvas width="300" height="600" ></canvas>
+      </ng-container> -->
       
       <!-- <ng-container *ngIf="this.celula">
         <div class="celula-card" *ngIf="this.celula!.padre">
