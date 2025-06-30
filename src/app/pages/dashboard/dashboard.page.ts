@@ -10,6 +10,10 @@ import { ModalController } from '@ionic/angular';
 import { ModalQRComponent } from 'src/app/modals/modal-qr/modal-qr.component';
 import { OnboardingComponent } from 'src/app/modals/onboarding/onboarding.component';
 
+import { CapacitorBarcodeScanner } from '@capacitor/barcode-scanner';
+
+import { Preferences } from '@capacitor/preferences';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
@@ -31,9 +35,8 @@ export class DashboardPage implements OnInit {
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos', icon: 'referidos' },
     { title: 'Mi Célula', tituloMovil: 'Célula', url: '/dashboard/celula', icon: 'network' },
     //{ title: 'Mis Productos', tituloMovil: 'Productos', url: '/dashboard/productos', icon: 'configuracion' },
-    //{ title: 'Activaciones', tituloMovil: 'Activaciones', url: '/dashboard/activaciones', icon: 'configuracion' },
+    //,
     { title: 'Configuración', tituloMovil: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
-
   ];
   constructor(private router: Router, private tokenService: TokenService,
     private modalCtrl: ModalController,
@@ -43,8 +46,9 @@ export class DashboardPage implements OnInit {
   UsuarioID: number = 0;
 
     
+  esSocio:boolean=false;
 
-  ngOnInit() {
+  async ngOnInit() {
 
     this.checkScreenSize();
 
@@ -56,6 +60,17 @@ export class DashboardPage implements OnInit {
         console.log(response.data);
         this.userName = response.data.nombres + " " + response.data.apellidos;
         this.UsuarioID = response.data.id;
+
+
+
+        Preferences.set({
+          key:'nombreAlmacenado', value :response.data.nombres
+        });
+
+        if(response.data.rolesID == 2){
+        this.esSocio =true;
+//        this.appPages.push({ title: 'Activaciones', tituloMovil: 'Activaciones', url: '/dashboard/activaciones', icon: 'configuracion' });
+        }
 
         if(response.data.mostrarOnboarding){
           this.appPages = [];
@@ -82,13 +97,23 @@ export class DashboardPage implements OnInit {
   }
 
   async abrirModalQr() {
+    console.log("hola");
+
+let result = await CapacitorBarcodeScanner.scanBarcode({
+  hint:1,
+  scanButton:true
+});
+
+console.log(result);
+console.log("adios");
+
     let formDirty = false;
 
     const modal = await this.modalCtrl.create({
       component: ModalQRComponent,
       cssClass: 'modal-redondeado',
       componentProps: {
-        setFormDirtyStatus: (dirty: boolean) => formDirty = dirty
+        codigoParametro: result.ScanResult
       },
       canDismiss: async () => {
         return true;

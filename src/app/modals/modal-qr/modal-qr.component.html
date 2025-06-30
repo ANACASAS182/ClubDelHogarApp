@@ -1,4 +1,5 @@
-<!-- Modal centrado -->
+
+
 <div *ngIf="codigoPromocion !== ''" class="promo-container">
 
   <div class="promo-title">
@@ -38,6 +39,9 @@
       <button class="promo-button" (click)="ActivarPromocion()">
         Validar código
       </button>
+      <button class="promo-button" (click)="close()">
+        Salir
+      </button>
     </div>
 
     <!-- Loader mientras se activa -->
@@ -63,8 +67,8 @@
     <div class="promo-reason">
       {{ MotivoInactividad }}
     </div>
+    <button class="promo-button" (click)="close()">
+      Salir
+    </button>
   </div>
 </div>
-
-<!-- Lector QR -->
-<div id="reader" class="promo-qr-reader"></div>

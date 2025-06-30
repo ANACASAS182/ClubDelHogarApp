@@ -19,15 +19,15 @@
                 </ion-item>
               </ion-menu-toggle>
             }
-<!-- 
-            <ion-menu-toggle auto-hide="false">
+
+            <ion-menu-toggle auto-hide="false" *ngIf="esSocio">
               <div class="logout-button-container">
                 <ion-button expand="block" color="light" size="small" (click)="abrirModalQr()">
                   <ion-icon slot="start" name="qr-code-outline"></ion-icon>
                   Validar promoción
                 </ion-button>
               </div>
-            </ion-menu-toggle> -->
+            </ion-menu-toggle> 
 
             <ion-item lines="none" detail="false" routerLinkActive="selected">
               <span class="userLabel">{{ userName }}</span>

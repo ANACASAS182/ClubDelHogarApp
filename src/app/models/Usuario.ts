@@ -13,5 +13,6 @@ export interface Usuario{
     fechaCreacion: Date;
 
     mostrarOnboarding:boolean;
+    rolesID:number;
 }
 
