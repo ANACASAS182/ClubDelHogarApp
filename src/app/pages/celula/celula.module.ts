@@ -8,7 +8,8 @@ import { CelulaPageRoutingModule } from './celula-routing.module';
 
 import { CelulaPage } from './celula.page';
 import { ReactiveFormsModule } from '@angular/forms';
-import { LoaderComponent } from "../../loader/loader.component"; 
+import { LoaderComponent } from "../../loader/loader.component";
+import { ResumenComponent } from "../../utils/resumen/resumen.component"; 
 
 
 @NgModule({
@@ -18,7 +19,8 @@ import { LoaderComponent } from "../../loader/loader.component";
     IonicModule,
     CelulaPageRoutingModule,
     ReactiveFormsModule,
-    LoaderComponent
+    LoaderComponent,
+    ResumenComponent
 ],
   declarations: [CelulaPage]
 })

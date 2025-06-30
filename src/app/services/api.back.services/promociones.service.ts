@@ -17,13 +17,23 @@ export class PromocionesService {
     return this.http.post<SolicitudCodigoQrResponse>(`${this.apiUrl}/GenerarCodigoPromocion`, solicitud);
   }
 
+  GetResumenEmbajador(UsuarioID:number) : Observable<ResumenEmbajadorDTO> {
+    return this.http.get<ResumenEmbajadorDTO>(`${this.apiUrl}/GetResumenEmbajador?UsuarioID=${UsuarioID}`);
+  }
+
   GetPromociones(UsuarioID:number) : Observable<Promocion[]> {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromociones?UsuarioID=${UsuarioID}`);
   }
 
 
-  GetPromocionesEmpresa(UsuarioID: number): Observable<Promocion[]> {
-    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesEmpresa?UsuarioID=${UsuarioID}`);
+  GetPromocionesSocio(UsuarioID:number) : Observable<Promocion[]> {
+    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesSocio?UsuarioID=${UsuarioID}`);
+  }
+
+
+
+  GetPromocionesEmpresa(EmpresaID: number): Observable<Promocion[]> {
+    return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesEmpresa?EmpresaID=${EmpresaID}`);
   }
 
   ConsultarEstatusDelCodigoQr(request: ValidarPromocionQrRequest): Observable<RespuestaEstatusPromocion> {
@@ -59,6 +69,19 @@ export interface CrearPromocionRequest {
   comisionNivel4: number;
   comisionNivelMaster: number;
 
+}
+
+export interface ResumenEmbajadorDTO{
+  ingresosDirectos:number;
+  ingresosIndirectos:number;
+  proximaFechaPago:Date;
+  embajadoresInvitados:ResumenEmbajadorInvitacionDTO[];
+}
+export interface ResumenEmbajadorInvitacionDTO{
+  nombre:string;
+  fechaInvitacion:Date;
+  fechaInvitacionTexto:string;
+  estatus:string;
 }
 
 export interface SolicitudCodigoQrRequest {

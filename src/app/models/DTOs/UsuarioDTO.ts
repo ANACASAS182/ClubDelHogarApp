@@ -1,3 +1,9 @@
+export interface UsuarioRegistrarBasicoDTO{
+  email:string;
+  password:string;
+  codigoInvitacion:string;
+}
+
 export interface UsuarioDTO {
     nombres: string;
     apellidos: string;
@@ -13,5 +19,8 @@ export interface UsuarioDTO {
     codigoInvitacion?: string;
     //Abraham Casas
     UsuarioParent?: number;
+    rolesId?:number;
+
+    id?:number;
   }
   

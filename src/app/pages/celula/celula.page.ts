@@ -73,9 +73,11 @@ export class CelulaPage implements OnInit {
 
   /* CHAT GPT CELULA FIJA */
 
-  @ViewChild('orgCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  /*@ViewChild('orgCanvas', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;*/
 
   ngAfterViewInit(): void {
+
+/*
     const canvas = this.canvasRef.nativeElement;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -163,9 +165,10 @@ export class CelulaPage implements OnInit {
       positions['Josue Angeles'][0],
       positions['Josue Angeles'][1]
     );
+  
+
+*/
   }
-
-
 
 }
 

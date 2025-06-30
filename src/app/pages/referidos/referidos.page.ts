@@ -87,7 +87,7 @@ export class ReferidosPage implements OnInit, AfterViewInit {
               this.IngresoGeneradoView = "$" + ingresoGenerado.toFixed(2);
               this.IngresoPotencialView = "$"+ ingresoPotencial.toFixed(2);
 
-              this.animateIngreso();
+              
 
             }
           });
@@ -180,26 +180,8 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
 
 
-  /* ANIMACION DEL DINEROS */
-
-  showJump = false;
 
 
-
-  animateIngreso() {
-    this.showJump = true;
-    setTimeout(() => {
-      this.showJump = false;
-      setTimeout(() => {
-        this.animateIngreso();
-      }, 3000);
-    }, 500); // duración de la animación
-
-  }
-
-  formatCurrency(value: number): string {
-    return value.toLocaleString('es-MX', { style: 'currency', currency: 'MXN' });
-  }
 
 
 }

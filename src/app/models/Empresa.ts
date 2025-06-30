@@ -5,4 +5,5 @@ export interface Empresa{
     nombreComercial:string;
     descripcion:string;
     logotipoPath:string; 
+    logotipoBase64:string;
 }

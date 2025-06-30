@@ -25,6 +25,7 @@ export class EmpresasNetworkPage implements OnInit {
 
   promociones:Promocion[] = [];
    cargandoPromociones:boolean = true;
+   cargandoEmpresas:boolean = true;
 
   constructor(private router : Router, private activeRoute: ActivatedRoute, 
     private empresaService : EmpresaService,
@@ -34,10 +35,9 @@ export class EmpresasNetworkPage implements OnInit {
   ) { } 
   
   ngOnInit() {  
-    const resolverData = this.activeRoute.snapshot.data['resolverData'];
-    this.empresas = resolverData.empresas;
-  
+    
     this.cargandoPromociones = true;
+    this.cargandoEmpresas = true;
     
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
@@ -53,6 +53,16 @@ export class EmpresasNetworkPage implements OnInit {
             }
           });
         }, 2000);  // Retraso de 1 segundo
+
+          // Usamos setTimeout para introducir un retraso de 1 segundo (1000 ms)
+          setTimeout(() => {
+            this.empresaService.getAllEmpresasByUsuarioId(this.UsuarioID).subscribe({
+              next: (data) => {
+                this.empresas = data.data;
+                this.cargandoEmpresas = false;
+              }
+            });
+          }, 2000);  // Retraso de 1 segundo
       }
     });
   }

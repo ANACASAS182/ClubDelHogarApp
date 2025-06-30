@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 
 import { Html5Qrcode } from 'html5-qrcode';
 import { IonicModule, ModalController } from '@ionic/angular';
@@ -35,11 +35,14 @@ export class ModalQRComponent implements OnInit {
 
   }
 
+  @Input() codigoParametro: string = "";
+
   codigoPromocion: string = "";
   html5QrCode: Html5Qrcode | undefined; //new Html5Qrcode("reader");
   ngOnInit() {
-    this.html5QrCode = new Html5Qrcode("reader");
-    this.iniciarCaptura();
+    if(this.codigoParametro != ""){
+      this.iniciarCaptura(this.codigoParametro);
+    }
 
   }
 
@@ -52,6 +55,8 @@ export class ModalQRComponent implements OnInit {
 
   ActivarPromocion() {
 
+    console.log("activando promocion");
+
     let request: ValidarPromocionQrRequest = {
       UsuarioID: 1,
       codigoPromocion: this.codigoPromocion
@@ -60,15 +65,15 @@ export class ModalQRComponent implements OnInit {
     this.promocionesService.PostHacerPromocionValida(request).subscribe({
       next: (data) => {
         if (data.estatus == 1) {
-          this.EstatusDelCodigo = 1;
+          this.EstatusActivacionDelCodigo = 1;
         }
         if (data.estatus == -1) {
-          this.EstatusDelCodigo = -1;
+          this.EstatusActivacionDelCodigo = -1;
           this.MotivoInactividad = data.mensaje;
         }
       },
       error: (err) => {
-        this.EstatusDelCodigo = -1;
+        this.EstatusActivacionDelCodigo = -1;
         this.MotivoInactividad = "Ocurrió un error, por favor intente nuevamente";
       },
       complete: () => {
@@ -79,83 +84,44 @@ export class ModalQRComponent implements OnInit {
   }
 
 
-  iniciarCaptura() {
-    // Configurar el timeout
-    this.timeoutId = setTimeout(() => {
-      console.warn("No se detectó ningún QR en 10 segundos");
-      this.detenerCaptura(true);
-    }, 10000); // 10 segundos
+  iniciarCaptura(decodedText:string) {
+    if (decodedText.includes('https://ebg.bithub.com.mx/val/')) {
+      this.codigoPromocion = decodedText.replace('https://ebg.bithub.com.mx/val/', '');
+      this.EstatusObtenerInformacionDelCodigo = 1;
 
-    this.html5QrCode!.start(
-      { facingMode: "environment" },
-      {
-        fps: 10,
-        qrbox: 250,
-      },
-      (decodedText, decodedResult) => {
-        // Se detectó un QR, cancelamos el timeout
-        clearTimeout(this.timeoutId);
+      let request: ValidarPromocionQrRequest = {
+        UsuarioID: 1,
+        codigoPromocion: this.codigoPromocion
+      };
 
-        console.log("QR Code detected: ", decodedText);
-        this.detenerCaptura();
-
-        if (decodedText.includes('https://ebg.bithub.com.mx/val/')) {
-          this.codigoPromocion = decodedText.replace('https://ebg.bithub.com.mx/val/', '');
-          this.EstatusObtenerInformacionDelCodigo = 1;
-
-          let request: ValidarPromocionQrRequest = {
-            UsuarioID: 1,
-            codigoPromocion: this.codigoPromocion
-          };
-
-          this.promocionesService.ConsultarEstatusDelCodigoQr(request).subscribe({
-            next: (data) => {
-              if (data.estatus == 1) {
-                this.EstatusDelCodigo = 1;
-                this.promocionRelacionada = data.promocion;
-              }
-              if (data.estatus == -1) {
-                this.EstatusDelCodigo = -1;
-                this.MotivoInactividad = data.mensaje;
-              }
-            },
-            error: (err) => {
-              this.EstatusDelCodigo = -1;
-              this.MotivoInactividad = "Ocurrió un error, por favor intente nuevamente";
-            },
-            complete: () => {
-              this.EstatusObtenerInformacionDelCodigo = 0;
-            }
-          });
-
-        } else {
-          this.codigoPromocion = "NO VALIDO";
+      this.promocionesService.ConsultarEstatusDelCodigoQr(request).subscribe({
+        next: (data) => {
+          if (data.estatus == 1) {
+            this.EstatusDelCodigo = 1;
+            this.promocionRelacionada = data.promocion;
+          }
+          if (data.estatus == -1) {
+            this.EstatusDelCodigo = -1;
+            this.MotivoInactividad = data.mensaje;
+          }
+        },
+        error: (err) => {
           this.EstatusDelCodigo = -1;
-          this.MotivoInactividad = "El Código QR proporcionado no pertenece a Embassy";
+          this.MotivoInactividad = "Ocurrió un error, por favor intente nuevamente";
+        },
+        complete: () => {
+          this.EstatusObtenerInformacionDelCodigo = 0;
         }
-      },
-      (errorMessage) => {
-        // Error de escaneo (opcionalmente puedes manejarlo)
-      }
-    );
+      });
+
+    } else {
+      this.codigoPromocion = "NO VALIDO";
+      this.EstatusDelCodigo = -1;
+      this.MotivoInactividad = "El Código QR proporcionado no pertenece a Embassy";
+    }
   }
 
-  detenerCaptura(cerrar: boolean = false) {
-    // Detener captura
-    this.html5QrCode!.stop().then(() => {
-      console.log("Cámara detenida correctamente");
+  
 
-      if (cerrar) {
-        this.close();
-      }
-
-    }).catch((err) => {
-      console.error("Error al detener la cámara:", err);
-    });
-  }
-
-  validarPromocion() {
-
-  }
 
 }

@@ -12,6 +12,8 @@ import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
 import { LoaderComponent } from "../../loader/loader.component";
 import { MensajeTemporalComponent } from 'src/app/mensaje-temporal/mensaje-temporal.component';
+import { ResumenComponent } from 'src/app/utils/resumen/resumen.component';
+
 
 
 @NgModule({
@@ -24,7 +26,8 @@ import { MensajeTemporalComponent } from 'src/app/mensaje-temporal/mensaje-tempo
     MatPaginatorModule,
     MatSortModule,
     LoaderComponent,
-    MensajeTemporalComponent
+    MensajeTemporalComponent,
+    ResumenComponent
 ],
   declarations: [ReferidosPage]
 })

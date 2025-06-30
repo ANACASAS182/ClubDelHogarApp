@@ -6,13 +6,19 @@
     <!-- Formulario -->
     <div class="login-form-wrapper">
       <div [formGroup]="loginForm" class="login-form">
-        <img src="assets/logo_transparente.png" alt="Logo de Embassy" class="logo" />
+        <img *ngIf="!tecladoVisible" src="assets/logo_transparente.png" alt="Logo de Embassy" class="logo" />
 
-        <h2 class="form-title">Bienvenido</h2>
-        <p class="subtitle"><small>Accede a tu cuenta para continuar</small></p>
+        <h2 class="form-title" *ngIf="correoAlmacenado == ''">Bienvenido</h2>
+        <h2 class="form-title" *ngIf="correoAlmacenado != ''">Hola, {{nombreAlmacenado}}</h2>
 
+        <p class="subtitle" *ngIf="correoAlmacenado == ''">
+          <small>Accede a tu cuenta para continuar</small>
+        </p>
 
-        
+        <p class="subtitle" *ngIf="correoAlmacenado != ''">
+          <small>Estás iniciando sesión como: <strong><br/>
+            {{correoAlmacenado}}</strong></small>
+                  </p>
 
         @if (hasError) {
           <div class="custom-alert warning">
@@ -25,32 +31,41 @@
           label-placement="floating"
           label="Correo electrónico"
           type="text"
-          class = "embassy_input"
+          [ngClass] = "{'embassy_input':true, 'invisible':correoAlmacenado != ''}"
           (ionBlur)="getControl('user')?.markAsTouched()">
         </ion-input>
         <!-- <ion-text color="danger" *ngIf="getControl('user')?.invalid && getControl('user')?.touched">
           Ingresa el correo electrónico con el cual te registraste
         </ion-text> -->
+        
 
         <ion-input
           formControlName="password"
           label-placement="floating"
           label="Contraseña"
           type="password"
-          class = "embassy_input"
+          [ngClass] = "{'embassy_input':true, 'invisible':correoAlmacenado != ''}"
           (ionBlur)="getControl('password')?.markAsTouched()">
           <ion-input-password-toggle *ngIf="getControl('password')!.value! != ''" slot="end"></ion-input-password-toggle>
         </ion-input>
-        <!-- <ion-text color="danger" *ngIf="getControl('password')?.invalid && getControl('password')?.touched">
-          Ingresa tu contraseña de Embassy
-        </ion-text> -->
+
+        <div  *ngIf ="!iniciandoSesion && correoAlmacenado == ''" >
+          <ion-checkbox formControlName ="almacenarDatos" >Guardar datos de inicio de sesión</ion-checkbox>
+        </div>
+
+       
         <hr class = "spacer_embassy"/>
         <ion-progress-bar *ngIf ="iniciandoSesion"  type="indeterminate"></ion-progress-bar>
         <ion-button *ngIf ="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
           Ingresar
         </ion-button>
         <hr class = "spacer_embassy"/>
-        <div class="form-links">
+
+        <ion-button *ngIf ="!iniciandoSesion && correoAlmacenado != ''" expand="block" shape="round" (click)="borrarDatosAlmacenados()">
+          <small>Iniciar sesión con otra cuenta</small>
+        </ion-button>
+        <hr class = "spacer_embassy"/>
+        <div class="form-links" *ngIf ="!iniciandoSesion && correoAlmacenado == ''" >
           <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
         </div>
       </div>

@@ -11,5 +11,8 @@ export interface Usuario{
     ciudad?: string;
     fuenteOrigenID?: number;
     fechaCreacion: Date;
+
+    mostrarOnboarding:boolean;
+    rolesID:number;
 }
 

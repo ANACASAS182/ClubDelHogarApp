@@ -8,6 +8,8 @@ import { EmpresasNetworkPageRoutingModule } from './empresas.network-routing.mod
 
 import { EmpresasNetworkPage } from './empresas.network.page';
 import { LoaderComponent } from "../../loader/loader.component";
+import { ResumenComponent } from "../../utils/resumen/resumen.component";
+import { ProductoComponent } from "../../utils/producto/producto.component";
 
 @NgModule({
   imports: [
@@ -15,7 +17,9 @@ import { LoaderComponent } from "../../loader/loader.component";
     FormsModule,
     IonicModule,
     EmpresasNetworkPageRoutingModule,
-    LoaderComponent
+    LoaderComponent,
+    ResumenComponent,
+    ProductoComponent
 ],
   declarations: [EmpresasNetworkPage]
 })

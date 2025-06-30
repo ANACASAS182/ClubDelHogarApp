@@ -7,7 +7,7 @@ import { CatalogoEstado } from 'src/app/models/CatalogoEstado';
 import { CatalogoPais } from 'src/app/models/CatalogoPais';
 import { FuenteOrigenDTO } from 'src/app/models/DTOs/FuenteOrigenDTO';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
-import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
+import { UsuarioRegistrarBasicoDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { matchValidator } from 'src/app/validators/custom.validators';
 import { EmbajadoresService } from '../../services/api.back.services/embajadores.service';
@@ -45,41 +45,19 @@ export class UsuarioRegistroPage implements OnInit {
     private embajadoresService:EmbajadoresService,
     private usuarioService: UsuarioService) {
     this.formularioRegistro = this.fb.group({
-      nombre: ['', Validators.required],
-      apellido: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      pais: ['', Validators.required],
-      ciudad: ['', Validators.required],
-      estado: [''],
-      estadoTexto: [''],
-      telefono: ['', Validators.required],
-      confirmTelefono: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
-      fuenteOrigen: ['', Validators.required],
+      confirmPassword: ['', Validators.required]
     },
       {
         validators: [
-          matchValidator('telefono', 'confirmTelefono'),
           matchValidator('password', 'confirmPassword'),
         ],
       });
   }
 
   ngOnInit() {
-    const resolverData = this.route.snapshot.data['resolverData'];
-    this.fuentesOrigen = resolverData.fuentesOrigen;
-    this.paises = resolverData.paises;
-    this.estados = resolverData.estados;
-
-    //Mexico por default
-    var mexico = this.paises.find(t => t.codigo == "MEX");
-    this.formularioRegistro.patchValue({
-      pais: mexico?.id
-    });
-    this.isNacional = true;
-
-
+    
     // Capturamos el parámetro 'codigo' de la URL
     this.route.paramMap.subscribe(params => {
       this.codigo = params.get('codigo') || '';
@@ -105,37 +83,25 @@ export class UsuarioRegistroPage implements OnInit {
       return;
     }
 
-    var user: UsuarioDTO = {
+    var user: UsuarioRegistrarBasicoDTO = {
       email: this.formularioRegistro.controls["email"].value,
-      apellidos: this.formularioRegistro.controls["apellido"].value,
-      catalogoPaisID: this.formularioRegistro.controls["pais"].value,
-      celular: this.formularioRegistro.controls["telefono"].value,
-      ciudad: this.formularioRegistro.controls["ciudad"].value,
-      confirmPassword: this.formularioRegistro.controls["confirmPassword"].value,
-      estadoTexto: this.formularioRegistro.controls["estadoTexto"].value,
-      fuenteOrigenID: this.formularioRegistro.controls["fuenteOrigen"].value,
-      nombres: this.formularioRegistro.controls["nombre"].value,
+      codigoInvitacion: this.codigo,
       password: this.formularioRegistro.controls["password"].value,
-      catalogoEstadoID: this.formularioRegistro.controls["estado"].value,
-      codigoInvitacion:this.codigo,
-      UsuarioParent:this.EmbajadorReferenteId
-    }
-    this.usuarioService.register(user).pipe(
+      }
+    this.usuarioService.registerCodigoInvitacion(user).pipe(
       finalize(() => {
         this.formEnviado = false;
       })
     ).subscribe({
       next: (response: GenericResponseDTO<boolean>) => {
-        this.router.navigate(['/login'], { replaceUrl: true });
-        this.toastController.create({
-          message: "Registrado con exito. Inicia sesión con tu usuario.",
-          duration: 3000,
-          color: "success",
-          position: 'top'
-        }).then(toast => toast.present());
+        if(response.data){
+          this.cuentaCreadaCorrectamente = 1;
+        }
       }
     });
   }
+
+  cuentaCreadaCorrectamente:number = 0;
 
 
   onPaisChange(event: any) {

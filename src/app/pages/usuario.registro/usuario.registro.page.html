@@ -1,16 +1,40 @@
 <ion-content class="page" fullscreen>
-  <div class="center-wrapper">
-
-    <div class="card" [formGroup]="formularioRegistro">
-      <img src="assets/logo.png" alt="Logo" class="logo" />
-      <h1 class="form-title">¡TE DAMOS LA BIENVENIDA!</h1>
-      <h3 class="form-title">Crea tu cuenta como embajador </h3>
-
-      <div class="codigo-cupon" *ngIf="codigo != ''">
-        <p class="invitador-texto">Fuiste invitado a unirte por <br/><strong>{{ nombreInvitador }}</strong></p>
-      </div>
-
+  
+    <div [formGroup]="formularioRegistro">
       <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="12">
+            <div style ="text-align: center;margin-top: 48px;margin-bottom: 16px;">
+              <img style="width: 128px;" src="https://www.embassyen.com/assets/logo_transparente.png" />
+              <h3>¡Te damos la bienvenida!</h3>
+
+            </div>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col size="12" size-md="12">
+            <div class="codigo-cupon" *ngIf="codigo != ''">
+              <p class="invitador-texto">Fuiste invitado a unirte por <br/><strong>{{ nombreInvitador }}</strong></p>
+            </div>
+      
+          </ion-col>
+        </ion-row>
+        
+      </ion-grid>
+      
+
+     
+      
+      <ng-container *ngIf="cuentaCreadaCorrectamente == 0">
+      <ion-grid>
+
+        <ion-row>
+          <ion-col size="12" size-md="12">
+            <p>Ingresa tus datos para crear tu cuenta</p>
+          </ion-col>
+        </ion-row>
+
+        
         <ion-row>
 
           <ion-col size="12" size-md="12">
@@ -23,119 +47,6 @@
             </ion-text>
           </ion-col>
 
-          <ion-col size="12" size-md="6">
-            <ion-input class="input" [class.invalid]="getControl('nombre')?.invalid && getControl('nombre')?.touched"
-              formControlName="nombre" label-placement="floating" label="Nombre(s)" type="text"
-              
-              (ionBlur)="getControl('nombre')?.markAsTouched()"></ion-input>
-            <ion-text color="danger" *ngIf="getControl('nombre')?.invalid && getControl('nombre')?.touched">
-              Es obligatorio ingresar tu nombre
-            </ion-text>
-
-
-
-          </ion-col>
-
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('apellido')?.invalid && getControl('apellido')?.touched"
-              formControlName="apellido" label-placement="floating" label="Apellido(s)" type="text"
-              (ionBlur)="getControl('apellido')?.markAsTouched()"></ion-input>
-            <ion-text color="danger" *ngIf="getControl('apellido')?.invalid && getControl('apellido')?.touched">
-              Es obligatorio ingresar tus apellidos
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6">
-            <ion-select [interfaceOptions]="{ header: 'Pais'}" class="input" okText="Ok" cancelText="Cancelar" [class.invalid]="getControl('pais')?.invalid && getControl('pais')?.touched"
-              formControlName="pais" placeholder="Pais" (ionChange)="onPaisChange($event)"
-              (ionBlur)="getControl('pais')?.markAsTouched()">
-              <ion-select-option *ngFor="let pais of paises" [value]="pais.id">
-                {{ pais.descripcion }}
-              </ion-select-option>
-            </ion-select>
-            <ion-text color="danger" *ngIf="getControl('pais')?.invalid && getControl('pais')?.touched">
-              Es obligatorio ingresar el país al que perteneces
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" *ngIf="isNacional">
-            <ion-select [interfaceOptions]="{ header: 'Estado'}" okText="Ok" cancelText="Cancelar" class="input" [class.invalid]="getControl('estado')?.invalid && getControl('estado')?.touched"
-              formControlName="estado" placeholder="Estado" class="input"
-              (ionBlur)="getControl('estado')?.markAsTouched()">
-              <ion-select-option *ngFor="let estad of estados" [value]="estad.id">
-                {{ estad.nombre }}
-              </ion-select-option>
-            </ion-select>
-            <ion-text color="danger" *ngIf="getControl('estado')?.invalid && getControl('estado')?.touched">
-              Es obligatorio ingresar el estado al que perteneces
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6" *ngIf="!isNacional">
-            <ion-input class="input"
-              [class.invalid]="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched"
-              formControlName="estadoTexto" placeholder="Estado" type="text"
-              (ionBlur)="getControl('estadoTexto')?.markAsTouched()">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('estadoTexto')?.invalid && getControl('estadoTexto')?.touched">
-              Campo requerido
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6">
-            <ion-input class="input" [class.invalid]="getControl('ciudad')?.invalid && getControl('ciudad')?.touched"
-              formControlName="ciudad" label-placement="floating" label="Ciudad" type="text"
-              (ionBlur)="getControl('ciudad')?.markAsTouched()">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('ciudad')?.invalid && getControl('ciudad')?.touched">
-              Es obligatorio ingresar el nombre de tu ciudad
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6">
-            <ion-select class="input" [interfaceOptions]="{ header: '¿Como suspiste del programa?'}" okText="Ok" cancelText="Cancelar"
-              [class.invalid]="getControl('fuenteOrigen')?.invalid && getControl('fuenteOrigen')?.touched"
-              formControlName="fuenteOrigen" placeholder="¿Como suspiste del programa?" class="input"
-              (ionBlur)="getControl('fuenteOrigen')?.markAsTouched()">
-              <ion-select-option *ngFor="let fuenteO of fuentesOrigen" [value]="fuenteO.id">
-                {{ fuenteO.nombre }}
-              </ion-select-option>
-            </ion-select>
-            <ion-text color="danger" *ngIf="getControl('fuenteOrigen')?.invalid && getControl('fuenteOrigen')?.touched">
-              Es obligatorio seleccionar la forma en la que supiste de Embassy 
-            </ion-text>
-          </ion-col>
-
-         
-
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('telefono')?.invalid && getControl('telefono')?.touched"
-              formControlName="telefono" label-placement="floating" label="Número de teléfono" type="text"
-              (ionBlur)="getControl('telefono')?.markAsTouched()">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('telefono')?.invalid && getControl('telefono')?.touched">
-              Es obligatorio ingresar tu número de teléfono
-            </ion-text>
-          </ion-col>
-
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched"
-              formControlName="confirmTelefono" label-placement="floating" label="Confirma tú número de teléfono" type="text"
-              (ionBlur)="getControl('confirmTelefono')?.markAsTouched()">
-            </ion-input>
-            <ion-text color="danger"
-              *ngIf="getControl('confirmTelefono')?.invalid && getControl('confirmTelefono')?.touched">
-              Es obligatorio confirmar tu número de teléfono
-            </ion-text>
-
-            <ion-text color="danger"
-              *ngIf="getControl('confirmTelefono')?.errors?.['mustMatch'] && getControl('confirmTelefono')?.touched">
-              <br/>Los números de teléfono ingresados no son iguales
-            </ion-text>
-          </ion-col>
 
           <ion-col size="12" size-md="6">
             <ion-input class="input"
@@ -176,15 +87,20 @@
         </ion-row>
       </ion-grid>
 
-      
-
-
       <ion-button class="customButton" shape="round" expand="block" type="submit" [disabled]="formEnviado" (click)="enviarFormulario()">
         CREAR CUENTA
       </ion-button>
 
+    </ng-container>
+
+    <div *ngIf="cuentaCreadaCorrectamente" class="mensaje-confirmacion">
+      <p class="mensaje-texto">
+        Tu cuenta ha sido creada correctamente. Inicia sesión en la aplicación de Embassy y comienza a generar ingresos.
+      </p>
+      <a href="https://www.embassyen.com/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
+    </div>
+    
+
     </div>
 
-
-  </div>
 </ion-content>
