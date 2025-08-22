@@ -5,55 +5,116 @@
     </ion-buttons>
     <ion-title>
       <img src="assets/icons/configuracion.png" alt="Icono Network"
-        style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
-      Mi Célula</ion-title>
+           style="width:20px;height:20px;margin-right:8px;vertical-align:middle;" />
+      Mi Célula
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-
 <ion-content class="contentCustom">
   <app-resumen [MostrarInvitados]="true"></app-resumen>
-  <!-- Usuario -->
+
   <ion-card class="customCard">
     <ion-card-header class="headerCustomCard">
-      <ion-card-title class="titleCustomCard"> <ion-icon name="person" color="white"></ion-icon> Célula</ion-card-title>
+      <ion-card-title class="titleCustomCard">
+        <ion-icon name="person" color="white"></ion-icon> Célula
+      </ion-card-title>
     </ion-card-header>
 
     <ion-card-content>
       <app-loader *ngIf="cargandoCelula"></app-loader>
-      <!-- <ng-container >
 
-        <canvas #orgCanvas width="300" height="600" ></canvas>
-      </ng-container> -->
-      
-      <!-- <ng-container *ngIf="this.celula">
-        <div class="celula-card" *ngIf="this.celula!.padre">
-          <strong>{{this.celula!.padre!.nombres}} {{this.celula!.padre!.apellidos}}</strong>
-        </div>
+      <style>
+        :root {
+          --line: #94a3b8;
+        }
+        .mini-text      { opacity:.85; pointer-events:none; }
+        .mini-subtext   { opacity:.55; pointer-events:none; }
+        .mini-rect      { transition:transform .15s ease, filter .15s ease; }
+        .mini-group:hover .mini-rect { transform: translateY(-2px); filter: brightness(.98); }
+      </style>
 
-        <div class="celula-card celula-card-hijo" *ngIf="this.celula.yo">
-          <strong>{{this.celula!.yo!.nombres}} {{this.celula!.yo!.apellidos}}</strong>
-        </div>
+      <ng-container *ngIf="!cargandoCelula">
+        <svg #miniSvg
+             [attr.width]="miniWidth"
+             [attr.height]="miniHeight"
+             [attr.viewBox]="'0 0 ' + miniWidth + ' ' + miniHeight"
+             style="display:block; width:100%; height:auto;">
 
-        <ng-container *ngIf="this.celula!.hijos">
-          <div class="celula-card celula-card-hijo" *ngFor="let hijo of this.celula!.hijos!">
-            <strong>{{hijo.nombres}} {{hijo.apellidos}}</strong>
-          </div>
-        </ng-container>
-      </ng-container> -->
+          <defs>
+            <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
+            </filter>
 
+            <!-- Padre -->
+            <linearGradient id="gradPadre" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#334155"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+            <!-- Yo -->
+            <linearGradient id="gradYo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#16a34a"/>
+              <stop offset="100%" stop-color="#22c55e"/>
+            </linearGradient>
+            <!-- Hijo -->
+            <linearGradient id="gradHijo" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stop-color="#2563eb"/>
+              <stop offset="100%" stop-color="#60a5fa"/>
+            </linearGradient>
+          </defs>
 
+          <!-- Conectores -->
+          <path *ngIf="linkPadreYo"      [attr.d]="linkPadreYo"      stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+          <path *ngIf="busVerticalPath"  [attr.d]="busVerticalPath"  stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+          <path *ngIf="busHorizontalPath"[attr.d]="busHorizontalPath"stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
 
+          <!-- Padre -->
+          <g *ngIf="padreNode" class="mini-group">
+            <rect class="mini-rect" filter="url(#shadow)"
+                  [attr.x]="padreNode.x" [attr.y]="padreNode.y"
+                  [attr.width]="padreNode.w" [attr.height]="padreNode.h"
+                  fill="url(#gradPadre)" rx="8" ry="8"/>
+            <text class="mini-text" fill="#fff" font-size="16"
+                  [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 24">{{ padreNode.nombre }}</text>
+            <text class="mini-subtext" fill="#fff" font-size="12"
+                  [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 40">{{ padreNode.contacto }}</text>
+          </g>
+
+          <!-- Yo -->
+          <g *ngIf="yoNode" class="mini-group">
+            <rect class="mini-rect" filter="url(#shadow)"
+                  [attr.x]="yoNode.x" [attr.y]="yoNode.y"
+                  [attr.width]="yoNode.w" [attr.height]="yoNode.h"
+                  fill="url(#gradYo)" rx="8" ry="8"/>
+            <text class="mini-text" fill="#fff" font-size="18"
+                  [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 25">{{ yoNode.nombre }}</text>
+            <text class="mini-subtext" fill="#fff" font-size="12"
+                  [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 42">{{ yoNode.contacto }}</text>
+          </g>
+
+          <!-- Hijos -->
+          <g *ngFor="let h of hijosNodes" class="mini-group">
+            <path *ngIf="h.rutaDesdeBus" [attr.d]="h.rutaDesdeBus" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+            <rect class="mini-rect" filter="url(#shadow)"
+                  [attr.x]="h.x" [attr.y]="h.y"
+                  [attr.width]="h.w" [attr.height]="h.h"
+                  fill="url(#gradHijo)" rx="8" ry="8"/>
+            <text class="mini-text" fill="#fff" font-size="16"
+                  [attr.x]="h.x + 14" [attr.y]="h.y + 24">{{ h.nombre }}</text>
+            <text class="mini-subtext" fill="#fff" font-size="12"
+                  [attr.x]="h.x + 14" [attr.y]="h.y + 40">{{ h.contacto }}</text>
+          </g>
+        </svg>
+        <div *ngIf="!hijosNodes.length" style="text-align:center; margin-top:16px; opacity:.7;">
+        Aún no has invitado a nadie. Usa el botón <b>Invitar</b> para agregar tu primer embajador.
+      </div>
+      </ng-container>
     </ion-card-content>
   </ion-card>
 
- <!-- Otros contenidos de la página -->
-
- <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!cargandoCelula">
-  <ion-button class="fab-rectangular" (click)="onFabClick()">
-    <span class="fab-text">Invitar</span>
-  </ion-button>
-</ion-fab>
-
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" *ngIf="!cargandoCelula">
+    <ion-button class="fab-rectangular" (click)="onFabClick()">
+      <span class="fab-text">Invitar</span>
+    </ion-button>
+  </ion-fab>
 </ion-content>
-
