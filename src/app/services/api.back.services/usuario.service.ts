@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { LoginUsuarioDTO } from 'src/app/models/DTOs/LoginUsuarioDTO';
@@ -10,91 +10,103 @@ import { PasswordResetDTO } from 'src/app/models/DTOs/PasswordResetDTO';
 import { Usuario } from 'src/app/models/Usuario';
 import { UsuarioCelula } from 'src/app/models/DTOs/CelulaDTO';
 
-@Injectable({
-  providedIn: 'root',
-})
-
+@Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  private apiUrl = environment.apiUrl + "api/Usuario"; 
+  private apiUrlUsuario = `${environment.apiUrl}api/Usuario`;
+  private apiUrlEmbajadores = `${environment.apiUrl}api/Embajadores`;
 
   constructor(private http: HttpClient) {}
 
+  private makeHeaders(skipErrorHandler = false) {
+    let headers = new HttpHeaders();
+    if (skipErrorHandler) headers = headers.set('skipErrorHandler', 'true');
+    return { headers };
+  }
+
   login(user: LoginUsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<string>> {
-    let url = this.apiUrl + "/Login";
-
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-    
-    return this.http.post<GenericResponseDTO<string>>(url, user, options);
+    return this.http.post<GenericResponseDTO<string>>(
+      `${this.apiUrlUsuario}/Login`,
+      user,
+      this.makeHeaders(skipErrorHandler)
+    );
   }
 
-  
-
-  postOnboardingA(user:UsuarioDTO):Observable<boolean>{
-    return this.http.post<boolean>(`${this.apiUrl}/postOnboardingA`, user);
-  }
-
-  postOnboardingB(user:UsuarioDTO):Observable<boolean>{
-    return this.http.post<boolean>(`${this.apiUrl}/postOnboardingB`, user);
-  }
-
-  registerCodigoInvitacion(user: UsuarioRegistrarBasicoDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-
-    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/RegistroUsuarioCodigoInvitacion`, user, options);
-  }
-
-  passwordRecovery(model: PasswordRecoveryDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/PasswordRecovery`, model, options);
-  }
-
-  passwordReset(model: PasswordResetDTO, skipErrorHandler = false) : Observable<GenericResponseDTO<boolean>> {
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/PasswordReset`, model, options);
-  }
-
-  getUsuario(skipErrorHandler = false) : Observable<GenericResponseDTO<Usuario>> {
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-    return this.http.get<GenericResponseDTO<Usuario>>(`${this.apiUrl}/GetUsuarioLogeado`, options);
-  }
-  
-  getCelulaLocal(userID:number): Observable<UsuarioCelula> {
-    return this.http.get<UsuarioCelula>(`${this.apiUrl}/GetCelulaLocal?UsuarioID=${userID}`);
-  }
-
+  // ✅ FIX: usar apiUrlUsuario y devolver GenericResponseDTO<boolean>
   updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
-    let headers = new HttpHeaders();
-
-    if (skipErrorHandler) {
-      headers = headers.set('skipErrorHandler', 'true');
-    }
-    const options = { headers };
-    return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/ActualizarUsuario`, user, options);
+    return this.http.post<GenericResponseDTO<boolean>>(
+      `${this.apiUrlUsuario}/Save`,
+      user,
+      this.makeHeaders(skipErrorHandler)
+    );
   }
 
+  postOnboardingA(user: UsuarioDTO): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingA`, user);
+  }
+
+  postOnboardingB(user: UsuarioDTO): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingB`, user);
+  }
+
+  registerCodigoInvitacion(
+    user: UsuarioRegistrarBasicoDTO,
+    skipErrorHandler = false
+  ): Observable<GenericResponseDTO<boolean>> {
+    return this.http.post<GenericResponseDTO<boolean>>(
+      `${this.apiUrlUsuario}/RegistroUsuarioCodigoInvitacion`,
+      user,
+      this.makeHeaders(skipErrorHandler)
+    );
+  }
+
+  passwordRecovery(model: PasswordRecoveryDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
+    return this.http.post<GenericResponseDTO<boolean>>(
+      `${this.apiUrlUsuario}/PasswordRecovery`,
+      model,
+      this.makeHeaders(skipErrorHandler)
+    );
+  }
+
+  passwordReset(model: PasswordResetDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
+    return this.http.post<GenericResponseDTO<boolean>>(
+      `${this.apiUrlUsuario}/PasswordReset`,
+      model,
+      this.makeHeaders(skipErrorHandler)
+    );
+  }
+
+  getUsuario(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
+    return this.http.get<GenericResponseDTO<Usuario>>(
+      `${this.apiUrlUsuario}/GetUsuarioLogeado`,
+      this.makeHeaders(skipErrorHandler)
+    );
+  }
+
+  // ✅ FIX: HttpParams como string
+  getCelulaLocal(userID: number): Observable<UsuarioCelula> {
+    return this.http.get<UsuarioCelula>(`${this.apiUrlUsuario}/GetCelulaLocal`, {
+      params: new HttpParams().set('UsuarioID', String(userID))
+    });
+  }
+
+  // ✅ Usa base URL correcta + HttpParams como string
+  getMiCelula(yoId: number, limit = 4): Observable<MiCelulaDisplay> {
+    return this.http.get<MiCelulaDisplay>(`${this.apiUrlEmbajadores}/miCelula`, {
+      params: new HttpParams()
+        .set('yoId', String(yoId))
+        .set('limit', String(limit))
+    });
+  }
+}
+
+// Tipos del endpoint
+export interface NodoCelulaDTO {
+  usuarioId: number;
+  nombre: string;
+  contacto: string;
+}
+export interface MiCelulaDisplay {
+  padre?: NodoCelulaDTO | null;
+  yo: NodoCelulaDTO;
+  hijos: NodoCelulaDTO[];
 }
