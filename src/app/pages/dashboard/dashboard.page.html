@@ -29,9 +29,15 @@
               </div>
             </ion-menu-toggle> 
 
-            <ion-item lines="none" detail="false" routerLinkActive="selected">
-              <span class="userLabel">{{ userName }}</span>
-            </ion-item>
+            <div class="menu-separator"></div>
+
+            <ion-menu-toggle auto-hide="false">
+              <div class="user-container">
+                <span class="name-text">Usuario: {{ userName }}</span>
+              </div>
+            </ion-menu-toggle>
+
+            <div style="height: 10px;"></div>
 
             <ion-menu-toggle auto-hide="false">
               <div class="logout-button-container">
@@ -41,6 +47,7 @@
                 </ion-button>
               </div>
             </ion-menu-toggle>
+            
           </ion-list>
         </ion-content>
       </ion-menu>
