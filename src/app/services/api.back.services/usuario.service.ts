@@ -31,6 +31,18 @@ export class UsuarioService {
     );
   }
 
+   getInvitacionesResumen(embajadorId: number, skipErrorHandler = false) {
+      return this.http.get<ResumenInvitadosDTO>(
+        `${this.apiUrlEmbajadores}/InvitadosResumen`,
+        {
+          params: new HttpParams().set('embajadorId', String(embajadorId)),
+          ...this.makeHeaders(skipErrorHandler)
+        }
+      );
+    }
+
+  
+
   // ✅ FIX: usar apiUrlUsuario y devolver GenericResponseDTO<boolean>
   updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
     return this.http.post<GenericResponseDTO<boolean>>(
@@ -97,7 +109,24 @@ export class UsuarioService {
         .set('limit', String(limit))
     });
   }
+
 }
+
+
+// ------------ Invitado resumen
+// Tipos
+export interface InvitadoResumen {
+  fechaInvitacion: string;          // ISO
+  fechaInvitacionTexto?: string;    // lo llenamos en el front
+  nombre: string;
+  estatus: 'Pendiente' | 'Aceptado' | string;
+}
+export interface ResumenInvitadosDTO {
+  embajadoresInvitados: InvitadoResumen[];  // PENDIENTES
+  aceptados: number;                        // X/2
+  embajadoresAceptados: InvitadoResumen[];  // ACEPTADOS (nuevo)
+}
+
 
 // Tipos del endpoint
 export interface NodoCelulaDTO {

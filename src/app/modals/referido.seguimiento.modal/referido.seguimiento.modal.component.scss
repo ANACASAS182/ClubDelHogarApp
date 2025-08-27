@@ -2,6 +2,8 @@
     color: #2c3e50;
     font-size: 20px;
     font-weight: bold;
+    margin: 6px 0 10px;
+    letter-spacing: .2px;
 }
 
 ion-header {
@@ -15,4 +17,130 @@ ion-buttons[slot="end"] {
     right: 0;
     margin-top: 10px;
     margin-right: 2px;
+}
+
+.detail-grid {
+  --label-w: 120px;
+  margin-top: 4px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: var(--label-w) 1fr auto;
+  align-items: center;
+  column-gap: 12px;
+  padding: 6px 0;
+}
+
+.detail-row + .detail-row {
+  border-top: 1px solid rgba(0,0,0,.05);
+}
+
+.detail-label {
+  text-align: right;
+  font-weight: 600;
+  color: var(--ion-color-medium);
+  white-space: nowrap;
+}
+
+.detail-value {
+  color: var(--ion-text-color, #1f2937);
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.detail-actions ion-button {
+  margin-left: 2px;
+  --padding-start: 4px;
+  --padding-end: 4px;
+}
+
+.ml-6 { margin-left: 6px; }
+
+/* Seguimientos */
+.seg-item { margin-bottom: 6px; }
+.seg-fecha {
+  font-size: 12px;
+  color: var(--ion-color-medium);
+  display: inline-block;
+  margin-bottom: 2px;
+}
+.seg-texto { margin: 0; }
+
+/* Responsive: en móvil las acciones bajan debajo del valor */
+@media (max-width: 420px) {
+  .detail-row {
+    grid-template-columns: 100px 1fr;
+  }
+  .detail-actions {
+    grid-column: 2 / 3;
+    justify-self: start;
+    margin-top: 4px;
+  }
+}
+
+/////----------- CAMBIOS PARA LISTA
+/// 
+/// /* Línea de tiempo */
+.timeline {
+  position: relative;
+  margin-top: 6px;
+  padding-left: 16px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.tl-item {
+  position: relative;
+  margin: 8px 0 12px;
+}
+
+.tl-dot {
+  position: absolute;
+  left: -1px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+  /* halo suave */
+  box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb, 56,128,255), 0.15);
+}
+
+.tl-card {
+  background: var(--ion-background-color, #fff);
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  color: var(--ion-color-medium);
+  font-size: 12px;
+}
+
+.tl-text {
+  white-space: pre-wrap; /* respeta saltos y envuelve */
+  line-height: 1.25;
+}
+
+.muted { color: var(--ion-color-medium); }
+.ver-mas-btn { margin-top: 4px; }
+
+/* Si usas la grid de etiquetas/valores: deja que el valor envuelva bien */
+.detail-value {
+  display: block;
 }

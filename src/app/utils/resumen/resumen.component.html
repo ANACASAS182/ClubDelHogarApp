@@ -2,7 +2,6 @@
   <ion-card-content>
     <ng-container *ngIf="MostrarIngresos">
       <!-- esta es la parte del dinero-->
-
       <ion-grid>
         <ion-row>
           <ion-col>
@@ -30,25 +29,19 @@
           <ion-col>
             <span style="font-size: .5rem; font-weight: bold;">Total</span>
             <div [ngClass]="{ 'jump': showJump }"
-              style="color:#349721;font-size: 2rem; font-weight: bold; text-align: start;">
+                 style="color:#349721;font-size: 2rem; font-weight: bold; text-align: start;">
               {{ingresosAcumuladosTexto}} <span style="font-variant: small-caps;">mxn</span>
             </div>
           </ion-col>
         </ion-row>
         <ion-row>
           <ion-col>
-
             <div style="color:#748299; font-size:.8em; text-align: start;">
               Recibirás tus ingresos el <br /><strong>{{fechaTexto}}</strong>
             </div>
           </ion-col>
         </ion-row>
-
       </ion-grid>
-
-
-
-
     </ng-container>
 
     <ng-container *ngIf="MostrarIngresos && MostrarInvitados">
@@ -57,30 +50,68 @@
 
     <ng-container *ngIf="MostrarInvitados">
       <ion-grid>
-        <ion-row>
-          <ion-col>
-            <div style="color:#272727; font-weight: bold; text-align: start;">
-              Embajadores invitados {{CuantosDeCuantos}}
-            </div>
-          </ion-col>  
-        </ion-row>  
 
-        <ion-row  *ngFor="let e of resumen?.embajadoresInvitados">
-          <ion-col>
-            <div style="color:#748299; font-size:.8em; text-align: start;">
-              {{e.fechaInvitacionTexto}}<br />
-              <strong>{{e.nombre}} - </strong>
-              <span *ngIf="e.estatus == 'Aceptado'" style="font-weight: bold;font-variant: small-caps;color: #349721;">
-                {{e.estatus}}</span>
-              <span *ngIf="e.estatus == 'Pendiente'" style="font-weight: bold;font-variant: small-caps;">
-                {{e.estatus}}</span>
-  
+        <!-- ===== PENDIENTES ===== -->
+        <ion-item lines="none" button (click)="toggle('pend')" class="section-header">
+          <div slot="start" class="section-title">
+            Embajadores invitados {{CuantosDeCuantos}}
+          </div>
+          <ion-icon slot="end"
+                    name="chevron-down-outline"
+                    class="chev"
+                    [class.open]="showPendientes"></ion-icon>
+        </ion-item>
+
+        <div class="collapse" [class.open]="showPendientes">
+          <div class="collapse-inner">
+            <ion-row *ngFor="let e of resumen?.embajadoresInvitados; let i = index; trackBy: trackInvitado">
+              <ion-col>
+                <div class="row-item" [style.animationDelay.ms]="i * 40">
+                  <div class="item-date">{{ e.fechaInvitacionTexto }}</div>
+                  <div class="item-line">
+                    <strong>{{ e.nombre }}</strong>
+                    <span class="badge badge-pend">Pendiente</span>
+                  </div>
+                </div>
+              </ion-col>
+            </ion-row>
+            <div *ngIf="!(resumen?.embajadoresInvitados?.length)" class="empty">
+              No tienes invitaciones pendientes.
             </div>
-          </ion-col>  
-        </ion-row> 
+          </div>
+        </div>
+
+        <ion-item-divider></ion-item-divider>
+
+        <!-- ===== ACEPTADOS ===== -->
+        <ion-item lines="none" button (click)="toggle('acept')" class="section-header mt">
+          <div slot="start" class="section-title">Aceptados</div>
+          <ion-icon slot="end"
+                    name="chevron-down-outline"
+                    class="chev"
+                    [class.open]="showAceptados"></ion-icon>
+        </ion-item>
+
+        <div class="collapse" [class.open]="showAceptados">
+          <div class="collapse-inner">
+            <ion-row *ngFor="let a of aceptadosDetalle; let i = index; trackBy: trackInvitado">
+              <ion-col>
+                <div class="row-item" [style.animationDelay.ms]="i * 40">
+                  <div class="item-date">{{ a.fechaInvitacionTexto }}</div>
+                  <div class="item-line">
+                    <strong>{{ a.nombre }}</strong>
+                    <span class="badge badge-ok">Aceptado</span>
+                  </div>
+                </div>
+              </ion-col>
+            </ion-row>
+            <div *ngIf="!aceptadosDetalle.length" class="empty">
+              Aún no hay aceptados.
+            </div>
+          </div>
+        </div>
 
       </ion-grid>
-    
     </ng-container>
     <!-- esta es la parte de los embajadores invitados-->
   </ion-card-content>

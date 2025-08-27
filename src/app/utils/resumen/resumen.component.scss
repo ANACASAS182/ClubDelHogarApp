@@ -17,4 +17,83 @@
       transform: translateY(0);
     }
   }
+
+  .section-title { color:#272727; font-weight:600; }
+  ion-icon { transition: transform .18s ease; }
+  .rotated { transform: rotate(180deg); }
+
+  .section-header {
+  --background: transparent;
+  padding-left: 0;
+  border-radius: 10px;
+  --min-height: 44px;
+  .section-title {
+    color: #272727;
+    font-weight: 700;
+  }
+}
+
+.mt { margin-top: 6px; }
+
+.chev {
+  transition: transform .2s ease;
+  &.open { transform: rotate(180deg); }
+}
+
+/* Acordeón: truco de grid para animar altura */
+.collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 260ms ease;
+  &.open { grid-template-rows: 1fr; }
+}
+.collapse-inner { overflow: hidden; }
+
+/* Ítems con tarjetita y animación de entrada */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.row-item {
+  background: #f7f8fb;
+  border: 1px solid #e7ebf2;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 6px 0;
+  animation: fadeSlideIn 260ms ease both;
+  transition: transform .12s ease, box-shadow .12s ease;
+  &:hover { transform: translateY(-1px); box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+}
+
+.item-date {
+  color: #748299;
+  font-size: .8em;
+  margin-bottom: 2px;
+}
+.item-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  strong { color: #334155; }
+}
+
+.badge {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  &.badge-pend { color: #6b7280; background: #eef2f7; }
+  &.badge-ok   { color: #0f6; background: #e9fff2; }
+}
+
+.empty {
+  opacity: .7;
+  font-size: .85rem;
+  padding: 8px 0 4px;
+}
+
+
   

@@ -9,7 +9,7 @@ export interface Promocion{
   vigencia: string;
   logotipoBase64: string;
 
-  // 👇 nuevas, calculadas
+  // nuevas, calculadas
   tipoComision?: 0 | 1;          // 0 = Monto, 1 = Porcentaje
   moneda?: string;               // por defecto MXN
   comisionCantidad?: number;     // cuando es monto

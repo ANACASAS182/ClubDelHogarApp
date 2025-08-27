@@ -7,11 +7,13 @@ import { Usuario } from 'src/app/models/Usuario';
 
 type RoleMini = 'padre' | 'yo' | 'hijo';
 
+// === si algún día queremos volver a mostrar el padre, ponemos en true
+const SHOW_PARENT = false;
+
 class MiniNode {
   x = 0; y = 0; w = 180; h = 60;
   nombre = ''; contacto = ''; role: RoleMini = 'hijo';
-  /** segmento vertical desde el bus hasta el nodo hijo */
-  rutaDesdeBus?: string;
+  rutaDesdeBus?: string; // segmento vertical bus -> hijo
 }
 
 @Component({
@@ -42,14 +44,13 @@ export class CelulaPage implements OnInit {
   yoNode?: MiniNode;
   hijosNodes: MiniNode[] = [];
 
-  // conectores (L rectas)
-  linkPadreYo = '';       // vertical padre -> yo
+  // conectores
+  linkPadreYo = '';       // (no se usa cuando SHOW_PARENT=false)
   busVerticalPath = '';   // vertical yo -> bus
   busHorizontalPath = ''; // horizontal bus
 
   // layout
   private readonly topMargin = 40;
-  private readonly gapPadreYo = 32;
   private readonly gapYoHijos = 36;
   private readonly colGapX = 220;
 
@@ -65,7 +66,6 @@ export class CelulaPage implements OnInit {
       next: (response: GenericResponseDTO<Usuario>) => {
         this.UsuarioID = response.data.id;
 
-        // Trae mi célula (máx 4)
         this._usuarioService.getMiCelula(this.UsuarioID, 4).subscribe({
           next: (data) => {
             this.celula = data;
@@ -92,16 +92,16 @@ export class CelulaPage implements OnInit {
     return u.contacto ?? u.email ?? u.celular ?? '';
   }
 
-  private measureW(nombre: string, contacto: string, padLeft = 14, nameFontPx = 16) {
-  const rightPad = 14;
-  if (!this.ctx) return 180;
-  this.ctx.font = `${nameFontPx}px sans-serif`;  // << antes era 16px fijo
-  const w1 = this.ctx.measureText(nombre || '').width;
-  this.ctx.font = '12px sans-serif';
-  const w2 = this.ctx.measureText(contacto || '').width;
-  return Math.max(180, Math.ceil(Math.max(w1, w2) + padLeft + rightPad));
-}
-
+  private measureW(nombre: string, contacto: string) {
+    const padLeft = 14;
+    const padRight = 14;
+    if (!this.ctx) return 180;
+    this.ctx.font = '16px sans-serif';
+    const w1 = this.ctx.measureText(nombre || '').width;
+    this.ctx.font = '12px sans-serif';
+    const w2 = this.ctx.measureText(contacto || '').width;
+    return Math.max(180, Math.ceil(Math.max(w1, w2) + padLeft + padRight));
+  }
 
   // Construye la escena (líneas rectas tipo organigrama en L)
   private buildMiniChart() {
@@ -113,15 +113,14 @@ export class CelulaPage implements OnInit {
     yo.role = 'yo';
     yo.nombre = this.nameOf(this.celula?.yo) || 'Yo';
     yo.contacto = this.contactOf(this.celula?.yo);
-    yo.w = this.measureW(yo.nombre, yo.contacto, 14, 20); // << antes no enviaba 18
+    yo.w = this.measureW(yo.nombre, yo.contacto);
     yo.h = 60;
     yo.x = Math.round(this.miniWidth / 2 - yo.w / 2);
-    yo.y = this.topMargin + (this.celula?.padre ? this.gapPadreYo : 0);
+    yo.y = this.topMargin; // siempre fijo arriba (NO mostramos padre)
     this.yoNode = yo;
 
-
-    // --- PADRE (opcional) ---
-    if (this.celula?.padre) {
+    // --- PADRE (oculto cuando SHOW_PARENT=false) ---
+    if (SHOW_PARENT && this.celula?.padre) {
       const p = new MiniNode();
       p.role = 'padre';
       p.nombre = this.nameOf(this.celula.padre);
@@ -129,10 +128,9 @@ export class CelulaPage implements OnInit {
       p.w = this.measureW(p.nombre, p.contacto);
       p.h = 60;
       p.x = Math.round(yo.x + yo.w / 2 - p.w / 2);
-      p.y = yo.y - (this.gapPadreYo + p.h);
+      p.y = yo.y - (32 + p.h);
       this.padreNode = p;
 
-      // línea vertical centro-abajo del padre -> centro-arriba de yo
       const cx = Math.round(yo.x + yo.w / 2);
       this.linkPadreYo = `M ${cx} ${p.y + p.h} L ${cx} ${yo.y}`;
     } else {
@@ -152,7 +150,7 @@ export class CelulaPage implements OnInit {
       const totalWidth = (nCols - 1) * this.colGapX;
       const firstColCenterX = (this.miniWidth / 2) - totalWidth / 2;
 
-      const rootCx = Math.round(yo.x + yo.w / 2);            // centro de Yo
+      const rootCx = Math.round(yo.x + yo.w / 2); // centro de Yo
       const busY = Math.round(yo.y + yo.h + Math.floor(this.gapYoHijos / 2));
       const centers: number[] = [];
 
@@ -168,7 +166,6 @@ export class CelulaPage implements OnInit {
         node.x = Math.round(colCenterX - node.w / 2);
         node.y = yRow;
 
-        // segmento vertical bus -> hijo
         const cx = Math.round(node.x + node.w / 2);
         node.rutaDesdeBus = `M ${cx} ${busY} L ${cx} ${node.y}`;
         centers.push(cx);
@@ -181,13 +178,11 @@ export class CelulaPage implements OnInit {
 
       // horizontal del bus
       if (centers.length === 1) {
-        // si solo hay un hijo: del centro de Yo al centro del hijo
         const only = centers[0];
         const left  = Math.min(rootCx, only);
         const right = Math.max(rootCx, only);
         this.busHorizontalPath = `M ${left} ${busY} L ${right} ${busY}`;
       } else {
-        // varios hijos: de extremo a extremo
         this.busHorizontalPath = `M ${Math.min(...centers)} ${busY} L ${Math.max(...centers)} ${busY}`;
       }
 

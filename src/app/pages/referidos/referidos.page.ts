@@ -49,7 +49,7 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
   }
 
-  referidos: ReferidoDTO[] = [];
+  referidos: ReferidoUI[] = [];
   cargandoReferidos: boolean = false;
   ngOnInit() {
 
@@ -64,35 +64,39 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
-        console.log(response.data);
-        response.data.id;
+        const userId = response.data.id;
 
-        // Usamos setTimeout para introducir un retraso de 1 segundo (1000 ms)
-        setTimeout(() => {
-          this.referidoService.getReferidosSimple(response.data.id).subscribe({
-            next: (data) => {
-              this.referidos = data;
-              this.cargandoReferidos = false;
+        // (El setTimeout no es necesario; si lo quieres, déjalo. Aquí lo quito para ir directo.)
+        this.referidoService.getReferidosSimple(userId).subscribe({
+          next: (data) => {
+            // 👉 mapeo con la normalización/validación del teléfono
+            this.referidos = data.map(r => {
+              const p = parseMxPhone(r.celular);
+              return {
+                ...r,
+                celularView: p.view,
+                celularE164: p.e164,
+                celularInvalido: p.invalid
+              };
+            });
 
-              let ingresoGenerado = 0;
-              let ingresoPotencial = 0;
+            let ingresoGenerado = 0;
+            let ingresoPotencial = 0;
 
-              this.referidos.forEach((r) => {
-                ingresoPotencial += r.comision!;
-                if(r.estatusReferenciaID === 3){ 
-                  ingresoGenerado += r.comision!;
-                }
-              });
+            this.referidos.forEach(r => {
+              const c = +(r.comision ?? 0);
+              ingresoPotencial += c;
+              if (r.estatusReferenciaID === 3) ingresoGenerado += c;
+            });
 
-              this.IngresoGeneradoView = "$" + ingresoGenerado.toFixed(2);
-              this.IngresoPotencialView = "$"+ ingresoPotencial.toFixed(2);
-
-              
-
-            }
-          });
-        }, 2000);  // Retraso de 1 segundo
-      }
+            this.IngresoGeneradoView  = '$' + ingresoGenerado.toFixed(2);
+            this.IngresoPotencialView = '$' + ingresoPotencial.toFixed(2);
+            this.cargandoReferidos = false;
+          },
+          error: () => { this.cargandoReferidos = false; }
+        });
+      },
+      error: () => { this.cargandoReferidos = false; }
     });
   }
 
@@ -177,11 +181,45 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
     return `${dia} ${mes} ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
   }
-
-
-
-
-
-
-
 }
+
+type PhoneInfo = {
+  view: string;           // (+52) 55 1234 5678  (o “No proporcionado” / “Número inválido”)
+  e164: string | null;    // +52XXXXXXXXXX si es válido
+  invalid: boolean;       // true si es obvio falso (1111111111 / 1234567890 / etc.)
+};
+
+function parseMxPhone(raw?: string | null): PhoneInfo {
+  const clean = (raw ?? '').replace(/[^\d]/g, '');
+  if (!clean) return { view: 'No proporcionado', e164: null, invalid: false };
+
+  // Normalizaciones comunes en MX
+  let d = clean;
+
+  // WhatsApp antiguo: 521 + 10 dígitos → quitar el "1"
+  if (d.startsWith('521') && d.length === 13) d = '52' + d.slice(3);
+
+  // Si viene como 52 + 10 dígitos, quítale 52 para formatear nacional
+  if (d.startsWith('52') && d.length === 12) d = d.slice(2);
+
+  // Al final debemos tener 10 dígitos nacionales
+  if (d.length !== 10) return { view: 'Número inválido', e164: null, invalid: true };
+
+  // Sospechosos: repetidos o secuencias
+  const allSame = /^(\d)\1{9}$/.test(d);
+  const sequential = d === '1234567890' || d === '0987654321';
+  const black = d === '0000000000' || d === '1111111111';
+  const invalid = allSame || sequential || black;
+
+  const e164 = `+52${d}`;
+  const view = `(+52) ${d.slice(0,2)} ${d.slice(2,6)} ${d.slice(6)}`;
+  return { view, e164, invalid };
+}
+
+type ReferidoUI = ReferidoDTO & {
+  celularView: string;
+  celularE164: string | null;
+  celularInvalido: boolean;
+};
+
+

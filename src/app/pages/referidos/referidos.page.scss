@@ -85,8 +85,9 @@
     font-size: .8rem;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     color:#666; /* espacio entre el ícono y el texto */
+    flex-wrap:wrap;
   }
   
   .referido-contacto ion-icon {
@@ -153,5 +154,7 @@
     border-radius: 8px;
   }
   
-  
-  
+  .badge-susp { 
+    white-space:nowrap; 
+  }
+
