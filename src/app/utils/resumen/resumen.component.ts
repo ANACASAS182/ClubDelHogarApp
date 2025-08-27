@@ -1,15 +1,36 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { IonCard, IonItem, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
+import { IonCard, IonItem, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonIcon } from "@ionic/angular/standalone";
 import { PromocionesService, ResumenEmbajadorDTO } from 'src/app/services/api.back.services/promociones.service';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { UtilitiesService } from 'src/app/utilities.service';
+import { forkJoin } from 'rxjs';
+
+type InvitadoAny = {
+  fechaInvitacion?: string | Date;
+  fechaInvitacionTexto?: string;
+  nombre?: string;
+  email?: string;
+  correoElectronico?: string;
+  estatus?: 'Aceptado' | 'Pendiente' | string;
+  aceptado?: boolean | number;
+  activo?: boolean | number;
+};
+
+type InvitadoResumen = {
+  fechaInvitacion: string | Date;
+  fechaInvitacionTexto?: string;
+  nombre: string;
+  estatus: 'Pendiente' | 'Aceptado' | string;
+  email?: string;
+  correoElectronico?: string;
+};
 
 @Component({
   selector: 'app-resumen',
   templateUrl: './resumen.component.html',
   standalone: true,
-  imports: [IonCard, CommonModule, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol],
+  imports: [IonCard, CommonModule, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonItem, IonIcon],
   styleUrls: ['./resumen.component.scss'],
 })
 export class ResumenComponent implements OnInit {
@@ -17,70 +38,99 @@ export class ResumenComponent implements OnInit {
   @Input() MostrarIngresos: boolean = false;
   @Input() MostrarInvitados: boolean = false;
 
-  cargaCompletada: boolean = false;
+  cargaCompletada = false;
 
-  constructor(private _promocionesService: PromocionesService,
+  constructor(
+    private _promocionesService: PromocionesService,
     private _usuarioService: UsuarioService,
     private utilities: UtilitiesService
   ) { }
 
   resumen?: ResumenEmbajadorDTO;
-  fechaTexto: string = "...";
+  fechaTexto = "...";
 
-  ingresosDirectosTexto: string = "...";
-  ingresosIndirectosTexto: string = "...";
-  ingresosAcumuladosTexto: string = "...";
+  ingresosDirectosTexto = "...";
+  ingresosIndirectosTexto = "...";
+  ingresosAcumuladosTexto = "...";
 
-  CuantosDeCuantos: string = "0/2";
+  CuantosDeCuantos = "0/2";
+  pendientesVacios = false;
 
-  ngOnInit() {
-    this._usuarioService.getUsuario().subscribe({
-      next: (u) => {
-        this._promocionesService.GetResumenEmbajador(u.data.id).subscribe({
-          next: (r) => {
-            console.log(r);
+  aceptadosDetalle: InvitadoResumen[] = [];
+  showPendientes = true;
+  showAceptados  = true;
+
+  toggle(which: 'pend' | 'acept') {
+  if (which === 'pend')  this.showPendientes = !this.showPendientes;
+  if (which === 'acept') this.showAceptados  = !this.showAceptados;
+}
+  
+ngOnInit() {
+  this._usuarioService.getUsuario().subscribe({
+    next: (u) => {
+      const userId = u.data.id;
+
+      forkJoin({
+        ingresos: this._promocionesService.GetResumenEmbajador(userId),
+        inv:      this._usuarioService.getInvitacionesResumen(userId)
+      }).subscribe({
+        next: ({ ingresos, inv }) => {
+          // Header X/2 del back
+          this.CuantosDeCuantos = `${inv.aceptados ?? 0}/2`;
+
+          // PENDIENTES → adapta al tipo de Promociones (fechaInvitacion: Date)
+          const pendientesMap = (inv.embajadoresInvitados ?? []).map((i: any) => {
+            const d = i.fechaInvitacion ? new Date(i.fechaInvitacion) : new Date();
+            return {
+              // shape compatible con ResumenEmbajadorInvitacionDTO
+              fechaInvitacion: d, // <-- Date, no string
+              fechaInvitacionTexto: this.utilities.formatoFechaEspanol(d.toString()),
+              nombre: i.nombre || i.email || i.correoElectronico || '',
+              estatus: 'Pendiente'
+            } as any; // si tienes el tipo ResumenEmbajadorInvitacionDTO, cámbialo aquí
+          });
+
+          // inyecta los pendientes mapeados en el DTO de ingresos
+          this.resumen = { ...(ingresos as any), embajadoresInvitados: pendientesMap } as ResumenEmbajadorDTO;
 
 
-            this.resumen = r;
-            this.fechaTexto = this.utilities.formatoFechaEspanol(r.proximaFechaPago!.toString());
-            this.ingresosDirectosTexto = this.utilities.formatCurrency(r.ingresosDirectos);
-            this.ingresosIndirectosTexto = this.utilities.formatCurrency(r.ingresosIndirectos);
-            let ingresosAcumulados = r.ingresosDirectos +  r.ingresosIndirectos;
-            this.ingresosAcumuladosTexto = this.utilities.formatCurrency(ingresosAcumulados);
+          // ACEPTADOS → formateo
+          this.aceptadosDetalle = (inv.embajadoresAceptados ?? []).map(i => {
+            const f = i.fechaInvitacion ? new Date(i.fechaInvitacion) : undefined;
+            return {
+              ...i,
+              fechaInvitacionTexto: f ? this.utilities.formatoFechaEspanol(f.toString()) : '',
+              estatus: 'Aceptado'
+            };
+          });
 
-            this.cargaCompletada = true;
+          // $$$ como ya lo tenías
+          this.ingresosDirectosTexto   = this.utilities.formatCurrency(ingresos.ingresosDirectos ?? 0);
+          this.ingresosIndirectosTexto = this.utilities.formatCurrency(ingresos.ingresosIndirectos ?? 0);
+          this.ingresosAcumuladosTexto = this.utilities.formatCurrency((ingresos.ingresosDirectos ?? 0) + (ingresos.ingresosIndirectos ?? 0));
+          this.fechaTexto = ingresos.proximaFechaPago
+            ? this.utilities.formatoFechaEspanol(ingresos.proximaFechaPago.toString())
+            : '...';
 
-            let EmbajadoresEsteMes: number = 0;
-            r.embajadoresInvitados.forEach(i => {
-              i.fechaInvitacionTexto = this.utilities.formatoFechaEspanol(i.fechaInvitacion.toString());
-              if (i.estatus == "Aceptado") {
-                EmbajadoresEsteMes++;
-              }
-            });
-            this.CuantosDeCuantos = EmbajadoresEsteMes + "/2";
-
-            this.animateIngreso();
-          }
-        });
-      }
-    });
-
-  }
+          this.cargaCompletada = true;
+          this.animateIngreso();
+        },
+        error: () => this.cargaCompletada = true
+      });
+    }
+  });
+}
 
 
   showJump = false;
-
-
-
   animateIngreso() {
     this.showJump = true;
     setTimeout(() => {
       this.showJump = false;
-      setTimeout(() => {
-        this.animateIngreso();
-      }, 3000);
-    }, 500); // duración de la animación
-
+      setTimeout(() => this.animateIngreso(), 3000);
+    }, 500);
   }
 
+  // Útil para performance si la lista crece
+  trackInvitado = (_: number, e: any) => e?.id ?? `${e?.nombre}-${e?.fechaInvitacionTexto}`;
 }
