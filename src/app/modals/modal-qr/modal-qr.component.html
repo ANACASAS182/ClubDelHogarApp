@@ -1,74 +1,104 @@
+<div *ngIf="codigoPromocion" class="promo-shell">
+  <div class="promo-card"
+       [ngClass]="{
+         'is-loading': EstatusObtenerInformacionDelCodigo === 1,
+         'is-valid':   EstatusDelCodigo === 1,
+         'is-invalid': EstatusDelCodigo === -1
+       }">
 
+    <!-- Cabecera -->
+    <div class="card-head">
+      <div class="head-icon">
+        <ion-icon *ngIf="EstatusObtenerInformacionDelCodigo === 1" name="qr-code-outline"></ion-icon>
+        <ion-icon *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1" name="checkmark-circle-outline"></ion-icon>
+        <ion-icon *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1" name="alert-circle-outline"></ion-icon>
+      </div>
 
-<div *ngIf="codigoPromocion !== ''" class="promo-container">
-
-  <div class="promo-title">
-    ¡Código de promoción detectado!
-  </div>
-
-  <div class="promo-code">
-    {{ codigoPromocion }}
-  </div>
-
-  <!-- Loader mientras se obtiene la información del código -->
-  <div *ngIf="EstatusObtenerInformacionDelCodigo === 1" class="promo-loader">
-    <app-loader></app-loader>
-    <p class="promo-message">Validando código, por favor espera...</p>
-  </div>
-
-  <!-- Código válido -->
-  <div *ngIf="EstatusDelCodigo === 1" class="promo-valid">
-
-    <div class="promo-status-active">
-      El código es válido y está activo.
+      <div class="head-titles">
+        <h3 class="head-title">
+          {{ EstatusObtenerInformacionDelCodigo === 1 ? 'Validando código' :
+             EstatusDelCodigo === 1 ? 'Código válido' : 'Código no válido' }}
+        </h3>
+        <p class="head-sub" *ngIf="EstatusObtenerInformacionDelCodigo === 1">
+          Por favor, espera…
+        </p>
+        <p class="head-sub" *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1">
+          El código es válido y está activo.
+        </p>
+        <p class="head-sub" *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1">
+          Este código no está activo.
+        </p>
+      </div>
     </div>
 
-    <div class="promo-info">
-  <div class="promo-info-nombre">{{promocionRelacionada?.nombre}}</div>
-  <div class="promo-info-descripcion">{{promocionRelacionada?.descripcion}}</div>
-  <div class="promo-info-vigencia">
-    Cupón vigente hasta:<br/>
-    <span>{{promocionRelacionada?.vigencia}}</span>
-  </div>
-</div>
-
-
-    <!-- Botón de validación -->
-    <div *ngIf="EstatusActivacionDelCodigo === 0">
-      <!-- tambien por favor hacer este boton mas grande-->
-      <button class="promo-button" (click)="ActivarPromocion()">
-        Validar código
-      </button>
-      <button class="promo-button" (click)="close()">
-        Salir
+    <!-- Código en píldora + copiar -->
+    <div class="code-row">
+      <div class="code-pill" title="Código">
+        <span>{{ codigoPromocion }}</span>
+      </div>
+      <button type="button" class="icon-btn" (click)="copiarCodigo(codigoPromocion)" aria-label="Copiar código">
+        <ion-icon name="copy-outline"></ion-icon>
       </button>
     </div>
 
-    <!-- Loader mientras se activa -->
-    <div *ngIf="EstatusActivacionDelCodigo === 2" class="promo-loader">
-      <app-loader></app-loader>
-      <p class="promo-message">Activando promoción...</p>
+    <!-- Progreso mientras valida -->
+    <ion-progress-bar *ngIf="EstatusObtenerInformacionDelCodigo === 1" type="indeterminate" class="bar"></ion-progress-bar>
+
+    <!-- Detalles cuando es válido -->
+    <div *ngIf="EstatusDelCodigo === 1" class="details">
+      <div class="line">
+        <span class="label">Promoción</span>
+        <span class="value">{{ promocionRelacionada?.nombre }}</span>
+      </div>
+
+      <div class="description">{{ promocionRelacionada?.descripcion }}</div>
+
+      <div class="line">
+        <span class="label">Vigencia</span>
+        <span class="value">{{ promocionRelacionada?.vigencia }}</span>
+      </div>
+
+      <div class="status-badge success">
+        <ion-icon name="checkmark-outline"></ion-icon>
+        Activo
+      </div>
     </div>
 
-    <!-- Activación exitosa -->
-    <div *ngIf="EstatusActivacionDelCodigo === 1" class="promo-success">
-      🎉 ¡Promoción activada con éxito!
+    <!-- Inactivo -->
+    <div *ngIf="EstatusDelCodigo === -1" class="details">
+      <div class="status-badge danger">
+        <ion-icon name="close-outline"></ion-icon>
+        Inactivo
+      </div>
+      <div class="reason" *ngIf="MotivoInactividad">{{ MotivoInactividad }}</div>
     </div>
 
-    <!-- Error al activar -->
-    <div *ngIf="EstatusActivacionDelCodigo === -1" class="promo-error">
-      ❌ Hubo un error al activar la promoción. Por favor, intenta nuevamente.
-    </div>
-  </div>
+    <!-- Acciones / estados de activación -->
+    <div class="actions" *ngIf="EstatusDelCodigo === 1">
+      <ng-container *ngIf="EstatusActivacionDelCodigo === 0">
+        <button class="btn primary" (click)="ActivarPromocion()">Validar código</button>
+        <button class="btn ghost" (click)="close()">Salir</button>
+      </ng-container>
 
-  <!-- Código inválido o inactivo -->
-  <div *ngIf="EstatusDelCodigo === -1" class="promo-error">
-    Este código no está activo.
-    <div class="promo-reason">
-      {{ MotivoInactividad }}
+      <div class="activating" *ngIf="EstatusActivacionDelCodigo === 2">
+        <app-loader></app-loader>
+        <span>Activando promoción…</span>
+      </div>
+
+      <div class="callout success" *ngIf="EstatusActivacionDelCodigo === 1">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        ¡Promoción activada con éxito!
+      </div>
+
+      <div class="callout danger" *ngIf="EstatusActivacionDelCodigo === -1">
+        <ion-icon name="warning-outline"></ion-icon>
+        Hubo un error al activar la promoción. Intenta de nuevo.
+      </div>
     </div>
-    <button class="promo-button" (click)="close()">
-      Salir
-    </button>
+
+    <!-- Botón salir para inválidos -->
+    <div class="actions" *ngIf="EstatusDelCodigo === -1">
+      <button class="btn ghost" (click)="close()">Salir</button>
+    </div>
   </div>
 </div>
