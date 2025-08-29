@@ -81,3 +81,24 @@ ion-tab-button.ion-selected {
 .logout-button-container {
   padding: 0 16px 16px;
 }
+
+//------
+/* Quitar la barra de scroll visible en el menú lateral (Ionic 6/7) */
+ion-menu.custom-menu ion-content::part(scroll) {
+  /* Mantiene el scroll funcional si hiciera falta, pero sin barra */
+  overflow-y: auto;
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* IE/Edge */
+  padding-right: 0 !important;  /* evita reservar espacio para la barra */
+}
+ion-menu.custom-menu ion-content::part(scroll)::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;                /* Chrome/Safari */
+}
+
+/* Por si algún estilo raro estaba forzando altura */
+ion-menu.custom-menu,
+ion-menu.custom-menu ion-content {
+  height: 100%;
+}
