@@ -39,6 +39,9 @@ export class ModalQRComponent implements OnInit {
 
   codigoPromocion: string = "";
   html5QrCode: Html5Qrcode | undefined; //new Html5Qrcode("reader");
+  copiarCodigo(code: string) {
+  navigator.clipboard?.writeText(code || '').catch(() => {});
+}
   ngOnInit() {
     if(this.codigoParametro != ""){
       this.iniciarCaptura(this.codigoParametro);
