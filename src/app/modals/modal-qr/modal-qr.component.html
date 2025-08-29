@@ -8,7 +8,7 @@
         'is-invalid': EstatusDelCodigo === -1
       }"
     >
-      <!-- Encabezado -->
+      <!-- Cabecera -->
       <div class="card-head">
         <div class="head-icon">
           <ion-icon *ngIf="EstatusObtenerInformacionDelCodigo === 1" name="qr-code-outline"></ion-icon>
@@ -17,7 +17,7 @@
         </div>
 
         <div class="head-titles">
-          <h3 class="head-title" aria-live="polite">
+          <h3 class="head-title">
             {{
               EstatusObtenerInformacionDelCodigo === 1
                 ? 'Validando código'
@@ -28,12 +28,8 @@
           </h3>
 
           <p class="head-sub" *ngIf="EstatusObtenerInformacionDelCodigo === 1">Por favor, espera…</p>
-          <p class="head-sub" *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1">
-            El código es válido y está activo.
-          </p>
-          <p class="head-sub" *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1">
-            Este código no está activo.
-          </p>
+          <p class="head-sub" *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1">El código es válido y está activo.</p>
+          <p class="head-sub" *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1">Este código no está activo.</p>
         </div>
       </div>
 
@@ -46,121 +42,79 @@
       </div>
 
       <!-- Progreso -->
-      <ion-progress-bar
-        *ngIf="EstatusObtenerInformacionDelCodigo === 1"
-        type="indeterminate"
-        class="bar"
-      ></ion-progress-bar>
+      <ion-progress-bar *ngIf="EstatusObtenerInformacionDelCodigo === 1" type="indeterminate" class="bar"></ion-progress-bar>
 
-      <!-- Detalles (válido) -->
-      <div *ngIf="EstatusDelCodigo === 1" class="details">
-        <div class="line">
-          <span class="label">Promoción</span>
-          <span class="value">{{ promocionRelacionada?.nombre }}</span>
+      <!-- Detalles VÁLIDO -->
+      <ng-container *ngIf="EstatusDelCodigo === 1">
+        <div class="details">
+          <div class="line">
+            <span class="label">Promoción</span>
+            <span class="value">{{ promocionRelacionada?.nombre }}</span>
+          </div>
+
+          <div class="description">{{ promocionRelacionada?.descripcion }}</div>
+
+          <div class="line">
+            <span class="label">Vigencia</span>
+            <span class="value">{{ promocionRelacionada?.vigencia }}</span>
+          </div>
+
+          <div class="status-badge success">
+            <ion-icon name="checkmark-outline"></ion-icon>
+            Activo
+          </div>
         </div>
 
-        <div class="description">{{ promocionRelacionada?.descripcion }}</div>
+        <!-- ACCIONES (un solo bloque con switch) -->
+        <div class="actions">
+          <ng-container [ngSwitch]="EstatusActivacionDelCodigo">
+            <!-- Listo para activar -->
+            <div *ngSwitchCase="0" class="grid-2">
+              <button class="btn primary" (click)="ActivarPromocion()">Validar código</button>
+              <button class="btn ghost" (click)="close()">Salir</button>
+            </div>
 
-        <div class="line">
-          <span class="label">Vigencia</span>
-          <span class="value">{{ promocionRelacionada?.vigencia }}</span>
+            <!-- Activando -->
+            <div *ngSwitchCase="2" class="activating">
+              <app-loader></app-loader>
+              <span>Activando promoción…</span>
+            </div>
+
+            <!-- Activación OK -->
+            <div *ngSwitchCase="1" class="stack">
+              <div class="callout success">
+                <ion-icon name="sparkles-outline"></ion-icon>
+                ¡Promoción activada con éxito!
+              </div>
+              <button class="btn primary" (click)="close()">Cerrar</button>
+            </div>
+
+            <!-- Error al activar -->
+            <div *ngSwitchCase="-1" class="stack">
+              <div class="callout danger">
+                <ion-icon name="warning-outline"></ion-icon>
+                Hubo un error al activar la promoción. Intenta de nuevo.
+              </div>
+              <button class="btn ghost" (click)="close()">Salir</button>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+
+      <!-- Detalles INVÁLIDO -->
+      <ng-container *ngIf="EstatusDelCodigo === -1">
+        <div class="details">
+          <div class="status-badge danger">
+            <ion-icon name="close-outline"></ion-icon>
+            Inactivo
+          </div>
+          <div class="reason" *ngIf="MotivoInactividad">{{ MotivoInactividad }}</div>
         </div>
 
-        <div class="status-badge success">
-          <ion-icon name="checkmark-outline"></ion-icon>
-          Activo
-        </div>
-      </div>
-
-      <!-- Detalles (inválido) -->
-      <div *ngIf="EstatusDelCodigo === -1" class="details">
-        <div class="status-badge danger">
-          <ion-icon name="close-outline"></ion-icon>
-          Inactivo
-        </div>
-        <div class="reason" *ngIf="MotivoInactividad">{{ MotivoInactividad }}</div>
-      </div>
-
-      <!-- Estados de activación -->
-      <div class="actions" *ngIf="EstatusDelCodigo === 1">
-        <ng-container *ngIf="EstatusActivacionDelCodigo === 0">
-          <button class="btn primary" (click)="ActivarPromocion()">Validar código</button>
+        <div class="actions">
           <button class="btn ghost" (click)="close()">Salir</button>
-        </ng-container>
-
-        <div class="activating" *ngIf="EstatusActivacionDelCodigo === 2">
-          <app-loader></app-loader>
-          <span>Activando promoción…</span>
         </div>
-
-        <div class="callout success" *ngIf="EstatusActivacionDelCodigo === 1">
-          <ion-icon name="sparkles-outline"></ion-icon>
-          ¡Promoción activada con éxito!
-        </div>
-
-        <div class="callout danger" *ngIf="EstatusActivacionDelCodigo === -1">
-          <ion-icon name="warning-outline"></ion-icon>
-          Hubo un error al activar la promoción. Intenta de nuevo.
-        </div>
-      </div>
-    </div>
-
-    <!-- Acciones fijas abajo (siempre mostrar Salir tras escanear) -->
-    <div class="promo-actions" *ngIf="codigoPromocion">
-      <!-- Validado y pendiente de activar -->
-      <button
-        class="btn-outline"
-        (click)="close()"
-        *ngIf="EstatusDelCodigo === 1 && EstatusActivacionDelCodigo === 0"
-      >
-        Salir
-      </button>
-      <button
-        class="btn-primary"
-        (click)="ActivarPromocion()"
-        *ngIf="EstatusDelCodigo === 1 && EstatusActivacionDelCodigo === 0"
-      >
-        Validar código
-      </button>
-
-      <!-- Activando -->
-      <button
-        class="btn-outline"
-        (click)="close()"
-        *ngIf="EstatusDelCodigo === 1 && EstatusActivacionDelCodigo === 2"
-      >
-        Salir
-      </button>
-
-      <!-- Activado -->
-      <button
-        class="btn-primary"
-        (click)="close()"
-        *ngIf="EstatusDelCodigo === 1 && EstatusActivacionDelCodigo === 1"
-      >
-        Listo / Salir
-      </button>
-
-      <!-- Error de activación -->
-      <button
-        class="btn-outline"
-        (click)="close()"
-        *ngIf="EstatusDelCodigo === 1 && EstatusActivacionDelCodigo === -1"
-      >
-        Salir
-      </button>
-
-      <!-- Inválido -->
-      <button class="btn-outline" (click)="close()" *ngIf="EstatusDelCodigo === -1">Salir</button>
-
-      <!-- Validando info -->
-      <button
-        class="btn-outline"
-        (click)="close()"
-        *ngIf="EstatusObtenerInformacionDelCodigo === 1"
-      >
-        Salir
-      </button>
+      </ng-container>
     </div>
   </div>
 </ion-content>
