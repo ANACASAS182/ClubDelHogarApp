@@ -69,8 +69,9 @@ export class ModalQRComponent implements OnInit {
       next: (data) => {
         if (data.estatus == 1) {
           this.EstatusActivacionDelCodigo = 1;
-        }
-        if (data.estatus == -1) {
+          this.EstatusDelCodigo = -1; // para que el bloque de “inválido” se muestre
+          this.MotivoInactividad = 'Código cerrado correctamente.';
+        } else {
           this.EstatusActivacionDelCodigo = -1;
           this.MotivoInactividad = data.mensaje;
         }
