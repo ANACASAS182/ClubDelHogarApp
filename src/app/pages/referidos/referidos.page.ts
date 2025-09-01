@@ -3,7 +3,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ModalController } from '@ionic/angular';
-import { catchError, debounceTime, distinctUntilChanged, map, merge, of, startWith, Subject, switchMap } from 'rxjs';
+import { Subject } from 'rxjs';
 import { EstatusReferenciaEnum } from 'src/app/enums/estatus.referencia.enum';
 import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro.modal/referido.registro.modal.component';
 import { ReferidoSeguimientoModalComponent } from 'src/app/modals/referido.seguimiento.modal/referido.seguimiento.modal.component';
@@ -19,15 +19,13 @@ import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.
   templateUrl: './referidos.page.html',
   styleUrls: ['./referidos.page.scss'],
   standalone: false,
-
 })
 export class ReferidosPage implements OnInit, AfterViewInit {
-
 
   IngresoPotencialView: string = "";
   IngresoGeneradoView: string = "";
 
-  //table
+  // table (si la usas en otra vista)
   dataSourceTable = new MatTableDataSource<ReferidoDTO>();
   displayedColumns: string[] = ['Nombre', 'Celular', 'Empresa', 'Producto', 'Comision', 'Estatus', 'Visualizar'];
   total: any;
@@ -35,27 +33,30 @@ export class ReferidosPage implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  //input busqueda
+  // input busqueda
   inputBuscar = new Subject<string>();
   query: string = "";
 
-  constructor(private referidoService: ReferidoService,
+  constructor(
+    private referidoService: ReferidoService,
     private usuarioService: UsuarioService,
     private modalCtrl: ModalController,
     private modalAlert: ModalAlerReferidoService
   ) { }
 
-  ngAfterViewInit() {
-
-  }
+  ngAfterViewInit() { }
 
   referidos: ReferidoUI[] = [];
   cargandoReferidos: boolean = false;
+
   ngOnInit() {
-
-
     this.cargarReferidos();
+  }
 
+  private esReciente(fecha?: Date): boolean {
+    if (!fecha) return false;
+    const diff = Date.now() - new Date(fecha).getTime();
+    return diff <= 48 * 60 * 60 * 1000; // 48h
   }
 
   cargarReferidos() {
@@ -66,13 +67,12 @@ export class ReferidosPage implements OnInit, AfterViewInit {
       next: (response: GenericResponseDTO<Usuario>) => {
         const userId = response.data.id;
 
-        // (El setTimeout no es necesario; si lo quieres, déjalo. Aquí lo quito para ir directo.)
         this.referidoService.getReferidosSimple(userId).subscribe({
           next: (data) => {
-            // 👉 mapeo con la normalización/validación del teléfono
+            // 1) normaliza teléfonos
             this.referidos = data.map(r => {
               const p = parseMxPhone(r.celular);
-              return {
+              return <ReferidoUI>{
                 ...r,
                 celularView: p.view,
                 celularE164: p.e164,
@@ -80,18 +80,43 @@ export class ReferidosPage implements OnInit, AfterViewInit {
               };
             });
 
+            // 2) totales
             let ingresoGenerado = 0;
             let ingresoPotencial = 0;
-
             this.referidos.forEach(r => {
               const c = +(r.comision ?? 0);
               ingresoPotencial += c;
               if (r.estatusReferenciaID === 3) ingresoGenerado += c;
             });
-
             this.IngresoGeneradoView  = '$' + ingresoGenerado.toFixed(2);
             this.IngresoPotencialView = '$' + ingresoPotencial.toFixed(2);
-            this.cargandoReferidos = false;
+
+            // 3) cargar últimos seguimientos en lote (evita N+1)
+            const ids = this.referidos.map(r => r.id!).filter(Boolean);
+            if (!ids.length) { this.cargandoReferidos = false; return; }
+
+            // Implementa en tu servicio un endpoint:
+            // getUltimosSeguimientos(ids:number[]) => Observable<UltimoSeg[]>
+            this.referidoService.getUltimosSeguimientos(ids).subscribe({
+              next: (lista: UltimoSeg[]) => {
+                const mapSeg = new Map<number, UltimoSeg>();
+                lista.forEach(x => mapSeg.set(x.referidoId, x));
+
+                this.referidos = this.referidos.map(r => {
+                  const seg = r.id ? mapSeg.get(r.id) : undefined;
+                  const fecha = seg?.fecha ? new Date(seg.fecha) : undefined;
+                  return {
+                    ...r,
+                    ultimoSeguimientoTexto: seg?.texto,
+                    ultimoSeguimientoFecha: fecha,
+                    _segEsReciente: this.esReciente(fecha)
+                  };
+                });
+
+                this.cargandoReferidos = false;
+              },
+              error: () => { this.cargandoReferidos = false; }
+            });
           },
           error: () => { this.cargandoReferidos = false; }
         });
@@ -99,8 +124,6 @@ export class ReferidosPage implements OnInit, AfterViewInit {
       error: () => { this.cargandoReferidos = false; }
     });
   }
-
-
 
   async abrirModal() {
     let formDirty = false;
@@ -113,7 +136,6 @@ export class ReferidosPage implements OnInit, AfterViewInit {
       },
       canDismiss: async () => {
         if (!formDirty) return true;
-
         const shouldClose = await this.modalAlert.confirmarCierreModal();
         return shouldClose;
       }
@@ -121,50 +143,32 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
     await modal.present();
 
-    //respuesta de modal (El modal ya se encarga de guardar/mostrar mensajes, no es necesario tratar los datos.)
     const { data } = await modal.onDidDismiss();
-    if (data) {
-      console.log(data);
-      this.cargarReferidos();
-    }
+    if (data) this.cargarReferidos();
   }
 
   async abrirModalVisualizacion(model: ReferidoDTO) {
-
     const modal = await this.modalCtrl.create({
       component: ReferidoSeguimientoModalComponent,
       cssClass: 'modal-redondeado',
-      componentProps: {
-        referido: model
-      }
+      componentProps: { referido: model }
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
-    if (data) {
-      console.log(data);
-
-    }
+    await modal.onDidDismiss(); // si regresa algo podrías refrescar
   }
 
   getColorEstatus(estatus: EstatusReferenciaEnum): string {
     switch (estatus) {
-      case EstatusReferenciaEnum.Creado:
-        return 'estatus-creado';
-      case EstatusReferenciaEnum.Seguimiento:
-        return 'estatus-seguimiento';
-      case EstatusReferenciaEnum.Cerrado:
-        return 'estatus-cerrado';
-      default:
-        return 'estatus-other';
+      case EstatusReferenciaEnum.Creado: return 'estatus-creado';
+      case EstatusReferenciaEnum.Seguimiento: return 'estatus-seguimiento';
+      case EstatusReferenciaEnum.Cerrado: return 'estatus-cerrado';
+      default: return 'estatus-other';
     }
   }
+
   formatFecha(fecha?: Date): string {
-
-    if (fecha == undefined) {
-      return "No aplica";
-    }
-
+    if (fecha == undefined) return "No aplica";
     const f = new Date(fecha);
     const dia = f.getDate().toString().padStart(2, '0');
     let mes = f.toLocaleString('es-MX', { month: 'short' });
@@ -172,40 +176,43 @@ export class ReferidosPage implements OnInit, AfterViewInit {
     const anio = f.getFullYear();
     let horas = f.getHours();
     const minutos = f.getMinutes().toString().padStart(2, '0');
-
-    // Si quieres formato 12 horas con AM/PM:
     const ampm = horas >= 12 ? 'PM' : 'AM';
-    horas = horas % 12;
-    horas = horas ? horas : 12; // el 0 se convierte en 12
+    horas = horas % 12; horas = horas ? horas : 12;
     const horaFormateada = horas.toString().padStart(2, '0');
-
     return `${dia} ${mes} ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
   }
 }
 
+/* ===== Tipos auxiliares ===== */
+type UltimoSeg = { referidoId: number; texto: string; fecha: string | Date };
+
 type PhoneInfo = {
-  view: string;           // (+52) 55 1234 5678  (o “No proporcionado” / “Número inválido”)
-  e164: string | null;    // +52XXXXXXXXXX si es válido
-  invalid: boolean;       // true si es obvio falso (1111111111 / 1234567890 / etc.)
+  view: string;
+  e164: string | null;
+  invalid: boolean;
 };
 
+type ReferidoUI = ReferidoDTO & {
+  celularView: string;
+  celularE164: string | null;
+  celularInvalido: boolean;
+
+  // preview de seguimiento
+  ultimoSeguimientoTexto?: string;
+  ultimoSeguimientoFecha?: Date;
+  _segEsReciente?: boolean;
+};
+
+/* ===== Utilidad de normalización de teléfono MX ===== */
 function parseMxPhone(raw?: string | null): PhoneInfo {
   const clean = (raw ?? '').replace(/[^\d]/g, '');
   if (!clean) return { view: 'No proporcionado', e164: null, invalid: false };
 
-  // Normalizaciones comunes en MX
   let d = clean;
-
-  // WhatsApp antiguo: 521 + 10 dígitos → quitar el "1"
   if (d.startsWith('521') && d.length === 13) d = '52' + d.slice(3);
-
-  // Si viene como 52 + 10 dígitos, quítale 52 para formatear nacional
   if (d.startsWith('52') && d.length === 12) d = d.slice(2);
-
-  // Al final debemos tener 10 dígitos nacionales
   if (d.length !== 10) return { view: 'Número inválido', e164: null, invalid: true };
 
-  // Sospechosos: repetidos o secuencias
   const allSame = /^(\d)\1{9}$/.test(d);
   const sequential = d === '1234567890' || d === '0987654321';
   const black = d === '0000000000' || d === '1111111111';
@@ -215,11 +222,3 @@ function parseMxPhone(raw?: string | null): PhoneInfo {
   const view = `(+52) ${d.slice(0,2)} ${d.slice(2,6)} ${d.slice(6)}`;
   return { view, e164, invalid };
 }
-
-type ReferidoUI = ReferidoDTO & {
-  celularView: string;
-  celularE164: string | null;
-  celularInvalido: boolean;
-};
-
-

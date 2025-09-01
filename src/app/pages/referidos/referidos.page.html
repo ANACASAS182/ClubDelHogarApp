@@ -17,7 +17,7 @@
   </ion-item>
 
   <ion-item *ngIf="!cargandoReferidos && referidos.length == 0">
-    Aun no tienes referidos, promociona los productos para crear referidos y generar ingresos
+    Aún no tienes referidos, promociona los productos para crear referidos y generar ingresos
   </ion-item>
 
   <ng-container *ngFor="let referido of referidos">
@@ -25,20 +25,20 @@
       <div class="itemReferencia">
         <ion-grid>
           <ion-row>
-            <ion-col>
+            <ion-col size="8" sizeMd="9" sizeLg="10">
 
-              <!-- Sección 1: Identidad -->
+              <!-- Identidad -->
               <section class="referido-identidad">
                 <div class="referido-nombre">{{ referido.nombreCompleto }}</div>
 
-                <!-- CORREO (una sola vez) -->
+                <!-- CORREO -->
                 <div class="referido-contacto">
                   <ion-icon name="mail-outline" *ngIf="referido.email"></ion-icon>
                   <span *ngIf="referido.email; else sinCorreo">{{ referido.email }}</span>
                   <ng-template #sinCorreo><span class="muted">Sin correo</span></ng-template>
                 </div>
 
-                <!-- TELÉFONO formateado + badge -->
+                <!-- TELÉFONO -->
                 <div class="referido-contacto">
                   <ion-icon name="logo-whatsapp"></ion-icon>
                   <span>
@@ -47,8 +47,7 @@
                   <ion-badge
                     *ngIf="referido.celularE164 && referido.celularInvalido"
                     color="warning"
-                    class="badge-susp"
-                  >
+                    class="badge-susp">
                     sospechoso
                   </ion-badge>
                 </div>
@@ -60,16 +59,40 @@
                 </div>
               </section>
 
-              <!-- Sección 2: Producto y empresa -->
+              <!-- Producto / Empresa -->
               <section class="referido-producto">
                 <div class="producto-nombre">{{ referido.productoNombre }}</div>
                 <div class="empresa-nombre">{{ referido.empresaRazonSocial }}</div>
               </section>
 
+              <!-- 🔎 Vista previa del último seguimiento -->
+              <section class="referido-ultimo-seg" *ngIf="referido.ultimoSeguimientoTexto; else sinSegPrev">
+                <ion-icon name="chatbubble-ellipses-outline" class="seg-icon"></ion-icon>
+
+                <div class="seg-preview">
+                  <div class="seg-text line-clamp-1">{{ referido.ultimoSeguimientoTexto }}</div>
+                  <div class="seg-meta">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ referido.ultimoSeguimientoFecha | date:'dd-MMM-yyyy, HH:mm' }}</span>
+                    <ion-badge color="success" *ngIf="referido._segEsReciente">nuevo</ion-badge>
+                  </div>
+                </div>
+              </section>
+
+              <ng-template #sinSegPrev>
+                <section class="referido-ultimo-seg muted">
+                  <ion-icon name="chatbubble-ellipses-outline" class="seg-icon"></ion-icon>
+                  <div class="seg-preview">
+                    <div class="seg-text">Aún no hay seguimientos</div>
+                  </div>
+                </section>
+              </ng-template>
+              <!-- /Vista previa -->
+
             </ion-col>
 
-            <!-- Sección 3: Comisión -->
-            <ion-col>
+            <!-- Comisión -->
+            <ion-col size="4" sizeMd="3" sizeLg="2" class="ion-text-right">
               <section class="referido-comision">
                 <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto }}</div>
                 <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto }}</div>
@@ -83,7 +106,8 @@
 
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-button class="fab-rectangular" (click)="abrirModal()">
-      <img [src]="'assets/icons/add.png'" alt="Icono Network"
+      <img [src]="'assets/icons/add.png'"
+           alt="Icono Network"
            style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
       <span class="fab-text">Agregar</span>
     </ion-button>

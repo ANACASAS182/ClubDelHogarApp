@@ -92,9 +92,15 @@ export class DashboardPage implements OnInit {
   }
 
   async logout() {
-    await this.tokenService.removeToken();
-    this.router.navigate(['/login']);
-  }
+  await this.tokenService.removeToken();
+  localStorage.removeItem('usuario-actual');
+  await Preferences.remove({ key: 'correoAlmacenado' });    // si quieres forzar limpio
+  await Preferences.remove({ key: 'passwordAlmacenado' });
+  // 👇 Si hay endpoint en backend
+  // await this.http.post('/api/Usuario/Logout', {}).toPromise().catch(()=>{});
+  // y que el backend expire la cookie si hay
+  this.router.navigate(['/login'], { replaceUrl: true });
+}
 
   async abrirModalQr() {
     console.log("hola");

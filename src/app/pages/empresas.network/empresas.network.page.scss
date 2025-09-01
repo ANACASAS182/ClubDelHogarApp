@@ -1,23 +1,55 @@
-.img-effect {
-    overflow: hidden;
-    padding:8px;
-  }
-  
-  .img-effect img {
-    transition: transform 0.5s ease;
-    width: 256px !important;
-  }
-  
-  .img-effect:hover img {
-    transform: scale(1.02);
-  }
+/* Título compacto y estable en cualquier ancho */
+.title-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.title-icon {
+  width: 20px;
+  height: 20px;
+  display: block; /* evita espacio baseline en iOS */
+}
 
-  .ion-card-embassy{
-    user-select: none;
-    border: 1px solid #ffffff00;
-  }
+/* Tarjeta “clickeable” neutra */
+.ion-card-embassy{
+  user-select: none;
+  border: 1px solid #ffffff00;
+  border-radius: 14px;
+  transition: border-color .15s ease;
+}
+.ion-card-embassy:hover{
+  border: 1px solid #111822b4;
+}
 
-  .ion-card-embassy:hover{
-    transition: 0.1s;
-    border: 1px solid #111822b4;
-  }
+/* Caja de logo responsiva con aspecto fijo (cuadrado).
+   Si prefieres rectangular, cambia a aspect-ratio: 16/9; */
+.img-box{
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #fff;
+  /* opcional: sombra suave para “card” consistente */
+}
+
+/* Imagen completamente fluida, sin ancho fijo (adiós 256px) */
+.img-box img{
+  display: block;         /* quita el gap de línea en Safari iOS */
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;    /* no distorsiona logos */
+  transition: transform .25s ease;
+}
+.img-box:hover img{
+  transform: scale(1.02);
+}
+
+/* Micro-ajustes responsive */
+@media (max-width: 420px){
+  ion-grid { padding-inline: 10px; }
+  .ion-card-embassy { border-radius: 12px; }
+}

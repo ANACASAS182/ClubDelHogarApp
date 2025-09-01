@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
-import { IonCard, IonItem, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonIcon } from "@ionic/angular/standalone";
+import { IonCard, IonItem, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonIcon, IonButton } from "@ionic/angular/standalone";
 import { PromocionesService, ResumenEmbajadorDTO } from 'src/app/services/api.back.services/promociones.service';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { UtilitiesService } from 'src/app/utilities.service';
@@ -30,7 +30,7 @@ type InvitadoResumen = {
   selector: 'app-resumen',
   templateUrl: './resumen.component.html',
   standalone: true,
-  imports: [IonCard, CommonModule, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonItem, IonIcon],
+  imports: [IonButton, IonCard, CommonModule, IonCardContent, IonItemDivider, IonGrid, IonRow, IonCol, IonItem, IonIcon],
   styleUrls: ['./resumen.component.scss'],
 })
 export class ResumenComponent implements OnInit {
@@ -57,12 +57,12 @@ export class ResumenComponent implements OnInit {
   pendientesVacios = false;
 
   aceptadosDetalle: InvitadoResumen[] = [];
-  showPendientes = true;
-  showAceptados  = true;
+  showPendientes = false;
+  showAceptados  = false;
 
-  toggle(which: 'pend' | 'acept') {
-  if (which === 'pend')  this.showPendientes = !this.showPendientes;
-  if (which === 'acept') this.showAceptados  = !this.showAceptados;
+  toggle(seccion: 'pend'|'acept') {
+  if (seccion === 'pend') this.showPendientes = !this.showPendientes;
+  else this.showAceptados = !this.showAceptados;
 }
   
 ngOnInit() {

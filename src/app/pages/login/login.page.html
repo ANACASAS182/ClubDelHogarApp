@@ -31,7 +31,7 @@
           label-placement="floating"
           label="Correo electrónico"
           type="text"
-          [ngClass] = "{'embassy_input':true, 'invisible':correoAlmacenado != ''}"
+          class="embassy_input"
           (ionBlur)="getControl('user')?.markAsTouched()">
         </ion-input>
         <!-- <ion-text color="danger" *ngIf="getControl('user')?.invalid && getControl('user')?.touched">
@@ -39,16 +39,16 @@
         </ion-text> -->
         
 
+        
         <ion-input
           formControlName="password"
           label-placement="floating"
           label="Contraseña"
           type="password"
-          [ngClass] = "{'embassy_input':true, 'invisible':correoAlmacenado != ''}"
+          class="embassy_input"
           (ionBlur)="getControl('password')?.markAsTouched()">
-          <ion-input-password-toggle *ngIf="getControl('password')!.value! != ''" slot="end"></ion-input-password-toggle>
+          <ion-input-password-toggle *ngIf="getControl('password')?.value" slot="end"></ion-input-password-toggle>
         </ion-input>
-
         <div  *ngIf ="!iniciandoSesion && correoAlmacenado == ''" >
           <ion-checkbox formControlName ="almacenarDatos" >Guardar datos de inicio de sesión</ion-checkbox>
         </div>
