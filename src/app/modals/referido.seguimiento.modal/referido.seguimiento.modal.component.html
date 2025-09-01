@@ -5,77 +5,74 @@
         <ion-icon name="arrow-back-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
-    <ion-title class="ion-text-center">{{referido!.nombreCompleto}}</ion-title>
+    <ion-title class="ion-text-center">{{ referido?.nombreCompleto }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
+  <h2 class="form-title ion-text-center">{{ referido?.estatusReferenciaDescripcion }}</h2>
 
-  <ion-content class="ion-padding">
-    <h2 class="form-title ion-text-center">{{referido?.estatusReferenciaDescripcion}}</h2>
+  <ion-list>
+    <div class="detail-grid">
 
-        <ion-list>
-      <div class="detail-grid">
+      <div class="detail-row">
+        <div class="detail-label">Nombre:</div>
+        <div class="detail-value">{{ referido?.nombreCompleto }}</div>
+      </div>
 
-        <div class="detail-row">
-          <div class="detail-label">Nombre:</div>
-          <div class="detail-value">{{ referido?.nombreCompleto }}</div>
-          <div></div>
+      <div class="detail-row">
+        <div class="detail-label">Celular:</div>
+        <div class="detail-value">{{ phoneView }}</div>
+        <div class="detail-actions">
+          <ion-button size="small" fill="clear" (click)="llamar()" [disabled]="!phoneE164">
+            <ion-icon slot="icon-only" name="call-outline"></ion-icon>
+          </ion-button>
+          <ion-button size="small" fill="clear" (click)="whatsapp()" [disabled]="!phoneE164">
+            <ion-icon slot="icon-only" name="logo-whatsapp"></ion-icon>
+          </ion-button>
         </div>
+      </div>
 
-        <div class="detail-row">
-          <div class="detail-label">Celular:</div>
-          <div class="detail-value">
-            {{ phoneView }}
-            <ion-badge *ngIf="phoneInvalid && phoneE164" color="warning" class="ml-6">sospechoso</ion-badge>
-          </div>
-          <div class="detail-actions">
-            <ion-button fill="clear" size="small" [disabled]="!phoneE164" (click)="llamar()">
-              <ion-icon name="call-outline"></ion-icon>
-            </ion-button>
-            <ion-button fill="clear" size="small" [disabled]="!phoneE164" (click)="whatsapp()">
-              <ion-icon name="logo-whatsapp"></ion-icon>
-            </ion-button>
-          </div>
-        </div>
+      <div class="detail-row">
+        <div class="detail-label">Empresa:</div>
+        <div class="detail-value">{{ referido?.empresaRazonSocial }}</div>
+        <div></div>
+      </div>
 
-        <div class="detail-row">
-          <div class="detail-label">Empresa:</div>
-          <div class="detail-value">{{ referido?.empresaRazonSocial }}</div>
-          <div></div>
-        </div>
+      <div class="detail-row">
+        <div class="detail-label">Producto:</div>
+        <div class="detail-value">{{ referido?.productoNombre }}</div>
+        <div></div>
+      </div>
 
-        <div class="detail-row">
-          <div class="detail-label">Producto:</div>
-          <div class="detail-value">{{ referido?.productoNombre }}</div>
-          <div></div>
-        </div>
+      <div class="detail-row">
+        <div class="detail-label">Comisión:</div>
+        <div class="detail-value">{{ referido?.comision | currency:'MXN':'symbol':'1.2-2' }}</div>
+        <div></div>
+      </div>
 
-        <div class="detail-row">
-          <div class="detail-label">Comisión:</div>
-          <div class="detail-value">{{ referido?.comision | currency:'MXN':'symbol':'1.2-2' }}</div>
-          <div></div>
-        </div>
-
-        <div class="detail-row detail-row--stack">
-          <div class="detail-label">Seguimientos:</div>
-          <div class="detail-value">
-            <div class="timeline" *ngIf="(seguimientos?.length ?? 0) > 0; else sinSeg">
-              <div class="tl-item" *ngFor="let it of (mostrarTodos ? seguimientos : seguimientos | slice:0:5); trackBy: trackBySeg">
-                <div class="tl-dot"></div>
+      <!-- Seguimientos -->
+      <div class="detail-row">
+        <div class="detail-label">Seguimientos:</div>
+        <div class="detail-value">
+          <ng-container *ngIf="seguimientos?.length; else noSeg">
+            <div class="timeline">
+              <div
+                class="tl-item"
+                *ngFor="let s of (mostrarTodos ? seguimientos : (seguimientos | slice:0:5)); trackBy: trackBySeg">
+                <span class="tl-dot"></span>
                 <div class="tl-card">
                   <div class="tl-row">
                     <ion-icon name="time-outline"></ion-icon>
-                    <span class="tl-date">{{ formatFecha(it.fechaSeguimiento) }}</span>
+                    <span class="seg-fecha">
+                      {{ (s.fechaSeguimiento || s.fechaCreacion) | date:'dd-MMMM-yyyy, HH:mm' }}
+                    </span>
                   </div>
-                  <div class="tl-text">{{ it.comentario }}</div>
+                  <div class="tl-text">{{ s.comentario }}</div>
                 </div>
               </div>
             </div>
 
-            <ng-template #sinSeg>
-              <span class="muted">Aún no hay seguimientos</span>
-            </ng-template>
             <ion-button
               *ngIf="(seguimientos?.length ?? 0) > 5"
               size="small"
@@ -84,16 +81,18 @@
               (click)="mostrarTodos = !mostrarTodos">
               {{ mostrarTodos ? 'Ver menos' : 'Ver todos' }}
             </ion-button>
-          </div>
-          <div></div>
-        </div>
+          </ng-container>
 
+          <ng-template #noSeg>
+            <span class="no-seg">Aún no hay seguimientos</span>
+          </ng-template>
+        </div>
       </div>
-    </ion-list>
-    <div class="ion-padding-top ion-text-center">
-      <ion-button class="customButton" shape="round" (click)="cerrarModal()">
-        CERRAR
-      </ion-button>
+
     </div>
-  </ion-content>
+  </ion-list>
+
+  <div class="ion-padding-top ion-text-center">
+    <ion-button expand="block" shape="round" (click)="cerrarModal()">CERRAR</ion-button>
+  </div>
 </ion-content>
