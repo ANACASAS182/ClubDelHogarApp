@@ -290,3 +290,64 @@ ion-badge[color="success"] {
 .badge-susp { white-space: nowrap; }
 
 /* el preview de seguimiento ya tiene min-width:0 más arriba */
+/* ======= FIX URGENTE: layout de cada item ======= */
+
+/* El grid debe ocupar todo el ancho del ion-item */
+.itemReferencia ion-grid { width: 100%; }
+
+/* Alinea arriba y permite encoger */
+.itemReferencia ion-row {
+  align-items: flex-start;
+}
+
+/* 🔑 sin esto, iOS no deja encoger las columnas */
+.itemReferencia ion-col { min-width: 0; }
+
+/* Izquierda: toma todo el espacio disponible y puede encoger */
+.itemReferencia ion-col[size="8"],
+.itemReferencia ion-col[sizeMd="9"],
+.itemReferencia ion-col[sizeLg="10"] {
+  flex: 1 1 0;   /* crece y encoge */
+  max-width: 100%;
+}
+
+/* Derecha: ancho auto y NO encoge */
+.itemReferencia ion-col[size="4"],
+.itemReferencia ion-col[sizeMd="3"],
+.itemReferencia ion-col[sizeLg="2"] {
+  flex: 0 0 auto;     /* no encoge */
+  max-width: none;
+  display: flex;      /* para alinear el badge a la derecha */
+  justify-content: flex-end;
+}
+
+/* Evita que la pastilla salte de línea */
+.referido-comision .monto,
+.referido-comision .monto-pendiente { white-space: nowrap; }
+
+/* Elipsis en nombre, producto y empresa */
+.referido-identidad { min-width: 0; }
+
+.referido-nombre,
+.producto-nombre,
+.empresa-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Filas “icono + texto”: que el texto pueda elipsar */
+.referido-contacto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.referido-contacto ion-icon { flex: 0 0 auto; }
+.referido-contacto span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
