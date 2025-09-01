@@ -351,3 +351,54 @@ ion-badge[color="success"] {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* ===== FIX de layout para que no se monte el pill ===== */
+.itemReferencia ion-grid { width: 100%; }
+.itemReferencia ion-row { display: flex; align-items: flex-start; }
+
+/* La izquierda debe poder encoger y ocupar el resto */
+.itemReferencia .col-main {
+  flex: 1 1 0 !important;
+  min-width: 0;              /* clave para elipsis */
+  max-width: none !important;
+  width: auto !important;
+}
+
+/* La derecha mide lo que el contenido, no encoge */
+.itemReferencia .col-amount {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  display: flex;
+  justify-content: flex-end;
+  align-self: flex-start;    /* alinea arriba */
+}
+
+/* El pill nunca rompe línea */
+.referido-comision .monto,
+.referido-comision .monto-pendiente { white-space: nowrap; }
+
+/* Elipsis en textos largos */
+.referido-identidad { min-width: 0; }
+.referido-nombre,
+.producto-nombre,
+.empresa-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Filas de “icono + texto” con elipsis correctas */
+.referido-contacto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.referido-contacto ion-icon { flex: 0 0 auto; }
+.referido-contacto span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
