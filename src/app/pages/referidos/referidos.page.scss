@@ -231,3 +231,62 @@ ion-badge[color="success"] {
   border-radius: 8px;
   font-weight: 600;
 }
+
+/* permite que las columnas del grid puedan encoger */
+.itemReferencia ion-col {
+  min-width: 0;
+}
+
+/* identidad */
+.referido-identidad { min-width: 0; }
+
+.referido-nombre {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #272727;
+  overflow: hidden;            /* 👈 necesario para elipsis */
+  text-overflow: ellipsis;     /* 👈 … */
+  white-space: nowrap;         /* 👈 una sola línea */
+}
+
+/* si prefieres dos líneas con “…” descomenta esto y quita lo de arriba
+.referido-nombre {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;       // máximo 2 líneas
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+}
+*/
+
+/* filas “icono + texto” (correo, teléfono, fecha) */
+.referido-contacto {
+  display: flex;               /* antes era inline, así no hay elipsis */
+  align-items: center;
+  gap: 6px;
+  min-width: 0;                /* 👈 importante */
+}
+.referido-contacto ion-icon { flex: 0 0 auto; }
+.referido-contacto span {
+  flex: 1 1 auto;              /* ocupa el resto */
+  min-width: 0;                /* 👈 permite encoger */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* producto / empresa */
+.referido-producto { min-width: 0; }
+.producto-nombre,
+.empresa-nombre {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ya lo tienes, pero por si acaso */
+.badge-susp { white-space: nowrap; }
+
+/* el preview de seguimiento ya tiene min-width:0 más arriba */
