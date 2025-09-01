@@ -1,173 +1,154 @@
-
-.itemReferencia{
+.itemReferencia {
   padding-top: 8px;
   padding-bottom: 4px;
   user-select: none;
 }
 
 .referidosHeader {
-    background-color: #272727;
+  background-color: #272727;
 }
 
 .title {
-    color: white;
+  color: white;
 }
 
 .estatus-creado {
-    color: #2c3e50;
-    font-weight: bold;
+  color: #2c3e50;
+  font-weight: bold;
 }
-
 .estatus-seguimiento {
-    color: green;
-    font-weight: bold;
+  color: green;
+  font-weight: bold;
 }
-
 .estatus-cerrado {
-    color: red;
-    font-weight: bold;
+  color: red;
+  font-weight: bold;
+}
+.estatus-other {
+  color: gray;
 }
 
-.estatus-other {
-    color: gray;
-}
-.fechaLabel{
-    font-size: 8px;
+.fechaLabel {
+  font-size: 8px;
 }
 
 /** pseudo fab ***/
-
 .fab-rectangular {
-    --border-radius: 20px;
-    --background: #1a9953;
-    --color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 0 24px;
-    height: 48px;
-    //box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    display: flex;
-    align-items: center;
-  }
-  
-  .fab-text {
-    font-size: 16px;
-    letter-spacing: 0.5px;
-  }
+  --border-radius: 20px;
+  --background: #1a9953;
+  --color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 0 24px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+.fab-text {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
 
-/* chat*/
-
+/* === Tarjeta Referido === */
 .referido-card {
-    display: flex;
-    flex-direction: column;
-    
-    gap: 4px;
-    position: relative;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
 
+/* === Identidad === */
+.referido-identidad {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.referido-nombre {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #272727;
+}
+.referido-contacto span {
+  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  flex-wrap: wrap;
+}
+.referido-contacto ion-icon {
+  font-size: 1em;
+}
+.referido-fecha {
+  font-size: 0.8rem;
+  color: #777;
+}
+.referido-fecha .label {
+  font-weight: 600;
+  color: #999;
+}
 
-  /* === Sección 1: Identidad === */
-  .referido-identidad {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  
-  .referido-nombre {
-    font-size: 1.2rem;
-    font-weight: 800;
-    color: #272727;
-  }
-  
-  .referido-contacto span {
-    font-size: .8rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    color:#666; /* espacio entre el ícono y el texto */
-    flex-wrap:wrap;
-  }
-  
-  .referido-contacto ion-icon {
-    font-size: 1em; /* o ajusta según sea necesario */
-  }
-  
-  .referido-fecha {
-    font-size: 0.8rem;
-    color: #777;
-  }
-  
-  .referido-fecha .label {
-    font-weight: 600;
-    color: #999;
-  }
-  
-  /* === Sección 2: Producto y empresa === */
-  .referido-producto {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  
-  .producto-nombre {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .empresa-nombre {
-    font-size: 0.8rem;
-    color: #777;
-  }
-  
-  /* === Sección 3: Comisión === */
-  .referido-comision {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    margin-top: 8px;
-  }
-  
-  .referido-comision .label {
-    font-size: 0.5rem;
-    color: #888;
-    margin-bottom: 2px;
-  }
-  
-  .referido-comision .monto {
-    font-size: 1rem;
-    font-weight: 900;
-    color: #ffffff;
-    background-color: #349721;
-    padding: 6px 14px;
-    border-radius: 8px;
-  }
+/* === Producto / Empresa === */
+.referido-producto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.producto-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+.empresa-nombre {
+  font-size: 0.8rem;
+  color: #777;
+}
 
-  .referido-comision .monto-pendiente {
-    font-size: 1rem;
-    font-weight: 900;
-    color: #ffffff;
-    background-color: #748299;
-    padding: 6px 14px;
-    border-radius: 8px;
-  }
-  
-  .badge-susp { 
-    white-space:nowrap; 
-  }
+/* === Comisión === */
+.referido-comision {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+.referido-comision .label {
+  font-size: 0.5rem;
+  color: #888;
+  margin-bottom: 2px;
+}
+.referido-comision .monto {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #fff;
+  background-color: #349721;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
+.referido-comision .monto-pendiente {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #fff;
+  background-color: #748299;
+  padding: 6px 14px;
+  border-radius: 8px;
+}
 
-/// -------------- NUEVO -------------- ///
-/// /* ---- Utilidades de truncado ---- */
+.badge-susp {
+  white-space: nowrap;
+}
+
+/* ---- Utilidades de truncado ---- */
 .line-clamp-1 {
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-
-.muted { color: var(--ion-color-medium); }
+.muted {
+  color: var(--ion-color-medium);
+}
 
 /* ---- Bloque de “último seguimiento” ---- */
 .referido-ultimo-seg {
@@ -177,7 +158,7 @@
   align-items: start;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed rgba(0,0,0,.06);
+  border-top: 1px dashed rgba(0, 0, 0, 0.06);
 
   .seg-icon {
     font-size: 18px;
@@ -185,32 +166,47 @@
     color: var(--ion-color-medium);
   }
   .seg-preview {
-    min-width: 0; /* importante para que el clamp funcione */
+    min-width: 0; /* 👈 evita overflow en iOS */
   }
   .seg-text {
-    font-size: .9rem;
+    font-size: 0.9rem;
     font-weight: 500;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
   }
   .seg-meta {
     display: inline-flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 6px;
     margin-top: 2px;
-    font-size: .75rem;
+    font-size: 0.75rem;
     color: var(--ion-color-medium);
-    ion-icon { font-size: 14px; }
-    ion-badge { margin-left: 4px; }
+
+    ion-icon {
+      font-size: 14px;
+    }
+    ion-badge {
+      margin-left: 4px;
+    }
   }
 }
 
 /* ---- Ajustes de layout móvil estrecho ---- */
 @media (max-width: 420px) {
-  .referido-identidad .referido-nombre { font-size: 1.05rem; }
-  .referido-producto .producto-nombre { font-size: .95rem; }
-  .referido-ultimo-seg .seg-text { font-size: .85rem; }
+  .referido-identidad .referido-nombre {
+    font-size: 1.05rem;
+  }
+  .referido-producto .producto-nombre {
+    font-size: 0.95rem;
+  }
+  .referido-ultimo-seg .seg-text {
+    font-size: 0.85rem;
+  }
 }
 
-/* ---- Fix del texto “Aún no hay seguimientos” en modal / vistas estrechas ---- */
+/* ---- Fix del texto “Aún no hay seguimientos” ---- */
 .no-seguimientos,
 .referido-ultimo-seg.muted .seg-text {
   white-space: normal;
@@ -218,7 +214,6 @@
   line-height: 1.25;
 }
 
-/* Si en tu modal usas esa línea suelta, aplica esta clase: */
 .modal-seg-empty {
   display: block;
   color: var(--ion-color-medium);
@@ -227,12 +222,12 @@
   padding: 4px 0;
 }
 
+/* ---- Badge “nuevo” ---- */
 ion-badge[color="success"] {
-  background: #28a745 !important; /* verde vivo */
-  color: white !important;
+  background: #28a745 !important;
+  color: #fff !important;
   font-size: 0.7rem;
   padding: 2px 6px;
   border-radius: 8px;
   font-weight: 600;
 }
-  
