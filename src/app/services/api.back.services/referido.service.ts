@@ -41,4 +41,14 @@ export class ReferidoService {
     return this.http.post<GenericResponseDTO<boolean>>(`${this.apiUrl}/Save`,model);
   }
 
+  getUltimosSeguimientos(ids: number[]): Observable<UltimoSeguimientoDTO[]> {
+  const url = `${this.apiUrl}/GetUltimosSeguimientos`; // ajusta el nombre si tu ruta es distinta
+  return this.http.post<UltimoSeguimientoDTO[]>(url, { ids });
 }
+
+}
+export type UltimoSeguimientoDTO = {
+  referidoId: number;
+  texto: string;
+  fecha: string; // o Date si tu backend ya la manda serializada así
+};

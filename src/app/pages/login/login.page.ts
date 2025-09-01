@@ -6,9 +6,8 @@ import { ToastController, ModalController } from '@ionic/angular';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { TokenService } from 'src/app/services/token.service';
 import { Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 
-// ⚠️ Usa la ruta real de tu modal (sin '../../'). Si tu archivo se llama distinto o cambia el casing, ajústalo.
 import { OnboardingComponent } from 'src/app/modals/onboarding/onboarding.component';
 import { Usuario } from 'src/app/models/Usuario';
 
@@ -49,18 +48,38 @@ export class LoginPage implements OnInit {
     });
   }
 
-  async borrarDatosAlmacenados() {
-    this.nombreAlmacenado = '';
-    this.correoAlmacenado = '';
-    this.passwordAlmacenado = '';
-    await Preferences.clear();
+  private parseLoginError(err: any): string {
+  // Body puede venir como string o como objeto { message: "..."}
+  const backendMsg =
+    (typeof err?.error === 'string' ? err.error : err?.error?.message) ||
+    err?.message || '';
+
+  if (err?.status === 401) return 'Correo o contraseña incorrectos';
+  if (err?.status === 400) {
+    // Si tu API manda mensaje en 400, úsalo; si no, mapea a inválido
+    return backendMsg || 'Correo o contraseña incorrectos';
   }
+  if (err?.status === 403) return 'No tienes permisos para acceder.';
+  if (err?.status === 0)   return 'No hay conexión con el servidor. Verifica tu red.';
+  return backendMsg || 'Error al iniciar sesión. Intenta de nuevo.';
+}
+
 
   async ngOnInit() {
-    this.correoAlmacenado = (await Preferences.get({ key: 'correoAlmacenado' })).value ?? '';
+    this.correoAlmacenado   = (await Preferences.get({ key: 'correoAlmacenado' })).value ?? '';
     this.passwordAlmacenado = (await Preferences.get({ key: 'passwordAlmacenado' })).value ?? '';
-    this.nombreAlmacenado = (await Preferences.get({ key: 'nombreAlmacenado' })).value ?? '';
+    this.nombreAlmacenado   = (await Preferences.get({ key: 'nombreAlmacenado' })).value ?? '';
 
+    // ✅ Prefill del formulario (NO autologin a la brava)
+    if (this.correoAlmacenado) {
+      this.loginForm.patchValue({
+        user: this.correoAlmacenado,
+        password: this.passwordAlmacenado,
+        almacenarDatos: true,
+      });
+    }
+
+    // teclado (igual)
     this.tecladoVisible = false;
     Keyboard.addListener('keyboardWillShow', () => (this.tecladoVisible = true));
     Keyboard.addListener('keyboardDidShow', () => (this.tecladoVisible = true));
@@ -68,81 +87,93 @@ export class LoginPage implements OnInit {
     Keyboard.addListener('keyboardDidHide', () => (this.tecladoVisible = false));
   }
 
-  onSubmit() {
+   async onSubmit() {
     if (this.formEnviado) return;
-
     this.formEnviado = true;
     this.iniciandoSesion = true;
 
-    if (!this.loginForm.valid) {
-      this.loginForm.markAllAsTouched();
-      this.formEnviado = false;
-      this.iniciandoSesion = false;
-      return;
-    }
+    try {
+      if (!this.loginForm.valid) {
+        this.loginForm.markAllAsTouched();
+        throw new Error('Completa los campos requeridos.');
+      }
 
-    const almacenarDatosDespues: boolean = this.loginForm.controls['almacenarDatos'].value;
-
-    let user: LoginUsuarioDTO = {
-      email: this.loginForm.controls['user'].value,
-      password: this.loginForm.controls['password'].value,
-    };
-
-    if (this.correoAlmacenado !== '') {
-      user = {
-        email: this.correoAlmacenado,
-        password: this.passwordAlmacenado,
+      // ✅ SIEMPRE tomar lo que está en el formulario
+      const credenciales: LoginUsuarioDTO = {
+        email: this.loginForm.controls['user'].value,
+        password: this.loginForm.controls['password'].value,
       };
-    }
 
-    this.usuarioService
-      .login(user, true)
-      .pipe(
-        finalize(() => {
-          this.formEnviado = false;
-          this.iniciandoSesion = false;
-        })
-      )
-      .subscribe({
-        next: async (res: GenericResponseDTO<string>) => {
-          if (almacenarDatosDespues) {
-            await Preferences.set({ key: 'correoAlmacenado', value: user.email });
-            await Preferences.set({ key: 'passwordAlmacenado', value: user.password });
+      const almacenarDatosDespues: boolean = !!this.loginForm.controls['almacenarDatos'].value;
+
+      // 1) Login → token
+      const loginResp = await firstValueFrom(this.usuarioService.login(credenciales, true));
+      if (!loginResp?.success || !loginResp?.data) {
+        throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
+      }
+
+      // 2) Guardar token ANTES de pedir perfil
+      await this.tokenService.saveToken(loginResp.data);
+
+      // 3) Guardar preferencias si el usuario lo pidió
+      if (almacenarDatosDespues) {
+        await Preferences.set({ key: 'correoAlmacenado',   value: credenciales.email });
+        await Preferences.set({ key: 'passwordAlmacenado', value: credenciales.password });
+      } else {
+        // Si no quiere guardar, limpiamos
+        await Preferences.remove({ key: 'correoAlmacenado' });
+        await Preferences.remove({ key: 'passwordAlmacenado' });
+      }
+
+      // 4) Perfil fresco
+      try {
+        const perfilResp = await firstValueFrom(this.usuarioService.getUsuario(true));
+        if (perfilResp?.success && perfilResp?.data) {
+          const u = perfilResp.data as Usuario;
+
+          // 🚫 Bloquear admins
+          if ((u as any).rolesID === 1) {
+            this.hasError = true;
+            this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
+            // Limpia token y perfil para no dejar sesión activa
+            await this.tokenService.removeToken();
+            localStorage.removeItem('usuario-actual');
+            return; // detenemos el flujo, no navegamos a dashboard
           }
 
-          // 1) Guarda el token
-          this.tokenService.saveToken(res.data);
+          // si no es admin, guardamos nombre para el saludo
+          const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+          await Preferences.set({ key: 'nombreAlmacenado', value: nombre });
+        } else {
+          await Preferences.remove({ key: 'nombreAlmacenado' });
+        }
+      } catch {
+        // si falla, no bloquea
+      }
 
-          // 2) Trae el usuario logeado y decide si abrir Onboarding
-          this.usuarioService.getUsuario(true).subscribe({
-            next: async (resp: GenericResponseDTO<Usuario>) => {
-              const u = resp.data;
-              if (!u) {
-                this.router.navigate(['/dashboard']);
-                return;
-              }
+      // 5) Navegar sin dejar pila
+      await this.router.navigate(['/dashboard'], { replaceUrl: true });
 
-              const faltaA = !u.nombres || !u.apellidos || !u.celular;
-              const faltaB = !u.catalogoEstadoID || !u.ciudad;
+      this.hasError = false;
+      this.messageError = '';
+    } catch (err: any) {
+      this.hasError = true;
+      this.messageError = this.parseLoginError(err);
+    } finally {
+      this.formEnviado = false;
+      this.iniciandoSesion = false;
+    }
+  }
 
-              if ((u as any).mostrarOnboarding || faltaA || faltaB) {
-                const modal = await this.modalCtrl.create({
-                  component: OnboardingComponent,
-                  componentProps: { usuarioId: (u as any).id },
-                });
-                await modal.present();
-              } else {
-                this.router.navigate(['/dashboard']);
-              }
-            },
-            error: () => this.router.navigate(['/dashboard']),
-          });
-        },
-        error: (err: any) => {
-          this.hasError = true;
-          this.messageError = err?.error?.message ?? 'Error al iniciar sesión';
-        },
-      });
+  async borrarDatosAlmacenados() {
+    this.nombreAlmacenado = '';
+    this.correoAlmacenado = '';
+    this.passwordAlmacenado = '';
+    await Preferences.remove({ key: 'correoAlmacenado' });
+    await Preferences.remove({ key: 'passwordAlmacenado' });
+    await Preferences.remove({ key: 'nombreAlmacenado' });
+    // opcional: limpia también el form
+    this.loginForm.reset({ user: '', password: '', almacenarDatos: false });
   }
 
   getControl(campo: string) {

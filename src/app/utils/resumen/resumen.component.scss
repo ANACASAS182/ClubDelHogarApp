@@ -71,23 +71,37 @@
   font-size: .8em;
   margin-bottom: 2px;
 }
-.item-line {
+.item-line{
   display: flex;
   align-items: center;
   gap: 8px;
-  strong { color: #334155; }
+  min-width: 0;              /* 🔑 permite que los hijos se encojan */
 }
 
-.badge {
+/* el texto se adapta y hace ellipsis */
+.item-text{
+  flex: 1 1 auto;
+  min-width: 0;              /* 🔑 sin esto no hay ellipsis en flex */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #334155;
+}
+
+.badge{
+  flex: 0 0 auto;            /* 🔑 tamaño fijo, nunca se estira */
   font-size: .72rem;
   font-weight: 700;
   padding: 2px 8px;
   border-radius: 999px;
   text-transform: uppercase;
   letter-spacing: .02em;
-  &.badge-pend { color: #6b7280; background: #eef2f7; }
-  &.badge-ok   { color: #0f6; background: #e9fff2; }
+  line-height: 1;            /* evita “extra alto” en iOS */
+  white-space: nowrap;       /* el texto del chip no se parte */
 }
+
+.badge-pend { color:#6b7280; background:#eef2f7; border:1px solid rgba(17,24,34,.08); }
+.badge-ok   { color:#00c853; background:#e9fff2; border:1px solid rgba(0,200,83,.18); }
 
 .empty {
   opacity: .7;
@@ -95,5 +109,31 @@
   padding: 8px 0 4px;
 }
 
+/* Header sin “flecha ►” de iOS y con trigger solo en el botón */
+.section-header {
+  --background: transparent;
+  padding-left: 0;
+  border-radius: 10px;
+  --min-height: 44px;
+  /* evita detalle por tema, por si acaso */
+  --detail-icon-opacity: 0;
+}
+
+.chev-btn {
+  height: 32px;
+  min-height: 32px;
+  --padding-start: 6px;
+  --padding-end: 6px;
+}
+
+.chev {
+  transition: transform .2s ease;
+  &.open { transform: rotate(180deg); }
+}
+
+/* en pantallas muy angostas, ajústalo tantito */
+@media (max-width: 360px){
+  .badge{ padding: 2px 6px; font-size: .68rem; }
+}
 
   

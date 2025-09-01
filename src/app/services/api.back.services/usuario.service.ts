@@ -88,11 +88,18 @@ export class UsuarioService {
   }
 
   getUsuario(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
-    return this.http.get<GenericResponseDTO<Usuario>>(
-      `${this.apiUrlUsuario}/GetUsuarioLogeado`,
-      this.makeHeaders(skipErrorHandler)
-    );
+    let headers = new HttpHeaders()
+      .set('ngsw-bypass', 'true')
+      .set('Cache-Control', 'no-cache')
+      .set('Pragma', 'no-cache');
+
+    if (skipErrorHandler) headers = headers.set('skipErrorHandler', 'true');
+
+    const url = `${this.apiUrlUsuario}/GetUsuarioLogeado?t=${Date.now()}`; // rompe-caché
+    return this.http.get<GenericResponseDTO<Usuario>>(url, { headers });
   }
+
+
 
   // ✅ FIX: HttpParams como string
   getCelulaLocal(userID: number): Observable<UsuarioCelula> {
@@ -109,8 +116,10 @@ export class UsuarioService {
         .set('limit', String(limit))
     });
   }
-
+   
 }
+
+
 
 
 // ------------ Invitado resumen

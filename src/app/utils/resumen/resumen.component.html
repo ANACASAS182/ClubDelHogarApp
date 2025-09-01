@@ -52,14 +52,20 @@
       <ion-grid>
 
         <!-- ===== PENDIENTES ===== -->
-        <ion-item lines="none" button (click)="toggle('pend')" class="section-header">
+        <ion-item lines="none" detail="false" class="section-header">
           <div slot="start" class="section-title">
             Embajadores invitados {{CuantosDeCuantos}}
           </div>
-          <ion-icon slot="end"
-                    name="chevron-down-outline"
-                    class="chev"
-                    [class.open]="showPendientes"></ion-icon>
+
+          <!-- el único trigger: el botón con la flecha hacia abajo -->
+          <ion-button fill="clear" size="small" slot="end"
+                      class="chev-btn"
+                      (click)="toggle('pend')"
+                      aria-label="Mostrar/ocultar pendientes">
+            <ion-icon name="chevron-down-outline"
+                      class="chev"
+                      [class.open]="showPendientes"></ion-icon>
+          </ion-button>
         </ion-item>
 
         <div class="collapse" [class.open]="showPendientes">
@@ -69,8 +75,8 @@
                 <div class="row-item" [style.animationDelay.ms]="i * 40">
                   <div class="item-date">{{ e.fechaInvitacionTexto }}</div>
                   <div class="item-line">
-                    <strong>{{ e.nombre }}</strong>
-                    <span class="badge badge-pend">Pendiente</span>
+                    <strong class="item-text">{{ e.nombre }}</strong>
+                    <span class="badge badge-pend">PENDIENTE</span>
                   </div>
                 </div>
               </ion-col>
@@ -84,12 +90,17 @@
         <ion-item-divider></ion-item-divider>
 
         <!-- ===== ACEPTADOS ===== -->
-        <ion-item lines="none" button (click)="toggle('acept')" class="section-header mt">
+        <ion-item lines="none" detail="false" class="section-header mt">
           <div slot="start" class="section-title">Aceptados</div>
-          <ion-icon slot="end"
-                    name="chevron-down-outline"
-                    class="chev"
-                    [class.open]="showAceptados"></ion-icon>
+
+          <ion-button fill="clear" size="small" slot="end"
+                      class="chev-btn"
+                      (click)="toggle('acept')"
+                      aria-label="Mostrar/ocultar aceptados">
+            <ion-icon name="chevron-down-outline"
+                      class="chev"
+                      [class.open]="showAceptados"></ion-icon>
+          </ion-button>
         </ion-item>
 
         <div class="collapse" [class.open]="showAceptados">
@@ -99,8 +110,8 @@
                 <div class="row-item" [style.animationDelay.ms]="i * 40">
                   <div class="item-date">{{ a.fechaInvitacionTexto }}</div>
                   <div class="item-line">
-                    <strong>{{ a.nombre }}</strong>
-                    <span class="badge badge-ok">Aceptado</span>
+                    <strong class="item-text">{{ a.nombre }}</strong>
+                    <span class="badge badge-ok">ACEPTADO</span>
                   </div>
                 </div>
               </ion-col>
@@ -110,6 +121,7 @@
             </div>
           </div>
         </div>
+
 
       </ion-grid>
     </ng-container>
