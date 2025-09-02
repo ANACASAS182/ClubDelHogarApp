@@ -6,71 +6,80 @@
     <div class="login-form-wrapper">
       <div [formGroup]="loginForm" class="login-form">
 
-        <!-- WRAPPER con altura reservada -->
+        <!-- Logo -->
         <div class="logo-wrap" [class.compact]="tecladoVisible">
           <img src="assets/logo_transparente.png" alt="Logo de Embassy" class="logo"/>
         </div>
 
-        <h2 class="form-title" *ngIf="correoAlmacenado == ''">Bienvenido</h2>
-        <h2 class="form-title" *ngIf="correoAlmacenado != ''">Hola, {{nombreAlmacenado}}</h2>
+        <!-- Títulos -->
+        <h2 class="form-title" *ngIf="correoAlmacenado === ''">Bienvenido</h2>
+        <h2 class="form-title" *ngIf="correoAlmacenado !== ''">Hola, {{nombreAlmacenado}}</h2>
 
-        <p class="subtitle" *ngIf="correoAlmacenado == ''">
-          <small>Accede a tu cuenta para continuar</small>
-        </p>
-
-        <p class="subtitle" *ngIf="correoAlmacenado != ''">
-          <small>Estás iniciando sesión como: <strong><br/>
-            {{correoAlmacenado}}</strong></small>
-                  </p>
-
-        @if (hasError) {
-          <div class="custom-alert warning">
-            <ion-text>{{ messageError }}</ion-text>
+        <!-- MODO RECORDADO (sin inputs) -->
+        <ng-container *ngIf="correoAlmacenado !== ''; else modoNormal">
+          <div class="signin-as">
+            <div class="signin-caption">Estás iniciando sesión como:</div>
+            <div class="signin-email">{{ correoAlmacenado }}</div>
           </div>
-        }
 
-        <ion-input
-          formControlName="user"
-          label-placement="floating"
-          label="Correo electrónico"
-          type="text"
-          class="embassy_input"
-          (ionBlur)="getControl('user')?.markAsTouched()">
-        </ion-input>
-        <!-- <ion-text color="danger" *ngIf="getControl('user')?.invalid && getControl('user')?.touched">
-          Ingresa el correo electrónico con el cual te registraste
-        </ion-text> -->
-        
+          <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>
+          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
+            Ingresar
+          </ion-button>
 
-        
-        <ion-input
-          formControlName="password"
-          label-placement="floating"
-          label="Contraseña"
-          type="password"
-          class="embassy_input"
-          (ionBlur)="getControl('password')?.markAsTouched()">
-          <ion-input-password-toggle *ngIf="getControl('password')?.value" slot="end"></ion-input-password-toggle>
-        </ion-input>
-        <div  *ngIf ="!iniciandoSesion && correoAlmacenado == ''" >
-          <ion-checkbox formControlName ="almacenarDatos" >Guardar datos de inicio de sesión</ion-checkbox>
-        </div>
+          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" fill="outline" (click)="borrarDatosAlmacenados()">
+            Iniciar sesión con otra cuenta
+          </ion-button>
+        </ng-container>
 
-       
-        <hr class = "spacer_embassy"/>
-        <ion-progress-bar *ngIf ="iniciandoSesion"  type="indeterminate"></ion-progress-bar>
-        <ion-button *ngIf ="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
-          Ingresar
-        </ion-button>
-        <hr class = "spacer_embassy"/>
+        <!-- MODO NORMAL (con inputs) -->
+        <ng-template #modoNormal>
+          <p class="subtitle">
+            <small>Accede a tu cuenta para continuar</small>
+          </p>
 
-        <ion-button *ngIf ="!iniciandoSesion && correoAlmacenado != ''" expand="block" shape="round" (click)="borrarDatosAlmacenados()">
-          <small>Iniciar sesión con otra cuenta</small>
-        </ion-button>
-        <hr class = "spacer_embassy"/>
-        <div class="form-links" *ngIf ="!iniciandoSesion && correoAlmacenado == ''" >
-          <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
-        </div>
+          @if (hasError) {
+            <div class="custom-alert warning">
+              <ion-text>{{ messageError }}</ion-text>
+            </div>
+          }
+
+          <ion-input
+            formControlName="user"
+            label-placement="floating"
+            label="Correo electrónico"
+            type="text"
+            class="embassy_input"
+            (ionBlur)="getControl('user')?.markAsTouched()">
+          </ion-input>
+
+          <ion-input
+            formControlName="password"
+            label-placement="floating"
+            label="Contraseña"
+            type="password"
+            class="embassy_input"
+            (ionBlur)="getControl('password')?.markAsTouched()">
+            <ion-input-password-toggle *ngIf="getControl('password')?.value" slot="end"></ion-input-password-toggle>
+          </ion-input>
+
+          <ion-item lines="none">
+            <ion-checkbox formControlName="almacenarDatos" [disabled]="iniciandoSesion" slot="start"
+                          (ionChange)="onRememberChange($event.detail.checked)"></ion-checkbox>
+            <ion-label>Guardar datos de inicio de sesión</ion-label>
+          </ion-item>
+
+          <hr class="spacer_embassy"/>
+          <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>
+          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
+            Ingresar
+          </ion-button>
+
+          <hr class="spacer_embassy"/>
+          <div class="form-links">
+            <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
+          </div>
+        </ng-template>
       </div>
     </div>
   </div>

@@ -1,18 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { LoginUsuarioDTO } from 'src/app/models/DTOs/LoginUsuarioDTO';
 import { ToastController, ModalController } from '@ionic/angular';
-import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { TokenService } from 'src/app/services/token.service';
 import { Router } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
-
+import { firstValueFrom, Subscription } from 'rxjs';
 import { OnboardingComponent } from 'src/app/modals/onboarding/onboarding.component';
 import { Usuario } from 'src/app/models/Usuario';
 
 import { Keyboard } from '@capacitor/keyboard';
-import { Preferences } from '@capacitor/preferences';
+import { Capacitor, PluginListenerHandle } from '@capacitor/core';
+import { Prefs } from 'src/app/core/utils/prefs.util';   // ✅ nuestro wrapper
 
 @Component({
   selector: 'app-login',
@@ -20,7 +19,7 @@ import { Preferences } from '@capacitor/preferences';
   styleUrls: ['./login.page.scss'],
   standalone: false,
 })
-export class LoginPage implements OnInit {
+export class LoginPage implements OnInit, OnDestroy {
   loginForm: FormGroup;
   hasError = false;
   messageError = '';
@@ -32,6 +31,12 @@ export class LoginPage implements OnInit {
   formEnviado = false;
   iniciandoSesion = false;
   tecladoVisible = false;
+
+  private kbShowWill?: PluginListenerHandle;
+  private kbShowDid?: PluginListenerHandle;
+  private kbHideWill?: PluginListenerHandle;
+  private kbHideDid?: PluginListenerHandle;
+  private valueSub?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -49,46 +54,80 @@ export class LoginPage implements OnInit {
   }
 
   private parseLoginError(err: any): string {
-  // Body puede venir como string o como objeto { message: "..."}
-  const backendMsg =
-    (typeof err?.error === 'string' ? err.error : err?.error?.message) ||
-    err?.message || '';
+    const backendMsg =
+      (typeof err?.error === 'string' ? err.error : err?.error?.message) ||
+      err?.message || '';
 
-  if (err?.status === 401) return 'Correo o contraseña incorrectos';
-  if (err?.status === 400) {
-    // Si tu API manda mensaje en 400, úsalo; si no, mapea a inválido
-    return backendMsg || 'Correo o contraseña incorrectos';
+    if (err?.status === 401) return 'Correo o contraseña incorrectos';
+    if (err?.status === 400) return backendMsg || 'Correo o contraseña incorrectos';
+    if (err?.status === 403) return 'No tienes permisos para acceder.';
+    if (err?.status === 0)   return 'No hay conexión con el servidor. Verifica tu red.';
+    return backendMsg || 'Error al iniciar sesión. Intenta de nuevo.';
   }
-  if (err?.status === 403) return 'No tienes permisos para acceder.';
-  if (err?.status === 0)   return 'No hay conexión con el servidor. Verifica tu red.';
-  return backendMsg || 'Error al iniciar sesión. Intenta de nuevo.';
-}
 
+  // ---------- Preferencias ----------
+  private async loadPrefs() {
+    const c = await Prefs.get('correoAlmacenado');
+    const p = await Prefs.get('passwordAlmacenado');
+    const n = await Prefs.get('nombreAlmacenado');
 
-  async ngOnInit() {
-    this.correoAlmacenado   = (await Preferences.get({ key: 'correoAlmacenado' })).value ?? '';
-    this.passwordAlmacenado = (await Preferences.get({ key: 'passwordAlmacenado' })).value ?? '';
-    this.nombreAlmacenado   = (await Preferences.get({ key: 'nombreAlmacenado' })).value ?? '';
+    this.correoAlmacenado = c;
+    this.passwordAlmacenado = p;
+    this.nombreAlmacenado = n;
 
-    // ✅ Prefill del formulario (NO autologin a la brava)
-    if (this.correoAlmacenado) {
+    if (c) {
       this.loginForm.patchValue({
-        user: this.correoAlmacenado,
-        password: this.passwordAlmacenado,
+        user: c || '',
+        password: p || '',
         almacenarDatos: true,
       });
     }
-
-    // teclado (igual)
-    this.tecladoVisible = false;
-    Keyboard.addListener('keyboardWillShow', () => (this.tecladoVisible = true));
-    Keyboard.addListener('keyboardDidShow', () => (this.tecladoVisible = true));
-    Keyboard.addListener('keyboardWillHide', () => (this.tecladoVisible = false));
-    Keyboard.addListener('keyboardDidHide', () => (this.tecladoVisible = false));
   }
 
-   async onSubmit() {
+  private async savePrefs(email: string, password: string, nombre: string) {
+    await Prefs.set('correoAlmacenado', email);
+    await Prefs.set('passwordAlmacenado', password);
+    await Prefs.set('nombreAlmacenado', nombre);
+  }
+
+  private async clearPrefs() {
+    await Prefs.remove('correoAlmacenado');
+    await Prefs.remove('passwordAlmacenado');
+    await Prefs.remove('nombreAlmacenado');
+  }
+  // -----------------------------------
+
+  async ngOnInit() {
+    await this.loadPrefs();
+
+    this.valueSub = this.loginForm.valueChanges.subscribe(async v => {
+      if (this.loginForm.get('almacenarDatos')?.value === true) {
+        await Prefs.set('correoAlmacenado', v.user ?? '');
+        await Prefs.set('passwordAlmacenado', v.password ?? '');
+      }
+    });
+
+    if (Capacitor.isNativePlatform()) {
+      this.kbShowWill = await Keyboard.addListener('keyboardWillShow', () => this.tecladoVisible = true);
+      this.kbShowDid  = await Keyboard.addListener('keyboardDidShow',  () => this.tecladoVisible = true);
+      this.kbHideWill = await Keyboard.addListener('keyboardWillHide', () => this.tecladoVisible = false);
+      this.kbHideDid  = await Keyboard.addListener('keyboardDidHide',  () => this.tecladoVisible = false);
+    }
+  }
+
+  ngOnDestroy() {
+    this.valueSub?.unsubscribe();
+    this.kbShowWill?.remove();
+    this.kbShowDid?.remove();
+    this.kbHideWill?.remove();
+    this.kbHideDid?.remove();
+  }
+
+  async onSubmit() {
     if (this.formEnviado) return;
+
+    const recordar = this.loginForm.get('almacenarDatos')?.value === true;
+
     this.formEnviado = true;
     this.iniciandoSesion = true;
 
@@ -98,62 +137,35 @@ export class LoginPage implements OnInit {
         throw new Error('Completa los campos requeridos.');
       }
 
-      // ✅ SIEMPRE tomar lo que está en el formulario
       const credenciales: LoginUsuarioDTO = {
         email: this.loginForm.controls['user'].value,
         password: this.loginForm.controls['password'].value,
       };
 
-      const almacenarDatosDespues: boolean = !!this.loginForm.controls['almacenarDatos'].value;
-
-      // 1) Login → token
       const loginResp = await firstValueFrom(this.usuarioService.login(credenciales, true));
-      if (!loginResp?.success || !loginResp?.data) {
-        throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
-      }
-
-      // 2) Guardar token ANTES de pedir perfil
+      if (!loginResp?.success || !loginResp?.data) throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
       await this.tokenService.saveToken(loginResp.data);
 
-      // 3) Guardar preferencias si el usuario lo pidió
-      if (almacenarDatosDespues) {
-        await Preferences.set({ key: 'correoAlmacenado',   value: credenciales.email });
-        await Preferences.set({ key: 'passwordAlmacenado', value: credenciales.password });
-      } else {
-        // Si no quiere guardar, limpiamos
-        await Preferences.remove({ key: 'correoAlmacenado' });
-        await Preferences.remove({ key: 'passwordAlmacenado' });
-      }
-
-      // 4) Perfil fresco
+      let nombre = '';
       try {
-        const perfilResp = await firstValueFrom(this.usuarioService.getUsuario(true));
-        if (perfilResp?.success && perfilResp?.data) {
-          const u = perfilResp.data as Usuario;
-
-          // 🚫 Bloquear admins
+        const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
+        if (pr?.success && pr?.data) {
+          const u = pr.data as Usuario;
           if ((u as any).rolesID === 1) {
             this.hasError = true;
             this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
-            // Limpia token y perfil para no dejar sesión activa
             await this.tokenService.removeToken();
             localStorage.removeItem('usuario-actual');
-            return; // detenemos el flujo, no navegamos a dashboard
+            return;
           }
-
-          // si no es admin, guardamos nombre para el saludo
-          const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
-          await Preferences.set({ key: 'nombreAlmacenado', value: nombre });
-        } else {
-          await Preferences.remove({ key: 'nombreAlmacenado' });
+          nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
         }
-      } catch {
-        // si falla, no bloquea
-      }
+      } catch {}
 
-      // 5) Navegar sin dejar pila
+      if (recordar) await this.savePrefs(credenciales.email, credenciales.password, nombre);
+      else          await this.clearPrefs();
+
       await this.router.navigate(['/dashboard'], { replaceUrl: true });
-
       this.hasError = false;
       this.messageError = '';
     } catch (err: any) {
@@ -165,18 +177,33 @@ export class LoginPage implements OnInit {
     }
   }
 
+  get inicialesNombre(): string {
+    const n = (this.nombreAlmacenado || '').trim();
+    if (!n) return (this.correoAlmacenado || '?').slice(0, 2).toUpperCase();
+    const parts = n.split(/\s+/).filter(Boolean);
+    const a = parts[0]?.[0] ?? '';
+    const b = parts.length > 1 ? parts[parts.length - 1][0] : '';
+    return (a + b).toUpperCase();
+  }
+
+
   async borrarDatosAlmacenados() {
     this.nombreAlmacenado = '';
     this.correoAlmacenado = '';
     this.passwordAlmacenado = '';
-    await Preferences.remove({ key: 'correoAlmacenado' });
-    await Preferences.remove({ key: 'passwordAlmacenado' });
-    await Preferences.remove({ key: 'nombreAlmacenado' });
-    // opcional: limpia también el form
+    await this.clearPrefs();
     this.loginForm.reset({ user: '', password: '', almacenarDatos: false });
   }
 
-  getControl(campo: string) {
-    return this.loginForm.get(campo);
+  getControl(campo: string) { return this.loginForm.get(campo); }
+
+  async onRememberChange(checked: boolean) {
+    if (checked) {
+      const email = this.loginForm.get('user')?.value || '';
+      const password = this.loginForm.get('password')?.value || '';
+      await this.savePrefs(email, password, this.nombreAlmacenado || '');
+    } else {
+      await this.clearPrefs();
+    }
   }
 }
