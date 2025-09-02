@@ -1,15 +1,15 @@
-<ion-content fullscreen class="login-page" force-overscroll="false">
+<ion-content fullscreen class="login-page" force-overscroll="false" [class.kb-open]="tecladoVisible">
   <div class="login-container">
     <div class="login-background"></div>
 
     <!-- FORMULARIO -->
     <div class="login-form-wrapper">
       <div [formGroup]="loginForm" class="login-form">
-        <!-- mantiene el espacio, oculta visualmente durante teclado -->
-        <img src="assets/logo_transparente.png"
-             alt="Logo de Embassy"
-             class="logo"
-             [class.logo-hidden]="tecladoVisible"/>
+
+        <!-- WRAPPER con altura reservada -->
+        <div class="logo-wrap" [class.compact]="tecladoVisible">
+          <img src="assets/logo_transparente.png" alt="Logo de Embassy" class="logo"/>
+        </div>
 
         <h2 class="form-title" *ngIf="correoAlmacenado == ''">Bienvenido</h2>
         <h2 class="form-title" *ngIf="correoAlmacenado != ''">Hola, {{nombreAlmacenado}}</h2>
