@@ -63,11 +63,16 @@
             <ion-input-password-toggle *ngIf="getControl('password')?.value" slot="end"></ion-input-password-toggle>
           </ion-input>
 
-          <ion-item lines="none">
-            <ion-checkbox formControlName="almacenarDatos" [disabled]="iniciandoSesion" slot="start"
-                          (ionChange)="onRememberChange($event.detail.checked)"></ion-checkbox>
-            <ion-label>Guardar datos de inicio de sesión</ion-label>
+          <ion-item lines="none" *ngIf="correoAlmacenado === ''">
+            <ion-checkbox
+              slot="start"
+              [checked]="rememberFlag"
+              [disabled]="iniciandoSesion"
+              (ionChange)="onRememberChange($event.detail.checked)">
+            </ion-checkbox>
+            <ion-label (click)="toggleRemember()">Guardar datos de inicio de sesión</ion-label>
           </ion-item>
+
 
           <hr class="spacer_embassy"/>
           <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>

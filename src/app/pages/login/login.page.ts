@@ -23,6 +23,7 @@ export class LoginPage implements OnInit, OnDestroy {
   loginForm: FormGroup;
   hasError = false;
   messageError = '';
+  rememberFlag = false; 
 
   nombreAlmacenado = '';
   correoAlmacenado = '';
@@ -49,7 +50,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.loginForm = this.fb.group({
       user: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      almacenarDatos: [false],
+      almacenarDatos: [false], // opcional mantenerlo para layout; ya no se usa
     });
   }
 
@@ -75,14 +76,14 @@ export class LoginPage implements OnInit, OnDestroy {
     this.passwordAlmacenado = p;
     this.nombreAlmacenado = n;
 
-    if (c) {
-      this.loginForm.patchValue({
-        user: c || '',
-        password: p || '',
-        almacenarDatos: true,
-      });
+    // prefill
+      if (c) {
+        this.loginForm.patchValue({ user: c || '', password: p || '' });
+        this.rememberFlag = true;   // ✅ si hay datos, asumimos recordar activo
+      } else {
+        this.rememberFlag = false;
+      }
     }
-  }
 
   private async savePrefs(email: string, password: string, nombre: string) {
     await Prefs.set('correoAlmacenado', email);
@@ -100,9 +101,10 @@ export class LoginPage implements OnInit, OnDestroy {
   async ngOnInit() {
     await this.loadPrefs();
 
+    // guarda en caliente si la casilla está activa
     this.valueSub = this.loginForm.valueChanges.subscribe(async v => {
-      if (this.loginForm.get('almacenarDatos')?.value === true) {
-        await Prefs.set('correoAlmacenado', v.user ?? '');
+      if (this.rememberFlag) {
+        await Prefs.set('correoAlmacenado',   v.user ?? '');
         await Prefs.set('passwordAlmacenado', v.password ?? '');
       }
     });
@@ -126,7 +128,7 @@ export class LoginPage implements OnInit, OnDestroy {
   async onSubmit() {
     if (this.formEnviado) return;
 
-    const recordar = this.loginForm.get('almacenarDatos')?.value === true;
+    const recordar = this.rememberFlag;   // ✅ usa la bandera, no el FormControl
 
     this.formEnviado = true;
     this.iniciandoSesion = true;
@@ -137,7 +139,7 @@ export class LoginPage implements OnInit, OnDestroy {
         throw new Error('Completa los campos requeridos.');
       }
 
-      const credenciales: LoginUsuarioDTO = {
+      const credenciales = {
         email: this.loginForm.controls['user'].value,
         password: this.loginForm.controls['password'].value,
       };
@@ -146,6 +148,7 @@ export class LoginPage implements OnInit, OnDestroy {
       if (!loginResp?.success || !loginResp?.data) throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
       await this.tokenService.saveToken(loginResp.data);
 
+      // perfil (igual)...
       let nombre = '';
       try {
         const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
@@ -166,8 +169,7 @@ export class LoginPage implements OnInit, OnDestroy {
       else          await this.clearPrefs();
 
       await this.router.navigate(['/dashboard'], { replaceUrl: true });
-      this.hasError = false;
-      this.messageError = '';
+      this.hasError = false; this.messageError = '';
     } catch (err: any) {
       this.hasError = true;
       this.messageError = this.parseLoginError(err);
@@ -176,6 +178,8 @@ export class LoginPage implements OnInit, OnDestroy {
       this.iniciandoSesion = false;
     }
   }
+
+  toggleRemember() { this.rememberFlag = !this.rememberFlag; }
 
   get inicialesNombre(): string {
     const n = (this.nombreAlmacenado || '').trim();
@@ -198,6 +202,7 @@ export class LoginPage implements OnInit, OnDestroy {
   getControl(campo: string) { return this.loginForm.get(campo); }
 
   async onRememberChange(checked: boolean) {
+    this.rememberFlag = checked;  // ✅ sincroniza la bandera
     if (checked) {
       const email = this.loginForm.get('user')?.value || '';
       const password = this.loginForm.get('password')?.value || '';
