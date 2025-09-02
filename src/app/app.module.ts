@@ -22,6 +22,7 @@ registerLocaleData(localeEs);
 @NgModule({
   declarations: [AppComponent],
   imports: [
+    IonicStorageModule.forRoot({ name: '__embassydb', driverOrder: ['sqlite','indexeddb','localstorage'] }),
     BrowserModule, 
     IonicModule.forRoot(), 
     AppRoutingModule,     

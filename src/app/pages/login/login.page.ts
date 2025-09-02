@@ -1,18 +1,17 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
-import { LoginUsuarioDTO } from 'src/app/models/DTOs/LoginUsuarioDTO';
-import { ToastController, ModalController } from '@ionic/angular';
-import { TokenService } from 'src/app/services/token.service';
 import { Router } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
-import { OnboardingComponent } from 'src/app/modals/onboarding/onboarding.component';
+
+import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
+import { TokenService } from 'src/app/services/token.service';
 import { Usuario } from 'src/app/models/Usuario';
 
-import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
-import { Prefs } from 'src/app/core/utils/prefs.util';   // ✅ nuestro wrapper
-import { Preferences } from '@capacitor/preferences';
+import { Keyboard } from '@capacitor/keyboard';
+
+// ✅ Servicio basado en Ionic Storage (SQLite/IndexedDB) para persistencia robusta en iOS
+import { PrefsStorage } from 'src/app/core/utils/prefs.storage';
 
 @Component({
   selector: 'app-login',
@@ -22,9 +21,10 @@ import { Preferences } from '@capacitor/preferences';
 })
 export class LoginPage implements OnInit, OnDestroy {
   loginForm: FormGroup;
+
   hasError = false;
   messageError = '';
-  rememberFlag = false; 
+  rememberFlag = false; // estado real del checkbox (no dependemos del FormControl)
 
   nombreAlmacenado = '';
   correoAlmacenado = '';
@@ -44,14 +44,13 @@ export class LoginPage implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private usuarioService: UsuarioService,
-    private toastController: ToastController,
     private tokenService: TokenService,
-    private modalCtrl: ModalController
+    private prefs: PrefsStorage,          // ⬅️ persistencia
   ) {
     this.loginForm = this.fb.group({
       user: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
-      almacenarDatos: [false], // opcional mantenerlo para layout; ya no se usa
+      almacenarDatos: [false], // solo para layout; la decisión la toma rememberFlag
     });
   }
 
@@ -59,7 +58,6 @@ export class LoginPage implements OnInit, OnDestroy {
     const backendMsg =
       (typeof err?.error === 'string' ? err.error : err?.error?.message) ||
       err?.message || '';
-
     if (err?.status === 401) return 'Correo o contraseña incorrectos';
     if (err?.status === 400) return backendMsg || 'Correo o contraseña incorrectos';
     if (err?.status === 403) return 'No tienes permisos para acceder.';
@@ -67,61 +65,49 @@ export class LoginPage implements OnInit, OnDestroy {
     return backendMsg || 'Error al iniciar sesión. Intenta de nuevo.';
   }
 
-  // ---------- Preferencias ----------
+  // ---------- Persistencia ----------
   private async loadPrefs() {
-    const c = await Prefs.get('correoAlmacenado');
-    const p = await Prefs.get('passwordAlmacenado');
-    const n = await Prefs.get('nombreAlmacenado');
+    const c = await this.prefs.get('correoAlmacenado');
+    const p = await this.prefs.get('passwordAlmacenado');
+    const n = await this.prefs.get('nombreAlmacenado');
 
-    this.correoAlmacenado = c;
+    this.correoAlmacenado   = c;
     this.passwordAlmacenado = p;
-    this.nombreAlmacenado = n;
+    this.nombreAlmacenado   = n;
 
-    // prefill
-      if (c) {
-        this.loginForm.patchValue({ user: c || '', password: p || '' });
-        this.rememberFlag = true;   // ✅ si hay datos, asumimos recordar activo
-      } else {
-        this.rememberFlag = false;
-      }
+    if (c) {
+      this.loginForm.patchValue({ user: c || '', password: p || '' });
+      this.rememberFlag = true; // si hay datos, activamos recordar
+    } else {
+      this.rememberFlag = false;
     }
+  }
 
   private async savePrefs(email: string, password: string, nombre: string) {
-    await Prefs.set('correoAlmacenado', email);
-    await Prefs.set('passwordAlmacenado', password);
-    await Prefs.set('nombreAlmacenado', nombre);
+    await this.prefs.set('correoAlmacenado',   email);
+    await this.prefs.set('passwordAlmacenado', password);
+    await this.prefs.set('nombreAlmacenado',   nombre);
   }
 
   private async clearPrefs() {
-    await Prefs.remove('correoAlmacenado');
-    await Prefs.remove('passwordAlmacenado');
-    await Prefs.remove('nombreAlmacenado');
+    await this.prefs.remove('correoAlmacenado');
+    await this.prefs.remove('passwordAlmacenado');
+    await this.prefs.remove('nombreAlmacenado');
   }
   // -----------------------------------
 
   async ngOnInit() {
     await this.loadPrefs();
 
-    // guarda en caliente si la casilla está activa
+    // Guarda en caliente si la casilla está activa
     this.valueSub = this.loginForm.valueChanges.subscribe(async v => {
       if (this.rememberFlag) {
-        await Prefs.set('correoAlmacenado',   v.user ?? '');
-        await Prefs.set('passwordAlmacenado', v.password ?? '');
+        await this.prefs.set('correoAlmacenado',   v.user ?? '');
+        await this.prefs.set('passwordAlmacenado', v.password ?? '');
       }
     });
 
-    console.log('[iOS diag] platform=', Capacitor.getPlatform());
-    console.log('[iOS diag] isNative=', Capacitor.isNativePlatform());
-    console.log('[iOS diag] has Prefs plugin=', Capacitor.isPluginAvailable('Preferences'));
-
-    try {
-      await Preferences.set({ key: 'diag_key', value: 'ok' });
-      const v = (await Preferences.get({ key: 'diag_key' })).value;
-      console.log('[iOS diag] write/read native Prefs =>', v); // debe decir "ok"
-    } catch (e) {
-      console.log('[iOS diag] error usando native Prefs', e);
-    }
-
+    // Listeners teclado (solo nativo)
     if (Capacitor.isNativePlatform()) {
       this.kbShowWill = await Keyboard.addListener('keyboardWillShow', () => this.tecladoVisible = true);
       this.kbShowDid  = await Keyboard.addListener('keyboardDidShow',  () => this.tecladoVisible = true);
@@ -141,7 +127,7 @@ export class LoginPage implements OnInit, OnDestroy {
   async onSubmit() {
     if (this.formEnviado) return;
 
-    const recordar = this.rememberFlag;   // ✅ usa la bandera, no el FormControl
+    const recordar = this.rememberFlag; // usamos bandera fiable (iOS a veces retrasa el ionChange)
 
     this.formEnviado = true;
     this.iniciandoSesion = true;
@@ -157,16 +143,18 @@ export class LoginPage implements OnInit, OnDestroy {
         password: this.loginForm.controls['password'].value,
       };
 
+      // 1) Login
       const loginResp = await firstValueFrom(this.usuarioService.login(credenciales, true));
       if (!loginResp?.success || !loginResp?.data) throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
       await this.tokenService.saveToken(loginResp.data);
 
-      // perfil (igual)...
+      // 2) Perfil
       let nombre = '';
       try {
         const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
         if (pr?.success && pr?.data) {
           const u = pr.data as Usuario;
+
           if ((u as any).rolesID === 1) {
             this.hasError = true;
             this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
@@ -176,13 +164,16 @@ export class LoginPage implements OnInit, OnDestroy {
           }
           nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
         }
-      } catch {}
+      } catch { /* ignora si falla el perfil */ }
 
+      // 3) Guardar/limpiar según la casilla
       if (recordar) await this.savePrefs(credenciales.email, credenciales.password, nombre);
       else          await this.clearPrefs();
 
+      // 4) Navegar
       await this.router.navigate(['/dashboard'], { replaceUrl: true });
-      this.hasError = false; this.messageError = '';
+      this.hasError = false;
+      this.messageError = '';
     } catch (err: any) {
       this.hasError = true;
       this.messageError = this.parseLoginError(err);
@@ -192,6 +183,7 @@ export class LoginPage implements OnInit, OnDestroy {
     }
   }
 
+  // UI helpers
   toggleRemember() { this.rememberFlag = !this.rememberFlag; }
 
   get inicialesNombre(): string {
@@ -203,19 +195,19 @@ export class LoginPage implements OnInit, OnDestroy {
     return (a + b).toUpperCase();
   }
 
-
   async borrarDatosAlmacenados() {
     this.nombreAlmacenado = '';
     this.correoAlmacenado = '';
     this.passwordAlmacenado = '';
     await this.clearPrefs();
     this.loginForm.reset({ user: '', password: '', almacenarDatos: false });
+    this.rememberFlag = false;
   }
 
   getControl(campo: string) { return this.loginForm.get(campo); }
 
   async onRememberChange(checked: boolean) {
-    this.rememberFlag = checked;  // ✅ sincroniza la bandera
+    this.rememberFlag = checked;
     if (checked) {
       const email = this.loginForm.get('user')?.value || '';
       const password = this.loginForm.get('password')?.value || '';
