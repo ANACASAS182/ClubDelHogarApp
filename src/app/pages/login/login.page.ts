@@ -12,6 +12,7 @@ import { Usuario } from 'src/app/models/Usuario';
 import { Keyboard } from '@capacitor/keyboard';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import { Prefs } from 'src/app/core/utils/prefs.util';   // ✅ nuestro wrapper
+import { Preferences } from '@capacitor/preferences';
 
 @Component({
   selector: 'app-login',
@@ -108,6 +109,18 @@ export class LoginPage implements OnInit, OnDestroy {
         await Prefs.set('passwordAlmacenado', v.password ?? '');
       }
     });
+
+    console.log('[iOS diag] platform=', Capacitor.getPlatform());
+    console.log('[iOS diag] isNative=', Capacitor.isNativePlatform());
+    console.log('[iOS diag] has Prefs plugin=', Capacitor.isPluginAvailable('Preferences'));
+
+    try {
+      await Preferences.set({ key: 'diag_key', value: 'ok' });
+      const v = (await Preferences.get({ key: 'diag_key' })).value;
+      console.log('[iOS diag] write/read native Prefs =>', v); // debe decir "ok"
+    } catch (e) {
+      console.log('[iOS diag] error usando native Prefs', e);
+    }
 
     if (Capacitor.isNativePlatform()) {
       this.kbShowWill = await Keyboard.addListener('keyboardWillShow', () => this.tecladoVisible = true);
