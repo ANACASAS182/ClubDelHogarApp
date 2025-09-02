@@ -26,10 +26,22 @@
     min-height: 100dvh;   /* centra estable aun con teclado */
   }
 
+  .logo-wrap {
+  height: 120px;              /* altura normal */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  transition: height .25s ease, transform .25s ease, opacity .25s ease;
+  will-change: transform, height;
+  margin-bottom: 24px;
+}
+
   .logo{
     display: block;
-    height: 96px;       /* ajusta a tu diseño */
-    margin-bottom: 32px;
+    max-height: 96px;
+    width: auto;
+    transition: transform .25s ease, opacity .25s ease;
+    transform-origin: top center;
   }
 
   .logo-hidden {
@@ -40,6 +52,25 @@
     width: 100%;
     max-width: 400px;
   }
+
+  /* Cuando el teclado está visible, compacta suavemente */
+  .kb-open .logo-wrap,
+  .logo-wrap.compact {
+      height: 56px;               /* conserva espacio, pero menor */
+  }
+  
+  .kb-open .logo,
+  .logo-wrap.compact .logo {
+      transform: scale(.7) translateY(-6px);
+      opacity: .9;                /* sigue visible, sin imponerse */
+  }
+
+  /* Si quieres que el formulario suba ligeramente cuando se abre el teclado */
+  .kb-open .login-form {
+      transform: translateY(-8px);
+      transition: transform .25s ease;
+  }
+
   
   /* Responsive */
   @media screen and (min-width: 768px) {
@@ -52,8 +83,8 @@
   }
 
   :root {
-  --ion-safe-area-bottom: env(safe-area-inset-bottom);
-}
+   --ion-safe-area-bottom: env(safe-area-inset-bottom);
+  }
   
 
 // .login-page {
