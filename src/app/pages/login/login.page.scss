@@ -1,33 +1,44 @@
+/* Fuerza fondo claro como el original */
+:host {
+  background: #fff;
+}
 .login-page {
-    --background: none; /* Evita fondo duplicado */
-  }
-  
-  .login-container {
-    display: flex;
-    min-height: 100dvh;   /* dinámico con teclado */
-    height: 100svh;       /* fallback moderno */
-  }
-  
-  .login-background {
-     flex: 1;
-    background-image: url('/assets/tu-imagen.png');
-    background-size: cover;
-    background-position: center;
-    display: none;
-  }
-  
-  .login-form-wrapper {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background-color: white;
-    min-height: 100dvh;   /* centra estable aun con teclado */
-  }
+  --background: #ffffff !important; /* evita tema oscuro heredado */
+}
 
-  .logo-wrap {
-  height: 120px;              /* altura normal */
+/* Layout base */
+.login-container {
+  display: flex;
+  min-height: 100dvh;   /* dinámico con teclado */
+  height: 100svh;       /* fallback moderno */
+}
+
+.login-background {
+  flex: 1;
+  background-image: url('/assets/tu-imagen.png'); /* si se usa en tablets */
+  background-size: cover;
+  background-position: center;
+  display: none;
+}
+
+.login-form-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: #ffffff;     /* blanco sólido */
+  min-height: 100dvh;            /* centrado estable con teclado */
+}
+
+.login-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* Logo compacto al abrir teclado */
+.logo-wrap {
+  height: 120px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -35,162 +46,63 @@
   will-change: transform, height;
   margin-bottom: 24px;
 }
+.logo {
+  display: block;
+  max-height: 96px;
+  width: auto;
+  transition: transform .25s ease, opacity .25s ease;
+  transform-origin: top center;
+}
+.kb-open .logo-wrap,
+.logo-wrap.compact { 
+  height: 56px; 
+}
+.kb-open .logo,
+.logo-wrap.compact .logo { 
+  transform: scale(.7) translateY(-6px); 
+  opacity: .9; 
+}
 
-  .logo{
-    display: block;
-    max-height: 96px;
-    width: auto;
-    transition: transform .25s ease, opacity .25s ease;
-    transform-origin: top center;
-  }
+.kb-open .login-form { 
+  transform: translateY(-8px); 
+  transition: transform .25s ease; 
+}
 
-  .logo-hidden {
-    visibility: hidden; /* mantiene el hueco sin reflow */
-  }
-  
-  .login-form {
-    width: 100%;
-    max-width: 400px;
-  }
+/* Texto */
+.form-title { 
+  margin: 8px 0 12px; 
+  color: #111827; 
+}
+.subtitle small { 
+  color: #6b7280; 
+}
 
-  /* Cuando el teclado está visible, compacta suavemente */
-  .kb-open .logo-wrap,
-  .logo-wrap.compact {
-      height: 56px;               /* conserva espacio, pero menor */
-  }
-  
-  .kb-open .logo,
-  .logo-wrap.compact .logo {
-      transform: scale(.7) translateY(-6px);
-      opacity: .9;                /* sigue visible, sin imponerse */
-  }
+/* Bloque simple del modo recordado */
+.signin-as { margin: 6px 0 18px; }
+.signin-caption { font-size: 12px; color: #6b7280; }
+.signin-email { font-size: 14px; font-weight: 700; color: #111827; word-break: break-word; }
 
-  /* Si quieres que el formulario suba ligeramente cuando se abre el teclado */
-  .kb-open .login-form {
-      transform: translateY(-8px);
-      transition: transform .25s ease;
-  }
+/* Responsive: fondo visual en pantallas grandes */
+@media screen and (min-width: 768px) {
+  .login-background { display: block; }
+  .login-form-wrapper { background-color: rgba(255, 255, 255, 0.95); }
+}
 
-  
-  /* Responsive */
-  @media screen and (min-width: 768px) {
-    .login-background {
-      display: block;
-    }
-    .login-form-wrapper {
-      background-color: rgba(255, 255, 255, 0.95);
-    }
-  }
+/* Safe area iOS */
+:root { 
+  --ion-safe-area-bottom: 
+  env(safe-area-inset-bottom); 
+}
 
-  :root {
-   --ion-safe-area-bottom: env(safe-area-inset-bottom);
-  }
-  
+/* Utilidades */
+.invisible { 
+  display: none !important; 
+}
 
-// .login-page {
-//     --background: #e3edf7;
-//     height: 100%;
-// }
-
-// .center-wrapper {
-//     display: flex;
-//     justify-content: center;
-//     align-items: center;
-//     margin-top: 24px;
-//     width: 100%;
-// }
-
-// .login-card {
-//     position: relative;
-//     background: #ffffff;
-//     border-radius: 20px;
-//     width: 90%;
-//     max-width: 500px;
-//     padding: 40px 20px 100px;
-//     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-//     text-align: center;
-//     overflow: hidden;
-
-//     display: flex;
-//     flex-direction: column;
-//     align-items: center;
-// }
-
-
-// .form-title {
-//     font-weight: bold;
-//     color: #2c3e50;
-//     margin-bottom: 20px;
-// }
-
-// .input {
-//     margin: 12px 0;
-//     --background: #f1f1f1;
-//     --border-radius: 12px;
-//     --padding-start: 16px;
-//     --padding-end: 16px;
-//     width: 100%;
-//     color: #2c3e50 !important;
-
-//     border: 1px solid transparent;
-//     border-radius: 12px;
-//     border-color: black;
-//     transition: border-color 0.3s ease;
-// }
-
-// .input.invalid {
-//     border-color: var(--ion-color-danger, red);
-// }
-
-
-// .login-button {
-//     --background: #0d3b66;
-//     // --border-radius: 30px;
-//     font-weight: bold;
-//     // width: 100%;
-//     color: white;
-// }
-
-// .inner-curve {
-//     position: absolute;
-//     bottom: 0;
-//     left: 0;
-//     width: 100%;
-//     height: 100px;
-
-//     svg {
-//         width: 100%;
-//         height: 100%;
-//         display: block;
-//     }
-// }
-
-
-// /* centrar link */
-// .form-links {
-//     text-align: center;
-//     margin-top: 16px;
-
-//     color: #2c3e50;
-//     text-decoration: none;
-
-//     a {
-//         text-decoration: none;
-//         color: inherit;
-//     }
-
-//   }
-  
-//   .form-links a {
-//     color: #007bff;
-//     text-decoration: none;
-//     font-size: 14px;
-//   }
-  
-//   .form-links a:hover {
-//     text-decoration: underline;
-//   }
-  
-.invisible{
-  display: none !important;
+/* Más espacio entre botones */
+ion-button {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  height: 52px;          
+  font-size: 16px;       
 }
