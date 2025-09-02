@@ -4,15 +4,16 @@
   
   .login-container {
     display: flex;
-    height: 100%;
+    min-height: 100dvh;   /* dinámico con teclado */
+    height: 100svh;       /* fallback moderno */
   }
   
   .login-background {
-    flex: 1;
-    background-image: url('/assets/tu-imagen.png'); /* Reemplaza con tu imagen */
+     flex: 1;
+    background-image: url('/assets/tu-imagen.png');
     background-size: cover;
     background-position: center;
-    display: none; /* Oculto por defecto */
+    display: none;
   }
   
   .login-form-wrapper {
@@ -22,10 +23,17 @@
     align-items: center;
     padding: 2rem;
     background-color: white;
+    min-height: 100dvh;   /* centra estable aun con teclado */
   }
 
   .logo{
-    margin-bottom: 64px;
+    display: block;
+    height: 96px;       /* ajusta a tu diseño */
+    margin-bottom: 32px;
+  }
+
+  .logo-hidden {
+    visibility: hidden; /* mantiene el hueco sin reflow */
   }
   
   .login-form {
@@ -42,6 +50,10 @@
       background-color: rgba(255, 255, 255, 0.95);
     }
   }
+
+  :root {
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+}
   
 
 // .login-page {
