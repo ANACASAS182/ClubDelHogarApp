@@ -40,16 +40,33 @@
         <h3>{{promocion!.nombre}}</h3>
         <label>Ingresa el nombre y apellido de la persona con quien compartirás este cupón</label>
         <ion-input class="embassy_input" placeholder="Nombre y apellido" type="text"  [(ngModel)] ="NombreReferenciado" ></ion-input>
-        <label>Ingresa el teléfono o correo electrónico de la persona con quien compartirás este cupón</label>
-        <ion-input class="embassy_input" placeholder="Teléfono o correo electrónico"  [(ngModel)] ="ContactoReferenciado" type="text"></ion-input>
+        <label>Ingresa el teléfono de la persona con quien compartirás este cupón</label>
+<ion-input
+  class="embassy_input"
+  placeholder="Teléfono (10 dígitos)"
+  type="tel"
+  inputmode="numeric"
+  pattern="[0-9]*"
+  maxlength="10"
+  [(ngModel)]="ContactoReferenciado"
+  (ionInput)="onTelefonoInput($event)">
+</ion-input>
 
-
-        <p><ion-button expand="block" shape="round" class="login-button" (click)="generarQR()">Generar
-            Cupón</ion-button>
-        </p>
-        <p><ion-button expand="block" shape="round" class="login-button"
-            (click)="capturarReferido=false">Regresar</ion-button>
-        </p>
+<p>
+  <ion-button
+    expand="block"
+    shape="round"
+    class="login-button"
+    (click)="generarQR()"
+    [disabled]="!telefonoValido">
+    Generar Cupón
+  </ion-button>
+</p>
+<p>
+  <ion-button expand="block" shape="round" class="login-button" (click)="capturarReferido=false">
+    Regresar
+  </ion-button>
+</p>
       </ng-container>
     </ng-container>
 

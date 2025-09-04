@@ -79,25 +79,40 @@ export class PromocionComponent implements OnInit {
   NombreReferenciado:string ="";
   ContactoReferenciado:string = "";
 
+  // Limpia lo que no sean dígitos y limita a 10
+  onTelefonoInput(ev: any) {
+    const raw = (ev?.detail?.value ?? ev?.target?.value ?? '').toString();
+    const soloDigitos = raw.replace(/\D+/g, '').slice(0, 10);
+    this.ContactoReferenciado = soloDigitos;
+  }
+
+  // Valida 10 dígitos (formato MX típico)
+  get telefonoValido(): boolean {
+    return /^\d{10}$/.test(this.ContactoReferenciado);
+  }
+
   qrGenerado: boolean = false;
   codigoQrBase64:string = "";
   generarQR() {
-    let solicitud: SolicitudCodigoQrRequest = {
-      ProductoID: this.promoSeleccionada!.iD,
-      embajadorID: this.UsuarioID,
-      InformacionContacto: this.ContactoReferenciado,
-      nombres: this.NombreReferenciado
-    };
-
-
-    this.promocionesService.GenerarCodigoPromocion(solicitud!).subscribe({
-      next: (data) => {
-        this.qrGenerado = true;
-        this.codigoQrBase64 = data.qr64;
-      }
-    });
-
+    if (!this.telefonoValido) {
+    // mensaje simple; si usas Toast/Alert, cámbialo por tu servicio
+    alert('Ingresa un teléfono válido de 10 dígitos.');
+    return;
   }
+    const solicitud: SolicitudCodigoQrRequest = {
+    ProductoID: this.promoSeleccionada!.iD,
+    embajadorID: this.UsuarioID,
+    InformacionContacto: this.ContactoReferenciado, // ya solo números
+    nombres: this.NombreReferenciado
+  };
+
+     this.promocionesService.GenerarCodigoPromocion(solicitud).subscribe({
+    next: (data) => {
+      this.qrGenerado = true;
+      this.codigoQrBase64 = data.qr64;
+    }
+  });
+}
 
   descargarImagen() {
     // const link = document.createElement('a');
