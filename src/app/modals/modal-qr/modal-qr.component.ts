@@ -68,10 +68,10 @@ export class ModalQRComponent implements OnInit {
     this.promocionesService.PostHacerPromocionValida(request).subscribe({
       next: (data) => {
         if (data.estatus == 1) {
-          this.EstatusActivacionDelCodigo = 1;
-          this.EstatusDelCodigo = -1; // para que el bloque de “inválido” se muestre
-          this.MotivoInactividad = 'Código cerrado correctamente.';
-        } else {
+          this.EstatusActivacionDelCodigo = 1; // muestra el bloque de éxito
+          // this.EstatusDelCodigo = -1;  
+          this.MotivoInactividad = '';  // opcional
+            } else {
           this.EstatusActivacionDelCodigo = -1;
           this.MotivoInactividad = data.mensaje;
         }
