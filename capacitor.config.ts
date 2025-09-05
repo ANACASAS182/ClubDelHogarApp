@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   webDir: 'www',
   bundledWebRuntime: false,
   server: {
-    // Permite que WKWebView navegue/llame a estos hosts (CORS friendly en iOS)
+    // Permite que WKWebView navegue/llame a estos hosts
     allowNavigation: [
       'ebg-api.bithub.com.mx',
       'ebg.bithub.com.mx',
@@ -16,7 +16,7 @@ const config: CapacitorConfig = {
       'www.embassyen.com',
       'localhost',
     ],
-    // androidScheme: 'https',  // descomenta si lo necesitas en Android
+    // androidScheme: 'https', // si lo ocupas en Android
   },
   plugins: {
     Keyboard: {

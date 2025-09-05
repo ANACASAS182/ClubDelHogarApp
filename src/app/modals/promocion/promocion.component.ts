@@ -1,21 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, NgForm, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AlertController, IonicModule, LoadingController, ModalController, NavParams, ToastController } from '@ionic/angular';
-import { IonInput, IonButton, IonHeader, IonItem, IonToolbar } from "@ionic/angular/standalone";
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Empresa } from 'src/app/models/Empresa';
 import { Producto } from 'src/app/models/Producto';
-import { EmpresaService } from 'src/app/services/api.back.services/empresa.service';
-import { ProductoService } from 'src/app/services/api.back.services/producto.service';
-import { ReferidoService } from 'src/app/services/api.back.services/referido.service';
-import { ReferidoDTO } from 'src/app/models/DTOs/ReferidoDTO';
-import { finalize, firstValueFrom } from 'rxjs';
-import { EmbajadorInvitadoDTO } from 'src/app/models/DTOs/EmbajadorInvitadoDTO';
 import { EmbajadoresService } from 'src/app/services/api.back.services/embajadores.service';
 import { Promocion } from 'src/app/models/Promocion';
 import { PromocionesService, SolicitudCodigoQrRequest } from 'src/app/services/api.back.services/promociones.service';
-
+import { EmbajadorInvitadoDTO } from 'src/app/models/DTOs/EmbajadorInvitadoDTO';
+import { HttpClient, HttpClientModule } from '@angular/common/http';  // 👈 ADD
 import html2canvas from 'html2canvas';
 
 @Component({
@@ -23,7 +17,7 @@ import html2canvas from 'html2canvas';
   templateUrl: './promocion.component.html',
   styleUrls: ['./promocion.component.scss'],
   standalone: true,
-  imports: [IonicModule, ReactiveFormsModule, CommonModule, FormsModule],
+  imports: [IonicModule, ReactiveFormsModule, CommonModule, FormsModule, HttpClientModule], // 👈 ADD
 })
 export class PromocionComponent implements OnInit {
 
@@ -31,9 +25,8 @@ export class PromocionComponent implements OnInit {
   empresas: Empresa[] = [];
   productos: Producto[] = [];
 
-  formEnviado: boolean = false;
-  hideProducto: boolean = true;
-
+  formEnviado = false;
+  hideProducto = true;
 
   @Input() promoSeleccionada?: Promocion;
   @Input() UsuarioID: number = 0;
@@ -43,145 +36,110 @@ export class PromocionComponent implements OnInit {
 
   promocion?: Promocion;
 
-
   constructor(
     private modalCtrl: ModalController,
     private fb: FormBuilder,
     private embajadoresService: EmbajadoresService,
-    private promocionesService: PromocionesService
+    private promocionesService: PromocionesService,
+    private http: HttpClient,                               // 👈 ADD
   ) {
-
     this.formulario = this.fb.group({
       email: ['', Validators.required]
     });
   }
 
-  capturarReferido:boolean = false;
-  habilitarCapturaReferido(){
-    this.capturarReferido = true;
+  // ====== 🔌 TEST CORS-PING ======
+  private testCorsPing(): void {
+    this.http.get('https://ebg-api.bithub.com.mx/cors-ping', { withCredentials: false })
+      .subscribe({
+        next: (resp) => console.log('✅ cors-ping OK:', resp),
+        error: (err) => console.error('❌ cors-ping ERROR:', err)
+      });
   }
+  // ===============================
+
+  capturarReferido = false;
+  habilitarCapturaReferido() { this.capturarReferido = true; }
 
   async ngOnInit() {
-
+    // dispara prueba de CORS al abrir el modal
+    this.testCorsPing();   // 👈 AQUÍ
 
     this.formulario.valueChanges.subscribe(() => {
       const isDirty = this.formulario.dirty;
-      if (this.setFormDirtyStatus) {
-        this.setFormDirtyStatus(isDirty);
-      }
+      this.setFormDirtyStatus?.(isDirty);
     });
 
-
     this.promocion = this.promoSeleccionada;
-
   }
 
-  NombreReferenciado:string ="";
-  ContactoReferenciado:string = "";
+  NombreReferenciado = '';
+  ContactoReferenciado = '';
 
-  // Limpia lo que no sean dígitos y limita a 10
   onTelefonoInput(ev: any) {
     const raw = (ev?.detail?.value ?? ev?.target?.value ?? '').toString();
     const soloDigitos = raw.replace(/\D+/g, '').slice(0, 10);
     this.ContactoReferenciado = soloDigitos;
   }
 
-  // Valida 10 dígitos (formato MX típico)
-  get telefonoValido(): boolean {
-    return /^\d{10}$/.test(this.ContactoReferenciado);
-  }
+  get telefonoValido(): boolean { return /^\d{10}$/.test(this.ContactoReferenciado); }
 
-  qrGenerado: boolean = false;
-  codigoQrBase64:string = "";
+  qrGenerado = false;
+  codigoQrBase64 = '';
   generarQR() {
-    if (!this.telefonoValido) {
-    // mensaje simple; si usas Toast/Alert, cámbialo por tu servicio
-    alert('Ingresa un teléfono válido de 10 dígitos.');
-    return;
-  }
+    if (!this.telefonoValido) { alert('Ingresa un teléfono válido de 10 dígitos.'); return; }
     const solicitud: SolicitudCodigoQrRequest = {
-    ProductoID: this.promoSeleccionada!.iD,
-    embajadorID: this.UsuarioID,
-    InformacionContacto: this.ContactoReferenciado, // ya solo números
-    nombres: this.NombreReferenciado
-  };
+      ProductoID: this.promoSeleccionada!.iD,
+      embajadorID: this.UsuarioID,
+      InformacionContacto: this.ContactoReferenciado,
+      nombres: this.NombreReferenciado
+    };
 
-     this.promocionesService.GenerarCodigoPromocion(solicitud).subscribe({
-    next: (data) => {
-  this.qrGenerado = true;
-  this.codigoQrBase64 = data.qr64;
-
-    if (data.whatsappEnviado) {
-      alert('Cupón enviado por WhatsApp ✅');
-    } else {
-      // No rompas UX: el QR ya está en pantalla
-      console.warn('No se pudo enviar por WhatsApp. Comparte el QR manualmente.');
-    }
+    this.promocionesService.GenerarCodigoPromocion(solicitud).subscribe({
+      next: (data) => {
+        this.qrGenerado = true;
+        this.codigoQrBase64 = data.qr64;
+        if (data.whatsappEnviado) alert('Cupón enviado por WhatsApp ✅');
+        else console.warn('No se pudo enviar por WhatsApp. Comparte el QR manualmente.');
+      }
+    });
   }
-  });
-}
 
   descargarImagen() {
-    // const link = document.createElement('a');
-    // link.href = 'assets/ejemplo_qr.png';
-    // link.download = 'mi_qr.png';
-    // document.body.appendChild(link);
-    // link.click();
-    // document.body.removeChild(link);
-
     html2canvas(this.captureDiv.nativeElement).then((canvas) => {
       const link = document.createElement('a');
       link.download = 'captura.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     });
-
   }
 
+  cerrarModal() { this.modalCtrl.dismiss(); }
 
-  cerrarModal() {
-    this.modalCtrl.dismiss();
-  }
-
-  invitacionEnviada: boolean = false;
-  invitacionEnviadaCorrectamente: boolean = true;
-  mensaje_invitacion: string = "";
+  invitacionEnviada = false;
+  invitacionEnviadaCorrectamente = true;
+  mensaje_invitacion = '';
 
   enviarFormulario() {
     if (this.formulario.valid) {
-
-      let invitado: EmbajadorInvitadoDTO = {
+      const invitado: EmbajadorInvitadoDTO = {
         referente_id: 1,
-        email: this.formulario.controls["email"].value
-      }
-
+        email: this.formulario.controls['email'].value
+      };
       this.embajadoresService.postInvitarNuevoEmbajador(invitado).subscribe({
         next: (data) => {
           this.invitacionEnviada = true;
           this.invitacionEnviadaCorrectamente = data.estatus > 0;
           this.mensaje_invitacion = data.mensaje;
-        },
-        error: (err) => { },
-        complete: () => { },
+        }
       });
-
-
-
     } else {
       this.formulario.markAllAsTouched();
       this.formEnviado = false;
     }
-
   }
 
-  getControl(name: string) {
-    return this.formulario.get(name);
-  }
-
-  close() {
-    this.modalCtrl.dismiss();
-  }
-  isDirty(): boolean {
-    return this.formulario.dirty;
-  }
+  getControl(name: string) { return this.formulario.get(name); }
+  close() { this.modalCtrl.dismiss(); }
+  isDirty(): boolean { return this.formulario.dirty; }
 }
