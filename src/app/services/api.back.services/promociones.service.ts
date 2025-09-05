@@ -30,8 +30,6 @@ export class PromocionesService {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesSocio?UsuarioID=${UsuarioID}`);
   }
 
-
-
   GetPromocionesEmpresa(EmpresaID: number): Observable<Promocion[]> {
     return this.http.get<Promocion[]>(`${this.apiUrl}/GetPromocionesEmpresa?EmpresaID=${EmpresaID}`);
   }
@@ -95,9 +93,9 @@ export interface SolicitudCodigoQrRequest {
 }
 
 export interface SolicitudCodigoQrResponse {
-
   qr64: string;
-
+  whatsappEnviado?: boolean; // opcional por si vienes de una versión vieja
+  whatsappSid?: string;
 }
 
 export interface ValidarPromocionQrRequest {

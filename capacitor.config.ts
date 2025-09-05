@@ -6,13 +6,25 @@ const config: CapacitorConfig = {
   appName: 'EmbassyApp',
   webDir: 'www',
   bundledWebRuntime: false,
+  server: {
+    // Permite que WKWebView navegue/llame a estos hosts (CORS friendly en iOS)
+    allowNavigation: [
+      'ebg-api.bithub.com.mx',
+      'ebg.bithub.com.mx',
+      'ebg-admin.bithub.com.mx',
+      'admin.embassyen.com',
+      'www.embassyen.com',
+      'localhost',
+    ],
+    // androidScheme: 'https',  // descomenta si lo necesitas en Android
+  },
   plugins: {
     Keyboard: {
-      resize: KeyboardResize.Body,   // ✅ antes ponías "ionic" (string inválido)
+      resize: KeyboardResize.Body,
       resizeOnFullScreen: true,
-      style: KeyboardStyle.Dark      // ✅ antes "dark" (string inválido)
-    }
-  }
+      style: KeyboardStyle.Dark,
+    },
+  },
 };
 
 export default config;

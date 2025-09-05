@@ -108,9 +108,16 @@ export class PromocionComponent implements OnInit {
 
      this.promocionesService.GenerarCodigoPromocion(solicitud).subscribe({
     next: (data) => {
-      this.qrGenerado = true;
-      this.codigoQrBase64 = data.qr64;
+  this.qrGenerado = true;
+  this.codigoQrBase64 = data.qr64;
+
+    if (data.whatsappEnviado) {
+      alert('Cupón enviado por WhatsApp ✅');
+    } else {
+      // No rompas UX: el QR ya está en pantalla
+      console.warn('No se pudo enviar por WhatsApp. Comparte el QR manualmente.');
     }
+  }
   });
 }
 
