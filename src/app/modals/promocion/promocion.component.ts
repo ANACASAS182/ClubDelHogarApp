@@ -48,22 +48,20 @@ export class PromocionComponent implements OnInit {
     });
   }
 
-  // ====== 🔌 TEST CORS-PING ======
+  /* ====== 🔌 TEST CORS-PING ======
   private testCorsPing(): void {
     this.http.get('https://ebg-api.bithub.com.mx/cors-ping', { withCredentials: false })
       .subscribe({
         next: (resp) => console.log('✅ cors-ping OK:', resp),
         error: (err) => console.error('❌ cors-ping ERROR:', err)
       });
-  }
+  }*/
   // ===============================
 
   capturarReferido = false;
   habilitarCapturaReferido() { this.capturarReferido = true; }
 
   async ngOnInit() {
-    // dispara prueba de CORS al abrir el modal
-    this.testCorsPing();   // 👈 AQUÍ
 
     this.formulario.valueChanges.subscribe(() => {
       const isDirty = this.formulario.dirty;

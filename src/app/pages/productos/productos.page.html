@@ -3,59 +3,46 @@
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
-    <ion-title>
-      Mis productos
-    </ion-title>
+    <ion-title>Mis productos</ion-title>
   </ion-toolbar>
 </ion-header>
 
-
-
 <ion-content class="contentCustom">
-  
-  <!--grid promociones -->
   <p><strong>Productos y promociones vigentes</strong></p>
-  <p><small>¡Manténte al día con las promociones más recientes y obten las mejores comisiones!</small></p>
+  <p><small>¡Manténte al día con las promociones más recientes y obtén las mejores comisiones!</small></p>
 
   <app-loader *ngIf="cargandoPromociones"></app-loader>
 
-  
-      <ng-container *ngFor="let promocion of promociones">
-        <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
-          <div style="padding: 16px;">
+  <ng-container *ngFor="let promocion of promociones">
+    <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
+      <div style="padding:16px">
+        <!-- Título y empresa -->
+        <div style="margin-bottom:8px">
+          <h2 style="margin:0;font-size:1.5em">{{ promocion.nombre }}</h2>
+          <span style="font-size:.9em;color:#666">{{ promocion.empresaNombre }}</span>
+        </div>
 
-            <!-- Título y empresa -->
-            <div style="margin-bottom: 8px;">
-              <h2 style="margin: 0; font-size: 1.5em;">{{promocion.nombre}}</h2>
-              <span style="font-size: 0.9em; color: #666;">{{promocion.empresaNombre}}</span>
-            </div>
+        <!-- Descripción -->
+        <p style="margin:0 0 12px 0;font-size:1em;color:#444">
+          {{ promocion.descripcion }}
+        </p>
 
-            <!-- Descripción -->
-            <p style="margin: 0 0 12px 0; font-size: 1em; color: #444;">
-              {{promocion.descripcion}}
-            </p>
-
-            <!-- Comisión alineada a la derecha -->
-            <div style="text-align: right;">
-              <small style="font-size: 0.9em; color: #666;">Comisión</small><br />
-              <span style="font-size: 1.5em; font-weight: bold; color: #007b00;">
-                {{promocion.comision}}
-              </span>
-            </div>
-
-          </div>
-        </ion-card>
-
-
-
-      </ng-container>
-    
-
+        <!-- Comisión -->
+        <div style="text-align:right">
+          <small style="font-size:.9em;color:#666">Comisión</small><br />
+          <span style="font-size:1.5em;font-weight:bold;color:#007b00">
+            {{ getComisionValor(promocion) }} {{ getComisionUnidad(promocion) }}
+          </span>
+        </div>
+      </div>
+    </ion-card>
+  </ng-container>
 </ion-content>
 
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-button class="fab-rectangular" (click)="abrirModalAgregarPromocion()">
-      <img [src]="'assets/icons/add.png'" alt="Icono Network" style="width: 20px; height: 20px; margin-right: 8px;  vertical-align: middle;" />
-      <span class="fab-text">Agregar</span>
-    </ion-button>
-  </ion-fab>
+<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+  <ion-button class="fab-rectangular" (click)="abrirModalAgregarPromocion()">
+    <img src="assets/icons/add.png" alt="Icono Network"
+         style="width:20px;height:20px;margin-right:8px;vertical-align:middle" />
+    <span class="fab-text">Agregar</span>
+  </ion-button>
+</ion-fab>

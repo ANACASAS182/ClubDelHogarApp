@@ -27,28 +27,47 @@
     </ion-row>
 
     <ion-row>
-      <ion-col size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2" *ngFor="let item of empresas">
-        <ion-card (click)="verMas(item)" class="ion-card-embassy">
+      <ion-col
+        size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2"
+        *ngFor="let item of empresas">
+        <!-- Al tocar una empresa, filtra promos -->
+        <ion-card
+          class="ion-card-embassy"
+          [class.activa]="item.id === empresaActualId"
+          (click)="seleccionarEmpresa(item)">
           <div class="img-box">
             <img [src]="item.logotipoBase64" alt="Imagen" />
           </div>
         </ion-card>
+
+        <!-- Botón opcional para ir al detalle de empresa -->
+        <!-- <div class="ion-text-center mt-1">
+          <ion-button size="small" fill="clear" (click)="verMas(item)">Ver más</ion-button>
+        </div> -->
       </ion-col>
     </ion-row>
   </ion-grid>
 
-  <!-- Promociones -->
+  <!-- Promociones / Productos -->
   <ion-grid>
     <ion-row>
       <ion-col>
         <p><strong>Productos y promociones vigentes</strong></p>
-        <p><small>¡Manténte al día con las promociones más recientes y obten las mejores comisiones!</small></p>
+        <p><small>¡Mantente al día con las promociones más recientes y obtén las mejores comisiones!</small></p>
         <app-loader *ngIf="cargandoPromociones"></app-loader>
       </ion-col>
     </ion-row>
 
+    <ion-row *ngIf="!cargandoPromociones && promociones?.length === 0">
+      <ion-col size="12" class="ion-text-center">
+        <small>No hay productos/promociones vigentes para esta empresa.</small>
+      </ion-col>
+    </ion-row>
+
     <ion-row>
-      <ion-col size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4" *ngFor="let promocion of promociones">
+      <ion-col
+        size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
+        *ngFor="let promocion of promociones">
         <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
           <app-producto [promocion]="promocion"></app-producto>
         </ion-card>
