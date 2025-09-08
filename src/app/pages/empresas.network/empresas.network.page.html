@@ -14,7 +14,11 @@
 </ion-header>
 
 <ion-content class="contentCustom">
-  <app-resumen [MostrarIngresos]="true" [MostrarInvitados]="true"></app-resumen>
+    <app-resumen
+    [MostrarIngresos]="true"
+    [MostrarInvitados]="false"
+    [MostrarAceptados]="false">
+  </app-resumen>
 
   <!-- Empresas -->
   <ion-grid>
@@ -63,7 +67,10 @@
         size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
         *ngFor="let promocion of promociones">
         <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
-          <app-producto [promocion]="promocion"></app-producto>
+          <app-producto
+            [promocion]="promocion"
+            (addClicked)="abrirModalAgregar(promocion)">
+          </app-producto>
         </ion-card>
       </ion-col>
     </ion-row>

@@ -107,8 +107,12 @@ body {
 
 
 :root {
-  --ion-color-success: #12184e !important; // Tu nuevo color de highlight
-  --ion-color-primary: #3880ff; // Por ejemplo, si quieres cambiar el color primario también
+  --ion-color-success: #28a745 !important; /* verde bootstrap */
+  --ion-color-success-rgb: 40,167,69;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255,255,255;
+  --ion-color-success-shade: #218838;
+  --ion-color-success-tint: #34ce57;
 }
 
 html.md{

@@ -12,6 +12,8 @@ import { PromocionesService } from 'src/app/services/api.back.services/promocion
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 
 import { PromocionComponent } from 'src/app/modals/promocion/promocion.component';
+import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro.modal/referido.registro.modal.component';
+
 
 @Component({
   selector: 'app-empresas.network',
@@ -147,4 +149,30 @@ export class EmpresasNetworkPage implements OnInit {
       console.log(data);
     }
   }
+  async abrirModalAgregar(promo: any) {
+  let formDirty = false;
+
+  const empresaId =
+    promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ?? this.empresaActualId ?? 0;
+
+  const modal = await this.modalCtrl.create({
+    component: ReferidoRegistroModalComponent,
+    cssClass: 'modal-registro-referido',
+    componentProps: {
+      empresaID: Number(empresaId),
+      setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
+    },
+    breakpoints: [0, 0.9],
+    initialBreakpoint: 0.9
+  });
+
+  await modal.present();
+
+  const { role, data } = await modal.onWillDismiss();
+  if (role === 'confirm') {
+    // aquí puedes refrescar la lista, mostrar toast, etc.
+    // this.cargarPromosEmpresa(this.empresaActualId!);
+    console.log('Referido guardado', data);
+  }
+}
 }

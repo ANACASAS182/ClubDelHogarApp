@@ -87,4 +87,7 @@ export class ProductoComponent implements OnInit, OnChanges {
   onImgError(ev: Event) {
     (ev.target as HTMLImageElement).src = 'assets/imgs/logo-placeholder.png';
   }
+
+  // ------ QR
+  qrPlaceholder = 'assets/icons/codigo-qr.png';
 }

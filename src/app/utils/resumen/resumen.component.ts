@@ -35,8 +35,9 @@ type InvitadoResumen = {
 })
 export class ResumenComponent implements OnInit {
 
-  @Input() MostrarIngresos: boolean = false;
-  @Input() MostrarInvitados: boolean = false;
+  @Input() MostrarIngresos   = true;
+  @Input() MostrarInvitados  = true;   // default si no lo pasas
+  @Input() MostrarAceptados  = true;   // default si no lo pasas
 
   cargaCompletada = false;
 

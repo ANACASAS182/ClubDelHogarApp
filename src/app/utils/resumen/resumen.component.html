@@ -1,7 +1,8 @@
 <ion-card *ngIf="cargaCompletada">
   <ion-card-content>
+
+    <!-- ===== INGRESOS ===== -->
     <ng-container *ngIf="MostrarIngresos">
-      <!-- esta es la parte del dinero-->
       <ion-grid>
         <ion-row>
           <ion-col>
@@ -10,6 +11,7 @@
             </div>
           </ion-col>
         </ion-row>
+
         <ion-row>
           <ion-col>
             <span style="font-size: .5rem; font-weight: bold;">Directos</span>
@@ -34,6 +36,7 @@
             </div>
           </ion-col>
         </ion-row>
+
         <ion-row>
           <ion-col>
             <div style="color:#748299; font-size:.8em; text-align: start;">
@@ -44,20 +47,16 @@
       </ion-grid>
     </ng-container>
 
-    <ng-container *ngIf="MostrarIngresos && MostrarInvitados">
-      <ion-item-divider></ion-item-divider>
-    </ng-container>
+    <!-- divisor si hay más secciones -->
+    <ion-item-divider *ngIf="(MostrarIngresos && (MostrarInvitados || MostrarAceptados))"></ion-item-divider>
 
+    <!-- ===== INVITADOS ===== -->
     <ng-container *ngIf="MostrarInvitados">
       <ion-grid>
-
-        <!-- ===== PENDIENTES ===== -->
         <ion-item lines="none" detail="false" class="section-header">
           <div slot="start" class="section-title">
             Embajadores invitados {{CuantosDeCuantos}}
           </div>
-
-          <!-- el único trigger: el botón con la flecha hacia abajo -->
           <ion-button fill="clear" size="small" slot="end"
                       class="chev-btn"
                       (click)="toggle('pend')"
@@ -86,13 +85,17 @@
             </div>
           </div>
         </div>
+      </ion-grid>
+    </ng-container>
 
-        <ion-item-divider></ion-item-divider>
+    <!-- divisor entre invitados y aceptados -->
+    <ion-item-divider *ngIf="(MostrarInvitados && MostrarAceptados)"></ion-item-divider>
 
-        <!-- ===== ACEPTADOS ===== -->
+    <!-- ===== ACEPTADOS ===== -->
+    <ng-container *ngIf="MostrarAceptados">
+      <ion-grid>
         <ion-item lines="none" detail="false" class="section-header mt">
           <div slot="start" class="section-title">Aceptados</div>
-
           <ion-button fill="clear" size="small" slot="end"
                       class="chev-btn"
                       (click)="toggle('acept')"
@@ -121,10 +124,8 @@
             </div>
           </div>
         </div>
-
-
       </ion-grid>
     </ng-container>
-    <!-- esta es la parte de los embajadores invitados-->
+
   </ion-card-content>
 </ion-card>

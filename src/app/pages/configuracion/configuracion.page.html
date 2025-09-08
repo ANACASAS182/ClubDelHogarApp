@@ -114,6 +114,114 @@
     </ion-card-content>
   </ion-card>
 
+
+  <!-- Datos fiscales -->
+  <ion-card class="customCard">
+    <ion-card-header class="headerCustomCard">
+      <ion-card-title class="titleCustomCard">
+        <ion-icon name="document-text-outline" color="white"></ion-icon>
+        Datos fiscales
+      </ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <ion-grid [formGroup]="formulario">
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <ion-input
+              class="embassy_input"
+              label-placement="floating"
+              label="Nombre completo (como aparece en el SAT)"
+              formControlName="nombreSat"
+              placeholder="Nombre fiscal"
+              type="text">
+            </ion-input>
+          </ion-col>
+
+          <ion-col size="12" size-md="3">
+            <ion-input
+              class="embassy_input"
+              label-placement="floating"
+              label="RFC con homoclave"
+              formControlName="rfc"
+              placeholder="RFC (ABCX010101ABC)"
+              type="text"
+              maxlength="13"
+            ></ion-input>
+          </ion-col>
+
+          <ion-col size="12" size-md="3">
+            <ion-input
+              class="embassy_input"
+              label-placement="floating"
+              label="CURP"
+              formControlName="curp"
+              placeholder="CURP"
+              type="text"
+              maxlength="18"
+            ></ion-input>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" size-md="3">
+            <ion-input
+              class="embassy_input"
+              label-placement="floating"
+              label="C.P. del domicilio fiscal"
+              formControlName="cpFiscal"
+              placeholder="Código Postal"
+              type="text"
+              inputmode="numeric"
+              maxlength="5">
+            </ion-input>
+          </ion-col>
+
+          <ion-col size="12" size-md="9">
+            <!-- puedes cambiar a input de texto si prefieres libre -->
+            <ion-select
+              class="embassy_input"
+              label-placement="floating"
+              label="Régimen fiscal"
+              formControlName="regimenFiscal"
+              placeholder="Seleccionar">
+              <ion-select-option value="605">Sueldos y salarios e ingresos asimilados a salarios</ion-select-option>
+              <ion-select-option value="612">Personas Físicas con Actividades Empresariales y Profesionales</ion-select-option>
+              <ion-select-option value="621">Incorporación Fiscal (RIF)</ion-select-option>
+              <ion-select-option value="626">Régimen Simplificado de Confianza (RESICO PF)</ion-select-option>
+              <ion-select-option value="otros">Otro / No especificado</ion-select-option>
+            </ion-select>
+          </ion-col>
+        </ion-row>
+
+        <ion-row>
+          <ion-col size="12" size-md="8">
+            <div class="file-drop">
+              <input id="constanciaInput" type="file" accept="application/pdf"
+                    (change)="onConstanciaSelected($event)" hidden>
+              <label for="constanciaInput" class="file-btn">
+                <ion-icon name="cloud-upload-outline"></ion-icon>
+                <span>{{ constanciaLabel }}</span>
+              </label>
+              <button *ngIf="constanciaFile" type="button" class="file-clear" (click)="clearConstancia()">
+                Quitar PDF
+              </button>
+            </div>
+            <small style="opacity:.7">Adjunta tu Constancia de situación fiscal (PDF).</small>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+
+      <div class="ion-padding-top ion-text-center">
+        <ion-button class="customButton" shape="default" (click)="guardarDatosFiscales()">
+          GUARDAR DATOS FISCALES
+        </ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+
+
   <!-- Bancos -->
 
   <ion-card class="customCard">

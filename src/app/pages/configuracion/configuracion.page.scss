@@ -16,3 +16,36 @@
 .input.invalid {
     border-color: var(--ion-color-danger, red);
 }
+
+.file-drop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 30px;
+  background: #f1f1f1;
+  border: 1px solid #d6d6d6;
+  cursor: pointer;
+  font-weight: 600;
+  color: #111822;
+}
+.file-btn ion-icon { font-size: 18px; }
+.file-clear {
+  border: none;
+  background: transparent;
+  color: #c0392b;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toast-embassy {
+  --background: #27ae60; /* verde */
+  --color: #fff;         /* texto blanco */
+  font-weight: 600;
+}

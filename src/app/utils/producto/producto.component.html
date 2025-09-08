@@ -25,10 +25,16 @@
           <ion-col>
             <div class="referido-mini">
               <span class="referido-title">Referido</span>
-              <button type="button" class="btn-mini" (click)="onAdd()">
+
+              <button type="button" class="btn-mini" (click)="$event.stopPropagation(); onAdd()">
                 <img src="assets/icons/add.png" alt="+" class="btn-icon" />
                 <span>Agregar</span>
               </button>
+
+              <!-- QR genérico (solo visual) -->
+              <div class="qr-chip" (click)="$event.stopPropagation()">
+                <img [src]="qrPlaceholder" alt="QR" />
+              </div>
             </div>
           </ion-col>
         </ion-row>

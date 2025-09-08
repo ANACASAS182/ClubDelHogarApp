@@ -20,12 +20,12 @@
       Campo obligatorio*
     </ion-text>
 
-    <ion-input class="input" [class.invalid]="getControl('correo')?.invalid && getControl('correo')?.touched"
+    <!--  <ion-input class="input" [class.invalid]="getControl('correo')?.invalid && getControl('correo')?.touched"
       formControlName="correo" placeholder="Correo electrónico*" type="text"
       (ionBlur)="getControl('correo')?.markAsTouched()"></ion-input>
     <ion-text color="danger" *ngIf="getControl('correo')?.invalid && getControl('correo')?.touched">
       Campo obligatorio*
-    </ion-text>
+    </ion-text> -->
 
     <ion-input class="input" [class.invalid]="getControl('celular')?.invalid && getControl('celular')?.touched"
       formControlName="celular" placeholder="Celular" type="text"

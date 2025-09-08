@@ -8,7 +8,12 @@
 </ion-header>
 
 <ion-content class="contentCustom">
-  <app-resumen [MostrarIngresos]="true" [MostrarInvitados]="false"></app-resumen>
+  <ion-content class="contentCustom">
+  <app-resumen
+  [MostrarIngresos]="false"
+  [MostrarInvitados]="true"
+  [MostrarAceptados]="true">
+</app-resumen>
 
   <app-loader *ngIf="cargandoReferidos"></app-loader>
 
@@ -36,12 +41,12 @@
                 </div>
               </section>
 
-              <!-- Correo -->
+              <!-- Correo
               <div class="referido-contacto">
                 <ion-icon name="mail-outline" *ngIf="referido.email"></ion-icon>
                 <span *ngIf="referido.email; else sinCorreo" class="email-text">{{ referido.email }}</span>
                 <ng-template #sinCorreo><span class="muted">Sin correo</span></ng-template>
-              </div>
+              </div> -->
 
               <!-- Teléfono -->
               <div class="referido-contacto">

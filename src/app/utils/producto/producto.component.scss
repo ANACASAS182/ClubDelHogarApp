@@ -48,3 +48,25 @@
   width: 14px;
   height: 14px;
 }
+
+.referido-mini {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 0 0;
+  .referido-title { font-weight: 600; color: #555; }
+}
+
+.qr-chip {
+  margin-left: auto;              /* se va a la derecha del renglón */
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid #e5e7eb;      /* gris suave */
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  img { width: 38px; height: 38px; display: block; }
+}
