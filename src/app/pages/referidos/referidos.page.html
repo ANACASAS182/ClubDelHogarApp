@@ -25,39 +25,43 @@
       <div class="itemReferencia">
         <ion-grid>
           <ion-row>
-            <ion-col size="8" sizeMd="9" sizeLg="10">
+            <ion-col size="12">
 
-              <!-- Identidad -->
-              <section class="referido-identidad">
+              <!-- Encabezado: nombre + comisión -->
+              <section class="referido-header">
                 <div class="referido-nombre">{{ referido.nombreCompleto }}</div>
-
-                <!-- CORREO -->
-                <div class="referido-contacto">
-                  <ion-icon name="mail-outline" *ngIf="referido.email"></ion-icon>
-                  <span *ngIf="referido.email; else sinCorreo">{{ referido.email }}</span>
-                  <ng-template #sinCorreo><span class="muted">Sin correo</span></ng-template>
-                </div>
-
-                <!-- TELÉFONO -->
-                <div class="referido-contacto">
-                  <ion-icon name="logo-whatsapp"></ion-icon>
-                  <span>
-                    {{ referido.celularE164 ? referido.celularView : 'No proporcionado' }}
-                  </span>
-                  <ion-badge
-                    *ngIf="referido.celularE164 && referido.celularInvalido"
-                    color="warning"
-                    class="badge-susp">
-                    sospechoso
-                  </ion-badge>
-                </div>
-
-                <!-- FECHA -->
-                <div class="referido-contacto">
-                  <ion-icon name="calendar-outline"></ion-icon>
-                  <span>{{ referido.fechaRegistro | date:'shortDate' }}</span>
+                <div class="referido-comision">
+                  <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto }}</div>
+                  <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto }}</div>
                 </div>
               </section>
+
+              <!-- Correo -->
+              <div class="referido-contacto">
+                <ion-icon name="mail-outline" *ngIf="referido.email"></ion-icon>
+                <span *ngIf="referido.email; else sinCorreo" class="email-text">{{ referido.email }}</span>
+                <ng-template #sinCorreo><span class="muted">Sin correo</span></ng-template>
+              </div>
+
+              <!-- Teléfono -->
+              <div class="referido-contacto">
+                <ion-icon name="logo-whatsapp"></ion-icon>
+                <span>
+                  {{ referido.celularE164 ? referido.celularView : 'No proporcionado' }}
+                </span>
+                <ion-badge
+                  *ngIf="referido.celularE164 && referido.celularInvalido"
+                  color="warning"
+                  class="badge-susp">
+                  sospechoso
+                </ion-badge>
+              </div>
+
+              <!-- Fecha registro -->
+              <div class="referido-contacto">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>{{ referido.fechaRegistro | date:'shortDate' }}</span>
+              </div>
 
               <!-- Producto / Empresa -->
               <section class="referido-producto">
@@ -65,19 +69,28 @@
                 <div class="empresa-nombre">{{ referido.empresaRazonSocial }}</div>
               </section>
 
-              <!-- 🔎 Vista previa del último seguimiento -->
+              <!-- Último seguimiento -->
               <section class="referido-ultimo-seg" *ngIf="referido.ultimoSeguimientoTexto; else sinSegPrev">
                 <ion-icon name="chatbubble-ellipses-outline" class="seg-icon"></ion-icon>
 
-                <div class="seg-preview">
-                  <div class="seg-text line-clamp-1">{{ referido.ultimoSeguimientoTexto }}</div>
-                  <div class="seg-meta">
-                    <ion-icon name="time-outline"></ion-icon>
-                    <span>{{ referido.ultimoSeguimientoFecha | date:'dd-MMM-yyyy, HH:mm' }}</span>
-                    <ion-badge color="success" *ngIf="referido._segEsReciente">nuevo</ion-badge>
+                <!-- línea = texto clamped + botón fijo -->
+                <div class="seg-line">
+                  <div class="seg-text line-clamp-2">
+                    {{ referido.ultimoSeguimientoTexto }}
                   </div>
+
+                  <span
+                    class="seg-plus"
+                    (click)="abrirModalVisualizacion(referido); $event.stopPropagation()">+</span>
+                </div>
+
+                <div class="seg-meta">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <span class="seg-date">{{ formatFecha(referido.ultimoSeguimientoFecha) }}</span>
+                  <ion-badge color="success" *ngIf="referido._segEsReciente">nuevo</ion-badge>
                 </div>
               </section>
+
 
               <ng-template #sinSegPrev>
                 <section class="referido-ultimo-seg muted">
@@ -87,29 +100,11 @@
                   </div>
                 </section>
               </ng-template>
-              <!-- /Vista previa -->
 
-            </ion-col>
-
-            <!-- Comisión -->
-            <ion-col size="4" sizeMd="3" sizeLg="2" class="ion-text-right">
-              <section class="referido-comision">
-                <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto }}</div>
-                <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto }}</div>
-              </section>
             </ion-col>
           </ion-row>
         </ion-grid>
       </div>
     </ion-item>
   </ng-container>
-
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-button class="fab-rectangular" (click)="abrirModal()">
-      <img [src]="'assets/icons/add.png'"
-           alt="Icono Network"
-           style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
-      <span class="fab-text">Agregar</span>
-    </ion-button>
-  </ion-fab>
 </ion-content>

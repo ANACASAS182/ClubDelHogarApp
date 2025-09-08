@@ -35,98 +35,102 @@
       <ng-container *ngIf="!cargandoCelula">
         <!-- Viewport con pan/zoom -->
         <div #miniViewport
-            class="viewport"
-            (wheel)="onWheel($event)"
-            (dblclick)="onDoubleTap($event)"
-            (pointerdown)="onPointerDown($event)"
-            (pointermove)="onPointerMove($event)"
-            (pointerup)="onPointerUp($event)"
-            (pointercancel)="onPointerUp($event)"
-            (pointerleave)="onPointerUp($event)"
-            (touchstart)="onTouchStart($event)"
-            (touchmove)="onTouchMove($event)"
-            (touchend)="onTouchEnd($event)">
+     class="viewport"
+     (wheel)="onWheel($event)"
+     (dblclick)="onDoubleTap($event)"
+     (pointerdown)="onPointerDown($event)"
+     (pointermove)="onPointerMove($event)"
+     (pointerup)="onPointerUp($event)"
+     (pointercancel)="onPointerUp($event)"
+     (pointerleave)="onPointerUp($event)"
+     (touchstart)="onTouchStart($event)"
+     (touchmove)="onTouchMove($event)"
+     (touchend)="onTouchEnd($event)">
 
-          <!-- Controles -->
-          <div class="zoom-controls">
-            <ion-button size="small" fill="solid" (click)="zoomOut()">−</ion-button>
-            <div class="zoom-label">{{ (zoom*100) | number:'1.0-0' }}%</div>
-            <ion-button size="small" fill="solid" (click)="zoomIn()">+</ion-button>
-            <ion-button size="small" fill="outline" (click)="fitToViewport()">Ajustar</ion-button>
-            <ion-button size="small" fill="outline" (click)="resetView()">100%</ion-button>
-          </div>
+  <!-- Controles -->
+  <div class="zoom-controls">
+    <ion-button size="small" fill="solid" (click)="zoomOut()">−</ion-button>
+    <div class="zoom-label">{{ (zoom*100) | number:'1.0-0' }}%</div>
+    <ion-button size="small" fill="solid" (click)="zoomIn()">+</ion-button>
+    <ion-button size="small" fill="outline" (click)="centerView()">Centrar</ion-button>
+  </div>
 
-          <!-- SVG (todo el contenido va dentro de un <g> transformable) -->
-          <svg #miniSvg
-              [attr.viewBox]="'0 0 ' + miniWidth + ' ' + miniHeight"
-              class="mini-svg">
-            <g [attr.transform]="svgTransform">
+  <!-- SVG correcto -->
+  <svg #miniSvg
+       [attr.viewBox]="'0 0 ' + miniWidth + ' ' + miniHeight"
+       class="mini-svg">
 
-              <defs>
-                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
-                </filter>
+    <!-- Defs van fuera de miniScene (no cuentan para getBBox) -->
+    <defs>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.25"/>
+      </filter>
 
-                <linearGradient id="gradPadre" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#334155"/>
-                  <stop offset="100%" stop-color="#64748b"/>
-                </linearGradient>
-                <linearGradient id="gradYo" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#16a34a"/>
-                  <stop offset="100%" stop-color="#22c55e"/>
-                </linearGradient>
-                <linearGradient id="gradHijo" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#2563eb"/>
-                  <stop offset="100%" stop-color="#60a5fa"/>
-                </linearGradient>
-              </defs>
+      <linearGradient id="gradPadre" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#334155"/>
+        <stop offset="100%" stop-color="#64748b"/>
+      </linearGradient>
+      <linearGradient id="gradYo" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#16a34a"/>
+        <stop offset="100%" stop-color="#22c55e"/>
+      </linearGradient>
+      <linearGradient id="gradHijo" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#2563eb"/>
+        <stop offset="100%" stop-color="#60a5fa"/>
+      </linearGradient>
+    </defs>
 
-              <!-- Conectores -->
-              <path *ngIf="linkPadreYo" [attr.d]="linkPadreYo" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
-              <path *ngIf="busVerticalPath" [attr.d]="busVerticalPath" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
-              <path *ngIf="busHorizontalPath" [attr.d]="busHorizontalPath" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+    <!-- Grupo OUTER: pan/zoom -->
+    <g [attr.transform]="svgTransform">
+      <!-- Grupo INNER: contenido medible -->
+      <g #miniScene>
 
-              <!-- Padre -->
-              <g *ngIf="padreNode" class="mini-group">
-                <rect class="mini-rect" filter="url(#shadow)"
-                      [attr.x]="padreNode.x" [attr.y]="padreNode.y"
-                      [attr.width]="padreNode.w" [attr.height]="padreNode.h"
-                      fill="url(#gradPadre)" rx="8" ry="8"/>
-                <text class="mini-text" fill="#fff" font-size="16"
-                      [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 24">{{ padreNode.nombre }}</text>
-                <text class="mini-subtext" fill="#fff" font-size="12"
-                      [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 40">{{ padreNode.contacto }}</text>
-              </g>
+        <!-- Conectores -->
+        <path *ngIf="linkPadreYo" [attr.d]="linkPadreYo" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <path *ngIf="busVerticalPath" [attr.d]="busVerticalPath" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+        <path *ngIf="busHorizontalPath" [attr.d]="busHorizontalPath" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
 
-              <!-- Yo -->
-              <g *ngIf="yoNode" class="mini-group">
-                <rect class="mini-rect" filter="url(#shadow)"
-                      [attr.x]="yoNode.x" [attr.y]="yoNode.y"
-                      [attr.width]="yoNode.w" [attr.height]="yoNode.h"
-                      fill="url(#gradYo)" rx="8" ry="8"/>
-                <text class="mini-text" fill="#fff" font-size="18"
-                      [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 25">{{ yoNode.nombre }}</text>
-                <text class="mini-subtext" fill="#fff" font-size="12"
-                      [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 42">{{ yoNode.contacto }}</text>
-              </g>
+        <!-- Padre -->
+        <g *ngIf="padreNode" class="mini-group">
+          <rect class="mini-rect" filter="url(#shadow)"
+                [attr.x]="padreNode.x" [attr.y]="padreNode.y"
+                [attr.width]="padreNode.w" [attr.height]="padreNode.h"
+                fill="url(#gradPadre)" rx="8" ry="8"/>
+          <text class="mini-text" fill="#fff" font-size="16"
+                [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 24">{{ padreNode.nombre }}</text>
+          <text class="mini-subtext" fill="#fff" font-size="12"
+                [attr.x]="padreNode.x + 14" [attr.y]="padreNode.y + 40">{{ padreNode.contacto }}</text>
+        </g>
 
-              <!-- Hijos -->
-              <g *ngFor="let h of hijosNodes" class="mini-group">
-                <path *ngIf="h.rutaDesdeBus" [attr.d]="h.rutaDesdeBus" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
-                <rect class="mini-rect" filter="url(#shadow)"
-                      [attr.x]="h.x" [attr.y]="h.y"
-                      [attr.width]="h.w" [attr.height]="h.h"
-                      fill="url(#gradHijo)" rx="8" ry="8"/>
-                <text class="mini-text" fill="#fff" font-size="16"
-                      [attr.x]="h.x + 14" [attr.y]="h.y + 24">{{ h.nombre }}</text>
-                <text class="mini-subtext" fill="#fff" font-size="12"
-                      [attr.x]="h.x + 14" [attr.y]="h.y + 40">{{ h.contacto }}</text>
-              </g>
+        <!-- Yo -->
+        <g *ngIf="yoNode" class="mini-group">
+          <rect class="mini-rect" filter="url(#shadow)"
+                [attr.x]="yoNode.x" [attr.y]="yoNode.y"
+                [attr.width]="yoNode.w" [attr.height]="yoNode.h"
+                fill="url(#gradYo)" rx="8" ry="8"/>
+          <text class="mini-text" fill="#fff" font-size="18"
+                [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 25">{{ yoNode.nombre }}</text>
+          <text class="mini-subtext" fill="#fff" font-size="12"
+                [attr.x]="yoNode.x + 14" [attr.y]="yoNode.y + 42">{{ yoNode.contacto }}</text>
+        </g>
 
-            </g>
-          </svg>
+        <!-- Hijos -->
+        <g *ngFor="let h of hijosNodes" class="mini-group">
+          <path *ngIf="h.rutaDesdeBus" [attr.d]="h.rutaDesdeBus" stroke="#94a3b8" stroke-width="2.25" stroke-linecap="round" fill="none"/>
+          <rect class="mini-rect" filter="url(#shadow)"
+                [attr.x]="h.x" [attr.y]="h.y"
+                [attr.width]="h.w" [attr.height]="h.h"
+                fill="url(#gradHijo)" rx="8" ry="8"/>
+          <text class="mini-text" fill="#fff" font-size="16"
+                [attr.x]="h.x + 14" [attr.y]="h.y + 24">{{ h.nombre }}</text>
+          <text class="mini-subtext" fill="#fff" font-size="12"
+                [attr.x]="h.x + 14" [attr.y]="h.y + 40">{{ h.contacto }}</text>
+        </g>
 
-        </div>
+      </g>
+    </g>
+  </svg>
+</div>
 
         <div *ngIf="!hijosNodes.length" style="text-align:center;margin-top:16px;opacity:.7;">
           Aún no has invitado a nadie. Usa el botón <b>Invitar</b> para agregar tu primer embajador.

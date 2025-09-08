@@ -1,156 +1,100 @@
 .itemReferencia {
   padding-top: 8px;
   padding-bottom: 4px;
+  padding-right: 8px;
   user-select: none;
 }
 
-.referidosHeader {
-  background-color: #272727;
-}
+/* headers / estados */
+.referidosHeader { background-color: #272727; }
+.title { color: white; }
+.estatus-creado { color: #2c3e50; font-weight: bold; }
+.estatus-seguimiento { color: green; font-weight: bold; }
+.estatus-cerrado { color: red; font-weight: bold; }
+.estatus-other { color: gray; }
+.muted { color: var(--ion-color-medium); }
 
-.title {
-  color: white;
-}
+/* tarjeta base */
+.itemReferencia ion-grid { width: 100%; }
+.itemReferencia ion-row { align-items: flex-start; }
+.itemReferencia ion-col { min-width: 0; }
 
-.estatus-creado {
-  color: #2c3e50;
-  font-weight: bold;
-}
-.estatus-seguimiento {
-  color: green;
-  font-weight: bold;
-}
-.estatus-cerrado {
-  color: red;
-  font-weight: bold;
-}
-.estatus-other {
-  color: gray;
-}
-
-.fechaLabel {
-  font-size: 8px;
-}
-
-/** pseudo fab ***/
-.fab-rectangular {
-  --border-radius: 20px;
-  --background: #1a9953;
-  --color: white;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 24px;
-  height: 48px;
-  display: flex;
+/* encabezado: nombre + comisión */
+  .referido-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto; /* nombre | pill */
   align-items: center;
-}
-.fab-text {
-  font-size: 16px;
-  letter-spacing: 0.5px;
-}
-
-/* === Tarjeta Referido === */
-.referido-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  position: relative;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-/* === Identidad === */
-.referido-identidad {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.referido-nombre {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #272727;
-}
-.referido-contacto span {
-  font-size: 0.8rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: #666;
-  flex-wrap: wrap;
-}
-.referido-contacto ion-icon {
-  font-size: 1em;
-}
-.referido-fecha {
-  font-size: 0.8rem;
-  color: #777;
-}
-.referido-fecha .label {
-  font-weight: 600;
-  color: #999;
-}
-
-/* === Producto / Empresa === */
-.referido-producto {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.producto-nombre {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-}
-.empresa-nombre {
-  font-size: 0.8rem;
-  color: #777;
-}
-
-/* === Comisión === */
-.referido-comision {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  margin-top: 8px;
-}
-.referido-comision .label {
-  font-size: 0.5rem;
-  color: #888;
+  column-gap: 8px;
   margin-bottom: 2px;
 }
-.referido-comision .monto {
-  font-size: 1rem;
-  font-weight: 900;
-  color: #fff;
-  background-color: #349721;
-  padding: 6px 14px;
-  border-radius: 8px;
+.referido-nombre {
+  min-width: 0;                 /* necesario para elipsis en grid */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #272727;
 }
+.referido-comision { /* la columna auto */
+  display: inline-flex;
+}
+.referido-comision .monto,
 .referido-comision .monto-pendiente {
-  font-size: 1rem;
-  font-weight: 900;
-  color: #fff;
-  background-color: #748299;
-  padding: 6px 14px;
-  border-radius: 8px;
+  display: inline-block;
+  font-size: .9rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  margin-left: 8px;   /* separa del nombre */
+}
+.referido-comision .monto { background: #349721; color: #fff; }
+.referido-comision .monto-pendiente { background: #748299; color: #fff; }
+
+/* identidad: filas icono + texto */
+.referido-contacto {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.referido-contacto ion-icon { flex: 0 0 auto; }
+.referido-contacto span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #666;
+  font-size: .8rem;
 }
 
-.badge-susp {
+ion-item {
+  --padding-start: 0;        /* opcional, según tu diseño */
+  --padding-end: 0;
+  --inner-padding-start: 12px;
+  --inner-padding-end: 14px; /* 👈 aire real al lado derecho */
+}
+
+/* correo con ellipsis pulido */
+.email-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* ---- Utilidades de truncado ---- */
-.line-clamp-1 {
-  display: -webkit-box;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.muted {
-  color: var(--ion-color-medium);
-}
+/* badge “sospechoso” */
+.badge-susp { margin-left: 8px; white-space: nowrap; }
 
-/* ---- Bloque de “último seguimiento” ---- */
+/* producto / empresa */
+.referido-producto { display: flex; flex-direction: column; gap: 2px; }
+.producto-nombre { font-size: 1rem; font-weight: 600; color: #333; }
+.empresa-nombre { font-size: .8rem; color: #777; }
+
+/* bloque último seguimiento */
 .referido-ultimo-seg {
   display: grid;
   grid-template-columns: 20px 1fr;
@@ -158,247 +102,85 @@
   align-items: start;
   margin-top: 6px;
   padding-top: 6px;
-  border-top: 1px dashed rgba(0, 0, 0, 0.06);
+  border-top: 1px dashed rgba(0,0,0,.06);
 
-  .seg-icon {
-    font-size: 18px;
-    margin-top: 2px;
-    color: var(--ion-color-medium);
+  .seg-icon { font-size: 18px; margin-top: 2px; color: var(--ion-color-medium); }
+  .seg-preview { min-width: 0; -webkit-tap-highlight-color: transparent; }
+
+  .seg-text{
+    flex:1 1 auto;
+    min-width:0;
+    font-size:.9rem;
+    font-weight:500;
+    overflow-wrap:anywhere;
+    word-break:break-word;
   }
-  .seg-preview {
-    min-width: 0; /* 👈 evita overflow en iOS */
-  }
-  .seg-text {
-    font-size: 0.9rem;
-    font-weight: 500;
-    white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-  }
+
   .seg-meta {
     display: inline-flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
     margin-top: 2px;
-    font-size: 0.75rem;
+    font-size: .75rem;
     color: var(--ion-color-medium);
 
-    ion-icon {
-      font-size: 14px;
-    }
+    ion-icon { font-size: 14px; flex: 0 0 auto; }
+    .seg-date { white-space: nowrap; word-break: keep-all; }
     ion-badge {
-      margin-left: 4px;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      line-height: 1;
+      font-size: .7rem;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      letter-spacing: .2px;
+      margin-left: 2px;
     }
   }
 }
 
-/* ---- Ajustes de layout móvil estrecho ---- */
-@media (max-width: 420px) {
-  .referido-identidad .referido-nombre {
-    font-size: 1.05rem;
-  }
-  .referido-producto .producto-nombre {
-    font-size: 0.95rem;
-  }
-  .referido-ultimo-seg .seg-text {
-    font-size: 0.85rem;
-  }
+/* clamp 2 líneas en el preview */
+.line-clamp-2{
+  display:-webkit-box !important;
+  -webkit-line-clamp:2 !important;
+  -webkit-box-orient:vertical !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:normal !important;
 }
 
-/* ---- Fix del texto “Aún no hay seguimientos” ---- */
-.no-seguimientos,
-.referido-ultimo-seg.muted .seg-text {
-  white-space: normal;
-  word-break: break-word;
-  line-height: 1.25;
+/* botón “+” */
+.seg-plus{
+  flex:0 0 auto;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:20px; height:20px; border-radius:50%;
+  background:#1f8d2e; color:#fff; font-weight:800; font-size:.85rem;
+  cursor:pointer; line-height:1;
+  margin-top:2px;          /* se alinea con el texto */
+  transition:background-color .2s ease, transform .1s ease;
+}
+.seg-plus:hover{ background:#167020; transform:scale(1.1); }
+.seg-plus:active{ transform:scale(.95); }
+
+.seg-line{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  min-width:0; /* clave p/ que el clamp calcule bien */
 }
 
-.modal-seg-empty {
-  display: block;
-  color: var(--ion-color-medium);
-  white-space: normal;
-  word-break: break-word;
-  padding: 4px 0;
-}
-
-/* ---- Badge “nuevo” ---- */
+/* badge success color */
 ion-badge[color="success"] {
   background: #28a745 !important;
   color: #fff !important;
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 8px;
-  font-weight: 600;
 }
 
-/* permite que las columnas del grid puedan encoger */
-.itemReferencia ion-col {
-  min-width: 0;
+/* responsive tweaks */
+@media (max-width: 420px) {
+  .referido-nombre { font-size: 1.05rem; }
+  .producto-nombre { font-size: .95rem; }
+  .referido-ultimo-seg .seg-text { font-size: .85rem; }
 }
 
-/* identidad */
-.referido-identidad { min-width: 0; }
-
-.referido-nombre {
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: #272727;
-  overflow: hidden;            /* 👈 necesario para elipsis */
-  text-overflow: ellipsis;     /* 👈 … */
-  white-space: nowrap;         /* 👈 una sola línea */
-}
-
-/* si prefieres dos líneas con “…” descomenta esto y quita lo de arriba
-.referido-nombre {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;       // máximo 2 líneas
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  white-space: normal;
-}
-*/
-
-/* filas “icono + texto” (correo, teléfono, fecha) */
-.referido-contacto {
-  display: flex;               /* antes era inline, así no hay elipsis */
-  align-items: center;
-  gap: 6px;
-  min-width: 0;                /* 👈 importante */
-}
-.referido-contacto ion-icon { flex: 0 0 auto; }
-.referido-contacto span {
-  flex: 1 1 auto;              /* ocupa el resto */
-  min-width: 0;                /* 👈 permite encoger */
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #666;
-  font-size: 0.8rem;
-}
-
-/* producto / empresa */
-.referido-producto { min-width: 0; }
-.producto-nombre,
-.empresa-nombre {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* ya lo tienes, pero por si acaso */
-.badge-susp { white-space: nowrap; }
-
-/* el preview de seguimiento ya tiene min-width:0 más arriba */
-/* ======= FIX URGENTE: layout de cada item ======= */
-
-/* El grid debe ocupar todo el ancho del ion-item */
-.itemReferencia ion-grid { width: 100%; }
-
-/* Alinea arriba y permite encoger */
-.itemReferencia ion-row {
-  align-items: flex-start;
-}
-
-/* 🔑 sin esto, iOS no deja encoger las columnas */
-.itemReferencia ion-col { min-width: 0; }
-
-/* Izquierda: toma todo el espacio disponible y puede encoger */
-.itemReferencia ion-col[size="8"],
-.itemReferencia ion-col[sizeMd="9"],
-.itemReferencia ion-col[sizeLg="10"] {
-  flex: 1 1 0;   /* crece y encoge */
-  max-width: 100%;
-}
-
-/* Derecha: ancho auto y NO encoge */
-.itemReferencia ion-col[size="4"],
-.itemReferencia ion-col[sizeMd="3"],
-.itemReferencia ion-col[sizeLg="2"] {
-  flex: 0 0 auto;     /* no encoge */
-  max-width: none;
-  display: flex;      /* para alinear el badge a la derecha */
-  justify-content: flex-end;
-}
-
-/* Evita que la pastilla salte de línea */
-.referido-comision .monto,
-.referido-comision .monto-pendiente { white-space: nowrap; }
-
-/* Elipsis en nombre, producto y empresa */
-.referido-identidad { min-width: 0; }
-
-.referido-nombre,
-.producto-nombre,
-.empresa-nombre {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Filas “icono + texto”: que el texto pueda elipsar */
-.referido-contacto {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-.referido-contacto ion-icon { flex: 0 0 auto; }
-.referido-contacto span {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* ===== FIX de layout para que no se monte el pill ===== */
-.itemReferencia ion-grid { width: 100%; }
-.itemReferencia ion-row { display: flex; align-items: flex-start; }
-
-/* La izquierda debe poder encoger y ocupar el resto */
-.itemReferencia .col-main {
-  flex: 1 1 0 !important;
-  min-width: 0;              /* clave para elipsis */
-  max-width: none !important;
-  width: auto !important;
-}
-
-/* La derecha mide lo que el contenido, no encoge */
-.itemReferencia .col-amount {
-  flex: 0 0 auto !important;
-  width: auto !important;
-  max-width: none !important;
-  display: flex;
-  justify-content: flex-end;
-  align-self: flex-start;    /* alinea arriba */
-}
-
-/* El pill nunca rompe línea */
-.referido-comision .monto,
-.referido-comision .monto-pendiente { white-space: nowrap; }
-
-/* Elipsis en textos largos */
-.referido-identidad { min-width: 0; }
-.referido-nombre,
-.producto-nombre,
-.empresa-nombre {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Filas de “icono + texto” con elipsis correctas */
-.referido-contacto {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-}
-.referido-contacto ion-icon { flex: 0 0 auto; }
-.referido-contacto span {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}

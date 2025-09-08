@@ -31,7 +31,8 @@ export class CelulaPage implements OnInit {
   ) {}
 
   @ViewChild('miniSvg', { static: false }) miniSvg!: ElementRef<SVGSVGElement>;
-    @ViewChild('miniViewport', { static: false }) miniViewport!: ElementRef<HTMLDivElement>;
+  @ViewChild('miniViewport', { static: false }) miniViewport!: ElementRef<HTMLDivElement>;
+  @ViewChild('miniScene', { static: false }) miniScene!: ElementRef<SVGGElement>;
 
   celula: MiCelulaDisplay | null = null;
   UsuarioID = 0;
@@ -74,6 +75,7 @@ export class CelulaPage implements OnInit {
             // asegura que el SVG ya está en el DOM
             this.cdr.detectChanges();
             this.buildMiniChart();
+            requestAnimationFrame(() => this.centerView());
           },
           error: () => { this.cargandoCelula = false; }
         });
@@ -246,18 +248,18 @@ export class CelulaPage implements OnInit {
   }
 
   fitToViewport(){
-    const vp = this.miniViewport?.nativeElement;
-    if(!vp) return;
-    // margen visual
-    const pad = 16;
-    const vw = vp.clientWidth - pad*2;
-    const vh = vp.clientHeight - pad*2;
-    const scale = this.clamp(Math.min(vw/this.miniWidth, vh/this.miniHeight), this.minZoom, this.maxZoom);
-    this.zoom = scale;
-    // centrado
-    this.panX = (vw - this.miniWidth*scale)/2;
-    this.panY = (vh - this.miniHeight*scale)/2;
-  }
+    this.zoom = 1;
+
+  const vp = this.miniViewport?.nativeElement;
+  if(!vp) { this.panX = 0; this.panY = 0; return; }
+
+  const vw = vp.clientWidth;
+  const vh = vp.clientHeight;
+
+  // centramos la escena en el viewport
+  this.panX = (vw - this.miniWidth) / 2;
+  this.panY = (vh - this.miniHeight) / 2;
+}
 
   private setZoom(next:number, origin?:{x:number,y:number}){
     const old = this.zoom;
@@ -338,4 +340,29 @@ export class CelulaPage implements OnInit {
     this.isPinching = false;
   }
 
+  centerView() {
+    // 100% fijo
+    this.zoom = 1;
+
+    const vp = this.miniViewport?.nativeElement;
+    const scene = this.miniScene?.nativeElement;
+    if (!vp || !scene) { this.panX = 0; this.panY = 0; return; }
+
+    const vw = vp.clientWidth;
+    const vh = vp.clientHeight;
+
+    // Medimos el contenido en unidades del viewBox (no pixeles)
+    const bb = scene.getBBox(); // x, y, width, height del contenido real
+    const cx = bb.x + bb.width  / 2;
+    const cy = bb.y + bb.height / 2;
+
+    // Queremos que el centro del contenido coincida con el centro del viewport
+    // Como el translate está en unidades del viewBox, convertimos el centro del viewport a esas mismas unidades
+    // A 100% (zoom=1) el viewBox ocupa exactamente miniWidth x miniHeight
+    const vpCenterX_vb = (vw / this.miniSvg.nativeElement.getBoundingClientRect().width)  * (this.miniWidth  / 2);
+    const vpCenterY_vb = (vh / this.miniSvg.nativeElement.getBoundingClientRect().height) * (this.miniHeight / 2);
+
+    this.panX = vpCenterX_vb - cx;
+    this.panY = vpCenterY_vb - cy;
+  }
 }

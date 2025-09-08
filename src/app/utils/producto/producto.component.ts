@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
 
@@ -12,8 +12,13 @@ export class ProductoComponent implements OnInit, OnChanges {
   @Input() promocion: any;
   @Input() debug = false;
 
-  ngOnInit()  { if (this.debug) this.logPromo('OnInit'); }
+  // ⬇️ NUEVO: se emite cuando el usuario quiere “Agregar”
+  @Output() addClicked = new EventEmitter<void>();
+
+   ngOnInit()  { if (this.debug) this.logPromo('OnInit'); }
   ngOnChanges(ch: SimpleChanges) { if (this.debug && ch['promocion']) this.logPromo('OnChanges'); }
+
+  onAdd() { this.addClicked.emit(); }
 
   // ======== SOLO BDD, PERO ROBUSTO A VARIANTES ========
   private tipoComisionDe(p: any): 0 | 1 {

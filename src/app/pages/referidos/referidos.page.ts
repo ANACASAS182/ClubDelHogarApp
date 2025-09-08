@@ -103,15 +103,41 @@ export class ReferidosPage implements OnInit, AfterViewInit {
                 lista.forEach(x => mapSeg.set(x.referidoId, x));
 
                 this.referidos = this.referidos.map(r => {
-                  const seg = r.id ? mapSeg.get(r.id) : undefined;
-                  const fecha = seg?.fecha ? new Date(seg.fecha) : undefined;
-                  return {
-                    ...r,
-                    ultimoSeguimientoTexto: seg?.texto,
-                    ultimoSeguimientoFecha: fecha,
-                    _segEsReciente: this.esReciente(fecha)
-                  };
-                });
+                const seg = r.id ? mapSeg.get(r.id) : undefined;
+
+                // nombres tolerantes (por si backend manda otro key)
+                const txt =
+                  seg?.texto ??
+                  (seg as any)?.detalle ??
+                  (seg as any)?.descripcion ??
+                  (seg as any)?.Descripcion ??
+                  (seg as any)?.observacion ??
+                  (seg as any)?.Observacion ??
+                  null;
+
+                const fRaw =
+                  seg?.fecha ??
+                  (seg as any)?.createdAt ??
+                  (seg as any)?.creadoEl ??
+                  (seg as any)?.Fecha ??
+                  null;
+
+                const fecha = fRaw ? new Date(fRaw) : undefined;
+
+                return {
+                  ...r,
+                  ultimoSeguimientoTexto: txt || undefined,
+                  ultimoSeguimientoFecha: fecha,
+                  _segEsReciente: this.esReciente(fecha)
+                };
+              });
+
+              // DEBUG: para verificar rápido en consola
+              console.groupCollapsed('Seguimientos cargados');
+              console.log('Total referidos:', this.referidos.length);
+              console.log('Con último seguimiento:', this.referidos.filter(x => !!x.ultimoSeguimientoTexto).length);
+              console.groupEnd();
+
 
                 this.cargandoReferidos = false;
               },
