@@ -9,15 +9,16 @@ import { EmbajadoresService } from 'src/app/services/api.back.services/embajador
 import { Promocion } from 'src/app/models/Promocion';
 import { PromocionesService, SolicitudCodigoQrRequest } from 'src/app/services/api.back.services/promociones.service';
 import { EmbajadorInvitadoDTO } from 'src/app/models/DTOs/EmbajadorInvitadoDTO';
-import { HttpClient, HttpClientModule } from '@angular/common/http';  // 👈 ADD
+import { HttpClient, HttpClientModule } from '@angular/common/http'; 
 import html2canvas from 'html2canvas';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-promocion.modal',
   templateUrl: './promocion.component.html',
   styleUrls: ['./promocion.component.scss'],
   standalone: true,
-  imports: [IonicModule, ReactiveFormsModule, CommonModule, FormsModule, HttpClientModule], // 👈 ADD
+  imports: [IonicModule, ReactiveFormsModule, CommonModule, FormsModule, HttpClientModule], 
 })
 export class PromocionComponent implements OnInit {
 
@@ -103,13 +104,61 @@ export class PromocionComponent implements OnInit {
     });
   }
 
-  descargarImagen() {
-    html2canvas(this.captureDiv.nativeElement).then((canvas) => {
-      const link = document.createElement('a');
-      link.download = 'captura.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    });
+  async descargarImagen() {
+    const fileName = `cupon-${this.promoSeleccionada?.iD ?? ''}.png`;
+    const canvas = await this.renderCuponCanvas();
+
+    const blob: Blob = await new Promise(res => canvas.toBlob(b => res(b!), 'image/png'));
+    const url = URL.createObjectURL(blob);
+
+    // 1) App nativa (iOS/Android con Capacitor): usar Share
+    if (Capacitor.isNativePlatform && Capacitor.isNativePlatform()) {
+      try {
+        const file = new File([blob], fileName, { type: 'image/png' });
+        const canShare = (navigator as any).canShare?.({ files: [file] });
+        if (canShare && (navigator as any).share) {
+          await (navigator as any).share({
+            files: [file],
+            title: 'Mi cupón',
+            text: 'Tu cupón personalizado',
+          });
+          URL.revokeObjectURL(url);
+          return;
+        }
+        // Si Web Share con archivos no está, abrir visor y que el usuario guarde
+        window.open(url, '_blank', 'noopener');
+        return;
+      } catch {
+        window.open(url, '_blank', 'noopener');
+        return;
+      }
+    }
+
+    // 2) Web con Web Share API (Android/desktop modernos)
+    const file = new File([blob], fileName, { type: 'image/png' });
+    const canShare = (navigator as any).canShare?.({ files: [file] }) && (navigator as any).share;
+    if (canShare) {
+      try {
+        await (navigator as any).share({ files: [file], title: 'Mi cupón' });
+        URL.revokeObjectURL(url);
+        return;
+      } catch { /* cancelado por el usuario */ }
+    }
+
+    // 3) iOS Safari/PWA: abrir en nueva pestaña (Guardar imagen)
+    if (this.isIOSWeb()) {
+      window.open(url, '_blank', 'noopener');
+      return;
+    }
+
+    // 4) Web normal (desktop/Android): descarga directa
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   cerrarModal() { this.modalCtrl.dismiss(); }
@@ -140,4 +189,27 @@ export class PromocionComponent implements OnInit {
   getControl(name: string) { return this.formulario.get(name); }
   close() { this.modalCtrl.dismiss(); }
   isDirty(): boolean { return this.formulario.dirty; }
+
+  // ---------- IOS DESCARGA QR
+  private isIOS(): boolean {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || (Capacitor.getPlatform?.() === 'ios');
+  }
+
+  private async renderCuponCanvas(): Promise<HTMLCanvasElement> {
+  // Asegura fondo sólido para que no quede transparente en iOS
+  const element = this.captureDiv.nativeElement as HTMLElement;
+  return await html2canvas(element, {
+    backgroundColor: getComputedStyle(element).backgroundColor || '#1b2433',
+    useCORS: true,
+    scale: Math.min(2, window.devicePixelRatio || 1.5)
+  });
+}
+
+private isIOSWeb(): boolean {
+  const ua = navigator.userAgent;
+  const isiOS = /iPad|iPhone|iPod/.test(ua);
+  const isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || (navigator as any).standalone;
+  return isiOS && !Capacitor.isNativePlatform?.(); // Safari/PWA, no nativo
+}
+
 }

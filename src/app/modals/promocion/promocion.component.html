@@ -85,7 +85,8 @@
         <div class="coupon-usage">Este cupón solo puede ser utilizado una sola vez</div>
         <div class="coupon-expiry">Cupón vigente hasta {{promocion!.vigencia}}</div>
     
-        <img src="assets/logo_white.png" alt="Logo" class="coupon-logo" />
+        <!-- Logo con CORS para que html2canvas no se queje en iOS -->
+        <img src="assets/logo_white.png" alt="Logo" class="coupon-logo" crossorigin="anonymous" />
       </div>
       <ion-button expand="block" shape="round" (click)="descargarImagen()">Descargar</ion-button>
       <hr />
