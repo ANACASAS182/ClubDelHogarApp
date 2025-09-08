@@ -36,7 +36,7 @@ export class DashboardPage implements OnInit {
     { title: 'Mi Célula', tituloMovil: 'Célula', url: '/dashboard/celula', icon: 'network' },
     //{ title: 'Mis Productos', tituloMovil: 'Productos', url: '/dashboard/productos', icon: 'configuracion' },
     //,
-    { title: 'Configuración', tituloMovil: 'Configuracion', url: '/dashboard/configuracion', icon: 'configuracion' }
+    { title: 'Mis Datos', tituloMovil: 'Mis Datos', url: '/dashboard/configuracion', icon: 'configuracion' }
   ];
   constructor(private router: Router, private tokenService: TokenService,
     private modalCtrl: ModalController,

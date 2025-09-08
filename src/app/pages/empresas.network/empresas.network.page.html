@@ -30,7 +30,6 @@
       <ion-col
         size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2"
         *ngFor="let item of empresas">
-        <!-- Al tocar una empresa, filtra promos -->
         <ion-card
           class="ion-card-embassy"
           [class.activa]="item.id === empresaActualId"
@@ -39,11 +38,6 @@
             <img [src]="item.logotipoBase64" alt="Imagen" />
           </div>
         </ion-card>
-
-        <!-- Botón opcional para ir al detalle de empresa -->
-        <!-- <div class="ion-text-center mt-1">
-          <ion-button size="small" fill="clear" (click)="verMas(item)">Ver más</ion-button>
-        </div> -->
       </ion-col>
     </ion-row>
   </ion-grid>

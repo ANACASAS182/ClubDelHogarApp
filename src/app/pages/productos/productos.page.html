@@ -16,23 +16,29 @@
   <ng-container *ngFor="let promocion of promociones">
     <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
       <div style="padding:16px">
-        <!-- Título y empresa -->
         <div style="margin-bottom:8px">
           <h2 style="margin:0;font-size:1.5em">{{ promocion.nombre }}</h2>
           <span style="font-size:.9em;color:#666">{{ promocion.empresaNombre }}</span>
         </div>
 
-        <!-- Descripción -->
         <p style="margin:0 0 12px 0;font-size:1em;color:#444">
           {{ promocion.descripcion }}
         </p>
 
-        <!-- Comisión -->
         <div style="text-align:right">
           <small style="font-size:.9em;color:#666">Comisión</small><br />
-          <span style="font-size:1.5em;font-weight:bold;color:#007b00">
-            {{ getComisionValor(promocion) }} {{ getComisionUnidad(promocion) }}
-          </span>
+
+          <ng-container *ngIf="esPorcentaje(promocion); else mxnTpl">
+            <span style="font-size:1.5em;font-weight:bold;color:#007b00">
+              {{ getComisionValor(promocion) | number:'1.0-2' }} %
+            </span>
+          </ng-container>
+
+          <ng-template #mxnTpl>
+            <span style="font-size:1.5em;font-weight:bold;color:#007b00">
+              {{ getComisionValor(promocion) | currency:'MXN':'symbol-narrow':'1.0-0' }}
+            </span>
+          </ng-template>
         </div>
       </div>
     </ion-card>

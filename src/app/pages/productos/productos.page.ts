@@ -36,62 +36,52 @@ export class ProductosPage implements OnInit {
           },
           error: _ => this.cargandoPromociones = false
         });
-      }
+      },
+      error: _ => this.cargandoPromociones = false
     });
   }
 
-  // ------------------- PRESENTACIÓN DE COMISIÓN -------------------
-  /** Detecta si la comisión es porcentaje (1) o dinero (0).
-   *  Soporta distintas formas que pueda venir del back. */
-  private esPorcentaje(p: any): boolean {
+  // =================== SOLO BDD, PERO ROBUSTO A VARIANTES ===================
+
+  /** Lee TipoComision desde camelCase/PascalCase y también si viene anidado en producto.* */
+  private tipoComisionDe(p: any): 0 | 1 {
     const t =
       p?.tipoComision ??
-      p?.tipoComisionEnum ??
+      p?.TipoComision ??
       p?.producto?.tipoComision ??
-      p?.producto?.tipoComisionEnum ??
-      null;
-
-    // Puede venir como número (0/1) o como string descriptivo
-    if (t === 1 || t === '1') return true;
-    if (typeof t === 'string') {
-      const s = t.toLowerCase();
-      if (s.includes('porcentaje') || s.includes('%')) return true;
-    }
-    return false; // default: MXN
-  }
-
-  /** Regresa 'MXN' o '%' */
-  getComisionUnidad(p: any): string {
-    return this.esPorcentaje(p) ? '%' : 'MXN';
-  }
-
-  /** Toma el número de comisión desde varias posibles props y lo formatea.
-   *  Si es porcentaje y viene en 0–100, se muestra tal cual.
-   *  Si alguna vez viniera 0–1, multiplica por 100 aquí. */
-  getComisionValor(p: any): string {
-    // dónde puede venir el valor: comision, nivel1, nivel_base, nivelBase...
-    const raw =
-      p?.comision ??
-      p?.nivel1 ??
-      p?.nivel_1 ??
-      p?.nivelBase ??
-      p?.nivel_base ??
+      p?.producto?.TipoComision ??
       0;
-
-    let v = Number(raw);
-    if (!isFinite(v)) v = 0;
-
-    // Si tu back algún día enviara 0.04 para 4%, descomenta:
-    // if (this.esPorcentaje(p) && v > 0 && v < 1) v = v * 100;
-
-    // sin decimales (ajusta a '1.0-2' en template si quieres decimales)
-    return Math.round(v).toString();
+    const n = Number(t);
+    return (n === 1 || t === '1') ? 1 : 0;
   }
-  // ----------------------------------------------------------------
 
-  abrirModalPromocion(promocion: Promocion) {
-    // tu lógica si hay detalle
+  /** true si BDD dice 1 = Porcentaje */
+  esPorcentaje(p: any): boolean {
+    return this.tipoComisionDe(p) === 1;
   }
+
+  /** Valor numérico a mostrar según BDD, con fallbacks comunes */
+  getComisionValor(p: any): number {
+    if (this.esPorcentaje(p)) {
+      const v =
+        Number(p?.comisionPorcentaje ?? p?.ComisionPorcentaje ??
+               p?.producto?.comisionPorcentaje ?? p?.producto?.ComisionPorcentaje) || 0;
+      return Number.isFinite(v) ? v : 0;
+    } else {
+      // ignora strings con '%'
+      const raw =
+        (p?.comisionCantidad ?? p?.ComisionCantidad ??
+         p?.producto?.comisionCantidad ?? p?.producto?.ComisionCantidad);
+      const cant = (typeof raw === 'string' && raw.includes('%')) ? 0 : Number(raw) || 0;
+      const precio =
+        Number(p?.precio ?? p?.Precio ?? p?.producto?.precio ?? p?.producto?.Precio) || 0;
+      const v = cant || precio || 0;
+      return Number.isFinite(v) ? v : 0;
+    }
+  }
+  // ==========================================================================
+
+  abrirModalPromocion(_promocion: Promocion) {}
 
   async abrirModalAgregarPromocion() {
     let formDirty = false;

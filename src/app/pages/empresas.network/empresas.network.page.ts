@@ -29,7 +29,6 @@ export class EmpresasNetworkPage implements OnInit {
   cargandoPromociones = true;
   cargandoEmpresas = true;
 
-  // Empresa actualmente seleccionada (para filtrar)
   empresaActualId: number | null = null;
 
   constructor(
@@ -45,19 +44,16 @@ export class EmpresasNetworkPage implements OnInit {
     this.cargandoPromociones = true;
     this.cargandoEmpresas = true;
 
-    // 1) Obtener usuario para tener el ID (si lo ocupas en otros lados)
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         const user = response.data;
         this.UsuarioID = user.id;
 
-        // 2) Cargar empresas del usuario
         this.empresaService.getAllEmpresasByUsuarioId(this.UsuarioID).subscribe({
           next: (data) => {
             this.empresas = data.data || [];
             this.cargandoEmpresas = false;
 
-            // 3) Seleccionar por defecto la primera empresa y cargar sus promociones
             if (this.empresas.length > 0) {
               this.empresaActualId = Number(this.empresas[0].id);
               this.cargarPromosEmpresa(this.empresaActualId);
@@ -75,14 +71,12 @@ export class EmpresasNetworkPage implements OnInit {
         });
       },
       error: _ => {
-        // si fallara el usuario, no bloquees la UI
         this.cargandoEmpresas = false;
         this.cargandoPromociones = false;
       }
     });
   }
 
-  // Cambiar empresa al tocar la tarjeta
   seleccionarEmpresa(item: Empresa) {
     const id = Number((item as any)?.id);
     if (!id || id === this.empresaActualId) return;
@@ -90,7 +84,6 @@ export class EmpresasNetworkPage implements OnInit {
     this.cargarPromosEmpresa(id);
   }
 
-  // Pide SOLO las promos/productos de esa empresa (server-side filtered)
   private cargarPromosEmpresa(empresaId: number) {
     this.cargandoPromociones = true;
     this.promocionesService.GetPromocionesEmpresa(empresaId).subscribe({
@@ -127,12 +120,30 @@ export class EmpresasNetworkPage implements OnInit {
       },
     });
 
+    console.groupCollapsed('📦 Promos recibidas');
+    (this.promociones as any[]).forEach((p,i) => {
+      const lvlKeys = ['nivel_1','nivel_2','nivel_3','nivel_4','nivel_base','nivel_master',
+                       'nivel1','nivel2','nivel3','nivel4','nivelInvitacion','nivelMaster'];
+      const lvlSum = lvlKeys.reduce((a,k)=>a+(Number(p[k])||0),0);
+      console.table([{
+        idx: i,
+        id: p.id ?? p.ID,
+        nombre: p.nombre ?? p.Nombre,
+        tipoComision: p.tipoComision ?? p.TipoComision,
+        comisionCantidad: p.comisionCantidad ?? p.ComisionCantidad,
+        comisionPorcentaje: p.comisionPorcentaje ?? p.ComisionPorcentaje,
+        comisionStr: p.comision,
+        precio: p.precio ?? p.Precio,
+        lvlSum,
+        keys: Object.keys(p).join(',')
+      }]);
+    });
+    console.groupEnd();
+
     await modal.present();
 
     const { data } = await modal.onDidDismiss();
     if (data) {
-      // si necesitas refrescar, puedes volver a llamar cargarPromosEmpresa(this.empresaActualId!)
-      // this.empresaActualId && this.cargarPromosEmpresa(this.empresaActualId);
       console.log(data);
     }
   }

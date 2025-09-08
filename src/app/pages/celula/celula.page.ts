@@ -31,6 +31,7 @@ export class CelulaPage implements OnInit {
   ) {}
 
   @ViewChild('miniSvg', { static: false }) miniSvg!: ElementRef<SVGSVGElement>;
+    @ViewChild('miniViewport', { static: false }) miniViewport!: ElementRef<HTMLDivElement>;
 
   celula: MiCelulaDisplay | null = null;
   UsuarioID = 0;
@@ -208,4 +209,133 @@ export class CelulaPage implements OnInit {
     });
     await modal.present();
   }
+
+  /* ====== Zoom/Pan state ====== */
+  zoom = 1;
+  panX = 0;
+  panY = 0;
+  readonly minZoom = 0.5;
+  readonly maxZoom = 3;
+
+  /* gesto */
+  private isPanning = false;
+  private startPanX = 0;
+  private startPanY = 0;
+  private pointerStartX = 0;
+  private pointerStartY = 0;
+
+  /* pinch */
+  private isPinching = false;
+  private pinchStartDist = 0;
+  private pinchStartZoom = 1;
+  private pinchCenter = { x: 0, y: 0 };
+
+  get svgTransform() {
+    // SVG usa espacio separador
+    return `translate(${this.panX} ${this.panY}) scale(${this.zoom})`;
+  }
+
+  /* ====== Helpers de zoom ====== */
+  private clamp(v:number, a:number, b:number){ return Math.max(a, Math.min(b, v)); }
+
+  zoomIn(step=0.15){ this.setZoom(this.zoom + step); }
+  zoomOut(step=0.15){ this.setZoom(this.zoom - step); }
+
+  resetView(){
+    this.zoom = 1; this.panX = 0; this.panY = 0;
+  }
+
+  fitToViewport(){
+    const vp = this.miniViewport?.nativeElement;
+    if(!vp) return;
+    // margen visual
+    const pad = 16;
+    const vw = vp.clientWidth - pad*2;
+    const vh = vp.clientHeight - pad*2;
+    const scale = this.clamp(Math.min(vw/this.miniWidth, vh/this.miniHeight), this.minZoom, this.maxZoom);
+    this.zoom = scale;
+    // centrado
+    this.panX = (vw - this.miniWidth*scale)/2;
+    this.panY = (vh - this.miniHeight*scale)/2;
+  }
+
+  private setZoom(next:number, origin?:{x:number,y:number}){
+    const old = this.zoom;
+    const nz = this.clamp(next, this.minZoom, this.maxZoom);
+    if(!origin){
+      this.zoom = nz;
+      return;
+    }
+    // zoom alrededor de un punto (ajusta pan para mantener el origen fijo)
+    const k = nz/old;
+    this.panX = origin.x - k*(origin.x - this.panX);
+    this.panY = origin.y - k*(origin.y - this.panY);
+    this.zoom = nz;
+  }
+
+  /* ====== Interacción: rueda / doble tap ====== */
+  onWheel(ev:WheelEvent){
+    ev.preventDefault();
+    const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+    const origin = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+    const delta = (ev.deltaY>0) ? -0.15 : 0.15;
+    this.setZoom(this.zoom + delta, origin);
+  }
+
+  onDoubleTap(ev: MouseEvent){
+    const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+    const origin = { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+    this.setZoom(this.zoom + 0.25, origin);
+  }
+
+  /* ====== Interacción: pan con pointer ====== */
+  onPointerDown(ev: PointerEvent){
+    (ev.currentTarget as HTMLElement).setPointerCapture(ev.pointerId);
+    this.isPanning = true;
+    this.pointerStartX = ev.clientX;
+    this.pointerStartY = ev.clientY;
+    this.startPanX = this.panX;
+    this.startPanY = this.panY;
+  }
+  onPointerMove(ev: PointerEvent){
+    if(!this.isPanning || this.isPinching) return;
+    this.panX = this.startPanX + (ev.clientX - this.pointerStartX);
+    this.panY = this.startPanY + (ev.clientY - this.pointerStartY);
+  }
+  onPointerUp(_: PointerEvent){
+    this.isPanning = false;
+  }
+
+  /* ====== Pinch (touch) ====== */
+  private dist(t1:Touch,t2:Touch){
+    const dx = t1.clientX - t2.clientX;
+    const dy = t1.clientY - t2.clientY;
+    return Math.hypot(dx,dy);
+  }
+  private center(t1:Touch,t2:Touch, host:DOMRect){
+    return { x: ((t1.clientX+t2.clientX)/2) - host.left,
+            y: ((t1.clientY+t2.clientY)/2) - host.top };
+  }
+
+  onTouchStart(ev: TouchEvent){
+    if(ev.touches.length===2){
+      const rect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+      this.isPinching = true;
+      this.pinchStartDist = this.dist(ev.touches[0], ev.touches[1]);
+      this.pinchStartZoom = this.zoom;
+      this.pinchCenter = this.center(ev.touches[0], ev.touches[1], rect);
+    }
+  }
+  onTouchMove(ev: TouchEvent){
+    if(this.isPinching && ev.touches.length===2){
+      ev.preventDefault();
+      const d = this.dist(ev.touches[0], ev.touches[1]);
+      const factor = d / this.pinchStartDist;
+      this.setZoom(this.pinchStartZoom*factor, this.pinchCenter);
+    }
+  }
+  onTouchEnd(_: TouchEvent){
+    this.isPinching = false;
+  }
+
 }
