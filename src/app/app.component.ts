@@ -1,6 +1,5 @@
+// src/app/app.component.ts
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
-import { NavController } from '@ionic/angular';
 import { TokenService } from './services/token.service';
 
 @Component({
@@ -10,18 +9,10 @@ import { TokenService } from './services/token.service';
   standalone: false
 })
 export class AppComponent implements OnInit {
-  constructor(
-    private tokenService: TokenService,
-    private nav: NavController,
-    private router: Router
-  ) {}
+  constructor(private tokenService: TokenService) {}
 
   async ngOnInit() {
-    // Asegura que Ionic Storage esté listo
+    // Solo inicializa storage/token; NO navegues aquí
     await this.tokenService.init();
-
-    // Decide ruta inicial SIN dejar historial previo
-    const logged = await this.tokenService.isLoggedIn();
-    await this.nav.navigateRoot(logged ? '/dashboard' : '/login');
   }
 }

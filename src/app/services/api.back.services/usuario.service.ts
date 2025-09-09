@@ -1,7 +1,9 @@
+// src/app/services/api.back.services/usuario.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
+
 import { LoginUsuarioDTO } from 'src/app/models/DTOs/LoginUsuarioDTO';
 import { UsuarioDTO, UsuarioRegistrarBasicoDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
@@ -12,8 +14,8 @@ import { UsuarioCelula } from 'src/app/models/DTOs/CelulaDTO';
 
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  private apiUrlUsuario = `${environment.apiUrl}api/Usuario`;
-  private apiUrlEmbajadores = `${environment.apiUrl}api/Embajadores`;
+  private apiUrlUsuario      = `${environment.apiUrl}api/Usuario`;
+  private apiUrlEmbajadores  = `${environment.apiUrl}api/Embajadores`;
 
   constructor(private http: HttpClient) {}
 
@@ -23,6 +25,7 @@ export class UsuarioService {
     return { headers };
   }
 
+  // ------------------- AUTH -------------------
   login(user: LoginUsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<string>> {
     return this.http.post<GenericResponseDTO<string>>(
       `${this.apiUrlUsuario}/Login`,
@@ -31,33 +34,15 @@ export class UsuarioService {
     );
   }
 
-   getInvitacionesResumen(embajadorId: number, skipErrorHandler = false) {
-      return this.http.get<ResumenInvitadosDTO>(
-        `${this.apiUrlEmbajadores}/InvitadosResumen`,
-        {
-          params: new HttpParams().set('embajadorId', String(embajadorId)),
-          ...this.makeHeaders(skipErrorHandler)
-        }
-      );
-    }
-
-  
-
-  // ✅ FIX: usar apiUrlUsuario y devolver GenericResponseDTO<boolean>
-  updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
-    return this.http.post<GenericResponseDTO<boolean>>(
-      `${this.apiUrlUsuario}/Save`,
-      user,
-      this.makeHeaders(skipErrorHandler)
+  // ------------------- INVITACIONES -------------------
+  getInvitacionesResumen(embajadorId: number, skipErrorHandler = false) {
+    return this.http.get<ResumenInvitadosDTO>(
+      `${this.apiUrlEmbajadores}/InvitadosResumen`,
+      {
+        params: new HttpParams().set('embajadorId', String(embajadorId)),
+        ...this.makeHeaders(skipErrorHandler)
+      }
     );
-  }
-
-  postOnboardingA(user: UsuarioDTO): Observable<boolean> {
-    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingA`, user);
-  }
-
-  postOnboardingB(user: UsuarioDTO): Observable<boolean> {
-    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingB`, user);
   }
 
   registerCodigoInvitacion(
@@ -71,6 +56,7 @@ export class UsuarioService {
     );
   }
 
+  // ------------------- PASSWORD -------------------
   passwordRecovery(model: PasswordRecoveryDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
     return this.http.post<GenericResponseDTO<boolean>>(
       `${this.apiUrlUsuario}/PasswordRecovery`,
@@ -87,7 +73,9 @@ export class UsuarioService {
     );
   }
 
-  getUsuario(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
+  // ------------------- USUARIO / PERFIL -------------------
+  /** PERFIL del usuario logueado (anti-caché y con tipado) */
+  getUsuarioLogeado(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
     let headers = new HttpHeaders()
       .set('ngsw-bypass', 'true')
       .set('Cache-Control', 'no-cache')
@@ -95,20 +83,38 @@ export class UsuarioService {
 
     if (skipErrorHandler) headers = headers.set('skipErrorHandler', 'true');
 
-    const url = `${this.apiUrlUsuario}/GetUsuarioLogeado?t=${Date.now()}`; // rompe-caché
+    const url = `${this.apiUrlUsuario}/GetUsuarioLogeado?t=${Date.now()}`;
     return this.http.get<GenericResponseDTO<Usuario>>(url, { headers });
   }
 
+  /** Wrapper por compatibilidad con código existente */
+  getUsuario(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
+    return this.getUsuarioLogeado(skipErrorHandler);
+  }
 
+  updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
+    return this.http.post<GenericResponseDTO<boolean>>(
+      `${this.apiUrlUsuario}/Save`,
+      user,
+      this.makeHeaders(skipErrorHandler)
+    );
+  }
 
-  // ✅ FIX: HttpParams como string
+  postOnboardingA(user: UsuarioDTO): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingA`, user);
+  }
+
+  postOnboardingB(user: UsuarioDTO): Observable<boolean> {
+    return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingB`, user);
+  }
+
+  // ------------------- CÉLULA -------------------
   getCelulaLocal(userID: number): Observable<UsuarioCelula> {
     return this.http.get<UsuarioCelula>(`${this.apiUrlUsuario}/GetCelulaLocal`, {
       params: new HttpParams().set('UsuarioID', String(userID))
     });
   }
 
-  // ✅ Usa base URL correcta + HttpParams como string
   getMiCelula(yoId: number, limit = 4): Observable<MiCelulaDisplay> {
     return this.http.get<MiCelulaDisplay>(`${this.apiUrlEmbajadores}/miCelula`, {
       params: new HttpParams()
@@ -116,28 +122,22 @@ export class UsuarioService {
         .set('limit', String(limit))
     });
   }
-   
 }
 
-
-
-
-// ------------ Invitado resumen
-// Tipos
+// ------------ Invitado resumen (tipos) -------------
 export interface InvitadoResumen {
-  fechaInvitacion: string;          // ISO
-  fechaInvitacionTexto?: string;    // lo llenamos en el front
+  fechaInvitacion: string;
+  fechaInvitacionTexto?: string;
   nombre: string;
   estatus: 'Pendiente' | 'Aceptado' | string;
 }
 export interface ResumenInvitadosDTO {
-  embajadoresInvitados: InvitadoResumen[];  // PENDIENTES
-  aceptados: number;                        // X/2
-  embajadoresAceptados: InvitadoResumen[];  // ACEPTADOS (nuevo)
+  embajadoresInvitados: InvitadoResumen[];
+  aceptados: number;
+  embajadoresAceptados: InvitadoResumen[];
 }
 
-
-// Tipos del endpoint
+// ------------ Mi Célula (tipos) -------------
 export interface NodoCelulaDTO {
   usuarioId: number;
   nombre: string;

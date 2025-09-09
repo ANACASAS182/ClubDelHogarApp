@@ -149,39 +149,44 @@ export class LoginPage implements OnInit, OnDestroy {
       await this.tokenService.saveToken(loginResp.data);
 
       // 2) Perfil
-      let nombre = '';
-      try {
-        const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
-        if (pr?.success && pr?.data) {
-          const u = pr.data as Usuario;
+let nombre = '';
+let needsOnboarding = false;
+try {
+  const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
+  if (pr?.success && pr?.data) {
+    const u = pr.data as Usuario;
 
-          if ((u as any).rolesID === 1) {
-            this.hasError = true;
-            this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
-            await this.tokenService.removeToken();
-            localStorage.removeItem('usuario-actual');
-            return;
-          }
-          nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
-        }
-      } catch { /* ignora si falla el perfil */ }
-
-      // 3) Guardar/limpiar según la casilla
-      if (recordar) await this.savePrefs(credenciales.email, credenciales.password, nombre);
-      else          await this.clearPrefs();
-
-      // 4) Navegar
-      await this.router.navigate(['/dashboard'], { replaceUrl: true });
-      this.hasError = false;
-      this.messageError = '';
-    } catch (err: any) {
+    // bloquea Admin en este panel (lo mantengo)
+    if ((u as any).rolesID === 1) {
       this.hasError = true;
-      this.messageError = this.parseLoginError(err);
-    } finally {
-      this.formEnviado = false;
-      this.iniciandoSesion = false;
+      this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
+      await this.tokenService.removeToken();
+      localStorage.removeItem('usuario-actual');
+      return;
     }
-  }
+
+    nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+    // 👇 clave: usar bandera del back
+    needsOnboarding = !!(u as any)?.mostrarOnboarding;
+    }
+  } catch { /* ignora fallo de perfil, deja needsOnboarding en false */ }
+
+  // 3) Guardar/limpiar recuerdame (igual que tienes)
+  if (recordar) await this.savePrefs(credenciales.email, credenciales.password, nombre);
+  else          await this.clearPrefs();
+
+  // 4) Navegar según estado
+  await this.router.navigate([needsOnboarding ? '/onboarding' : '/dashboard'], { replaceUrl: true });
+        this.hasError = false;
+        this.messageError = '';
+      } catch (err: any) {
+        this.hasError = true;
+        this.messageError = this.parseLoginError(err);
+      } finally {
+        this.formEnviado = false;
+        this.iniciandoSesion = false;
+      }
+    }
 
   // UI helpers
   toggleRemember() { this.rememberFlag = !this.rememberFlag; }

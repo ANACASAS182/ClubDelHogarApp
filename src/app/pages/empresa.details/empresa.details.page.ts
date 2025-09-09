@@ -175,7 +175,7 @@ private asTipoStrict(val: any): 0 | 1 | null {
             this.descripcionEmpresa = emp.descripcion;
             this.nombreComercial = emp.nombreComercial;
 
-            // 👈 usa Base64 si viene, si no, usa la ruta
+            // usa Base64 si viene, si no, usa la ruta
             this.logoEmpresa = this.normalizeLogo(emp.logotipoBase64 ?? emp.logotipoPath);
         }
         });
