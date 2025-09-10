@@ -21,9 +21,17 @@
     <strong>Referencias generadas</strong>
   </ion-item>
 
-  <ion-item *ngIf="!cargandoReferidos && referidos.length == 0">
-    Aún no tienes referidos, promociona los productos para crear referidos y generar ingresos
-  </ion-item>
+  <ion-item *ngIf="!cargandoReferidos && referidos.length == 0" lines="none">
+  <div class="empty-msg">
+    <ion-icon name="rocket-outline" class="empty-icon"></ion-icon>
+    <div>
+      <strong>Sin referidos todavía</strong><br />
+      <span>Comparte tus productos y convierte a tus contactos en ingresos.  
+      ¡Entre más invites, más ganas!</span>
+    </div>
+  </div>
+</ion-item>
+
 
   <ng-container *ngFor="let referido of referidos">
     <ion-item (click)="abrirModalVisualizacion(referido)">

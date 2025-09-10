@@ -184,3 +184,25 @@ ion-badge[color="success"] {
   .referido-ultimo-seg .seg-text { font-size: .85rem; }
 }
 
+.empty-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  white-space: normal;
+  color: #444;
+  font-size: .9rem;
+  line-height: 1.4;
+  padding: 8px 0;
+}
+
+.empty-msg strong {
+  font-size: 1rem;
+  color: #222;
+}
+
+.empty-icon {
+  font-size: 22px;
+  color: #1f8d2e;
+  flex-shrink: 0;
+  margin-top: 2px;
+}

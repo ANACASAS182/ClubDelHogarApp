@@ -17,24 +17,39 @@
     border-color: var(--ion-color-danger, red);
 }
 
-.file-drop {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+.file-drop{
+  display:flex; 
+  align-items:center; 
+  gap:12px; 
+  flex-wrap:wrap;
+  width:100%;
 }
-.file-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: 30px;
-  background: #f1f1f1;
-  border: 1px solid #d6d6d6;
-  cursor: pointer;
-  font-weight: 600;
-  color: #111822;
+
+.file-btn{
+  display:flex; align-items:center; gap:10px;
+  max-width:100%;
+  padding:10px 14px;
+  border-radius:16px;
+  background:#f7f7f9;
+  border:1px solid #dcdde1;
+  cursor:pointer; font-weight:600; color:#111822;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
+
+.file-btn:hover{ border-color:#b9bbc2; box-shadow:0 4px 14px rgba(0,0,0,.06); }
+
+.icon-circle{
+  width:36px; height:36px;
+  border-radius:50%;
+  border:2px solid #d3d7df;         /* 👈 círculo visible */
+  background:#fff;
+  display:grid; place-items:center;
+  flex:0 0 auto;
+}
+
+.icon-circle ion-icon{ font-size:20px; color:#1f8d2e; }
+
+
 .file-btn ion-icon { font-size: 18px; }
 .file-clear {
   border: none;
@@ -43,6 +58,24 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.file-name{
+  min-width:0; max-width:calc(100% - 46px);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+
+.file-btn.has-file .icon-circle{
+  border-color:#28a74533; background:#eaf8ef;
+}
+
+.file-btn.has-file .icon-circle ion-icon{ color:#2d9f4d; }
+
+.file-clear{
+  border:none; background:transparent; color:#c0392b;
+  font-weight:700; cursor:pointer;
+}
+
+.file-help{ opacity:.7; display:block; margin-top:4px; }
 
 .toast-embassy {
   --background: #27ae60; /* verde */

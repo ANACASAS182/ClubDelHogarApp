@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { AlertController, ModalController, ToastController } from '@ionic/angular';
 import { finalize } from 'rxjs';
+
 import { BancoUsuarioRegistroModalComponent } from 'src/app/modals/banco.usuario.registro.modal/banco.usuario.registro.modal.component';
 import { BancoUsuario } from 'src/app/models/BancoUsuario';
 import { CatalogoEstado } from 'src/app/models/CatalogoEstado';
@@ -11,6 +12,13 @@ import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { Usuario } from 'src/app/models/Usuario';
 import { BancoUsuarioService } from 'src/app/services/api.back.services/banco.usuario.service';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
+
+// === NUEVO: servicio fiscal
+import { FiscalService, UsuarioFiscal } from 'src/app/services/api.back.services/fiscal.service';
+
+// === Regex de validación fiscal
+const RFC_REGEX  = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
+const CURP_REGEX = /^[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i;
 
 @Component({
   selector: 'app-configuracion',
@@ -29,15 +37,18 @@ export class ConfiguracionPage implements OnInit {
 
   // alert
   mostrarAlerta = false;
-  botonesAlerta = [];
+  botonesAlerta: any[] = [];
   fechaRegistro: Date | undefined = undefined;
 
   // ===== Datos fiscales =====
-  // Si quieres validar formato de RFC más adelante, habilita el pattern.
-  // private readonly RFC_REGEX = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
-
   constanciaFile?: File | null = null;
   constanciaLabel = 'Subir constancia (PDF)';
+
+  // NUEVO: estado fiscal
+  regimenes: Array<{ clave: string; descripcion: string }> = [];
+  cargandoFiscal = false;
+  guardandoFiscal = false;
+  subiendoConstancia = false;
 
   constructor(
     private fb: FormBuilder,
@@ -46,7 +57,8 @@ export class ConfiguracionPage implements OnInit {
     private route: ActivatedRoute,
     private modalCtrl: ModalController,
     private bancoUsuarioService: BancoUsuarioService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private fiscalService: FiscalService   // NUEVO
   ) {
 
     this.formulario = this.fb.group({
@@ -59,12 +71,12 @@ export class ConfiguracionPage implements OnInit {
       estadoTexto: [""],
       email: ["", [Validators.required, Validators.email]],
 
-      // ===== Datos fiscales (NINGUNO obligatorio por ahora) =====
+      // ===== Datos fiscales =====
       nombreSat: [""],
-      rfc: [""],          // Validators.pattern(this.RFC_REGEX) si luego lo pides
-      curp: [""],
-      cpFiscal: [""],
-      regimenFiscal: [""], // catálogo o texto libre según tu preferencia
+      rfc: ["", [Validators.pattern(RFC_REGEX)]],
+      curp: ["", [Validators.pattern(CURP_REGEX)]],
+      cpFiscal: ["", [Validators.pattern(/^\d{5}$/)]],
+      regimenFiscal: [""],
     });
   }
 
@@ -96,9 +108,36 @@ export class ConfiguracionPage implements OnInit {
 
           // fiscales (defaults)
           nombreSat: nombreFull,
-          // rfc / curp / cpFiscal / regimenFiscal los dejamos tal cual (vacíos) hasta que el user los edite
         });
       }
+    });
+
+    // ====== Cargar catálogo y mis datos fiscales ======
+    this.cargandoFiscal = true;
+    this.fiscalService.getRegimenes('F').subscribe({
+      next: r => this.regimenes = r.data || [],
+      error: _ => this.toast('No se pudo cargar el catálogo de regímenes', 'danger'),
+      complete: () => this.cargandoFiscal = false
+    });
+
+    this.fiscalService.getMisDatos().subscribe({
+      next: r => {
+        const d = r.data;
+        if (d) {
+          this.formulario.patchValue({
+            nombreSat: d.nombreSAT,
+            rfc: d.rfc,
+            curp: d.curp,
+            cpFiscal: d.codigoPostal,
+            regimenFiscal: d.regimenClave
+          });
+          if (d.constanciaPath) {
+            const nombre = d.constanciaPath.split(/[\\/]/).pop() ?? '';
+            if (nombre) this.constanciaLabel = nombre;
+          }
+        }
+      },
+      error: _ => this.toast('No se pudo cargar tus datos fiscales', 'danger')
     });
   }
 
@@ -154,13 +193,7 @@ export class ConfiguracionPage implements OnInit {
     this.bancoUsuarioService.delete(id).subscribe({
       next: (response: GenericResponseDTO<boolean>) => {
         if (response) {
-          this.toastController.create({
-            message: "Cambios guardados.",
-            duration: 3000,
-            cssClass: 'toast-embassy',
-            position: 'top'
-          }).then(toast => toast.present());
-
+          this.toast("Cambios guardados.", 'success');
           this.obtenerBancos();
         }
       }
@@ -193,10 +226,7 @@ export class ConfiguracionPage implements OnInit {
       finalize(() => { this.formUsuarioEnviado = false; })
     ).subscribe({
       next: (_res: GenericResponseDTO<boolean>) => {
-        this.toastController.create({
-          message: "Cambios guardados.",
-          duration: 3000, color: "success", position: 'top'
-        }).then(toast => toast.present());
+        this.toast("Cambios guardados.", 'success');
       }
     });
   }
@@ -209,10 +239,8 @@ export class ConfiguracionPage implements OnInit {
     if (!file) return;
 
     if (file.type !== 'application/pdf') {
-      this.toastController.create({
-        message: 'Solo se admite PDF.',
-        duration: 2500, color: 'danger', position: 'top'
-      }).then(t => t.present());
+      this.toast('Solo se admite PDF.', 'danger');
+      input.value = '';
       return;
     }
 
@@ -227,24 +255,43 @@ export class ConfiguracionPage implements OnInit {
     if (el) el.value = '';
   }
 
-  guardarDatosFiscales() {
-    // Si tu backend acepta multipart/form-data, arma el FormData:
-    //
-    // const fd = new FormData();
-    // fd.append('nombreSat', this.formulario.value.nombreSat ?? '');
-    // fd.append('rfc',        this.formulario.value.rfc ?? '');
-    // fd.append('curp',       this.formulario.value.curp ?? '');
-    // fd.append('cpFiscal',   this.formulario.value.cpFiscal ?? '');
-    // fd.append('regimenFiscal', this.formulario.value.regimenFiscal ?? '');
-    // if (this.constanciaFile) fd.append('constanciaPdf', this.constanciaFile);
-    // this.usuarioService.updateDatosFiscales(fd).subscribe(...);
-    //
-    // De momento, feedback visual:
-    this.toastController.create({
-      message: 'Datos fiscales guardados (UI).',
-      duration: 3000, color: 'success', position: 'top'
-    }).then(t => t.present());
+  guardarDatosFiscales(): void {
+    if (this.guardandoFiscal) return;
+
+    const dto: UsuarioFiscal = {
+      nombreSAT: (this.formulario.value.nombreSat || '').trim(),
+      rfc: (this.formulario.value.rfc || '').toUpperCase().trim(),
+      curp: (this.formulario.value.curp || '').toUpperCase().trim(),
+      codigoPostal: (this.formulario.value.cpFiscal || '').trim(),
+      regimenClave: (this.formulario.value.regimenFiscal || '').trim()
+    };
+
+    // Validaciones suaves (si llenó, que sea válido)
+    if (dto.rfc && !RFC_REGEX.test(dto.rfc)) { this.toast('RFC inválido', 'danger'); return; }
+    if (dto.curp && !CURP_REGEX.test(dto.curp)) { this.toast('CURP inválida', 'danger'); return; }
+    if (dto.codigoPostal && !/^\d{5}$/.test(dto.codigoPostal)) { this.toast('CP inválido', 'danger'); return; }
+
+    this.guardandoFiscal = true;
+    this.fiscalService.guardar(dto)
+      .pipe(finalize(() => this.guardandoFiscal = false))
+      .subscribe({
+        next: _ => {
+          this.toast('Datos fiscales guardados', 'success');
+
+          if (this.constanciaFile) {
+            this.subiendoConstancia = true;
+            this.fiscalService.subirConstancia(this.constanciaFile)
+              .pipe(finalize(() => this.subiendoConstancia = false))
+              .subscribe({
+                next: _r => this.toast('Constancia subida', 'success'),
+                error: _e => this.toast('No se pudo subir el PDF', 'danger')
+              });
+          }
+        },
+        error: _ => this.toast('Error al guardar datos fiscales', 'danger')
+      });
   }
+
 
   /* ================= Utils ================= */
 
@@ -273,5 +320,13 @@ export class ConfiguracionPage implements OnInit {
     horas = horas ? horas : 12;
     const horaFormateada = horas.toString().padStart(2, '0');
     return `${dia} de ${mes} del ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
+  }
+
+  // toast helper
+  private async toast(message: string, color: 'success' | 'danger' | 'warning' | 'primary' = 'primary') {
+    const t = await this.toastController.create({
+      message, duration: 3000, color, position: 'top', cssClass: 'toast-embassy'
+    });
+    await t.present();
   }
 }

@@ -61,13 +61,17 @@
           </ion-col>
 
           <ion-col size="12" size-md="4" *ngIf="isNacional">
-            <ion-select class="embassy_input" [interfaceOptions]="{ header: 'Estado'}" okText="Ok" cancelText="Cancelar" label-placement="floating" label="Estado" [class.invalid]="getControl('estado')?.invalid && getControl('estado')?.touched"
-              formControlName="estado" placeholder="Estado" 
-              (ionBlur)="getControl('estado')?.markAsTouched()">
-              <ion-select-option *ngFor="let estad of estados" [value]="estad.id">
-                {{ estad.nombre }}
+            <ion-select
+              class="embassy_input"
+              label-placement="floating"
+              label="Régimen fiscal"
+              formControlName="regimenFiscal"
+              placeholder="Seleccionar">
+              <ion-select-option *ngFor="let r of regimenes" [value]="r.clave">
+                {{ r.clave }} — {{ r.descripcion }}
               </ion-select-option>
             </ion-select>
+
             <ion-text color="danger" *ngIf="getControl('estado')?.invalid && getControl('estado')?.touched">
               Campo requerido
             </ion-text>
@@ -199,22 +203,29 @@
             <div class="file-drop">
               <input id="constanciaInput" type="file" accept="application/pdf"
                     (change)="onConstanciaSelected($event)" hidden>
-              <label for="constanciaInput" class="file-btn">
-                <ion-icon name="cloud-upload-outline"></ion-icon>
-                <span>{{ constanciaLabel }}</span>
+              <label for="constanciaInput"
+                    class="file-btn"
+                    [ngClass]="{ 'has-file': !!constanciaFile }">
+                <span class="icon-circle">
+                  <ion-icon [name]="constanciaFile ? 'document-attach-outline' : 'cloud-upload-outline'"></ion-icon>
+                </span>
+                <span class="file-name" [title]="constanciaLabel">{{ constanciaLabel }}</span>
               </label>
-              <button *ngIf="constanciaFile" type="button" class="file-clear" (click)="clearConstancia()">
+
+              <button *ngIf="constanciaFile" type="button" class="file-clear">
                 Quitar PDF
               </button>
             </div>
-            <small style="opacity:.7">Adjunta tu Constancia de situación fiscal (PDF).</small>
+            <small class="file-help">Adjunta tu Constancia de situación fiscal (PDF).</small>
           </ion-col>
         </ion-row>
       </ion-grid>
 
       <div class="ion-padding-top ion-text-center">
-        <ion-button class="customButton" shape="default" (click)="guardarDatosFiscales()">
-          GUARDAR DATOS FISCALES
+        <ion-button class="customButton" shape="default"
+            (click)="guardarDatosFiscales()"
+            [disabled]="guardandoFiscal || subiendoConstancia">
+          {{ guardandoFiscal ? 'Guardando...' : (subiendoConstancia ? 'Subiendo PDF...' : 'GUARDAR DATOS FISCALES') }}
         </ion-button>
       </div>
     </ion-card-content>
