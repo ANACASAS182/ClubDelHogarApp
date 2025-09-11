@@ -30,6 +30,7 @@
       </ion-col>
     </ion-row>
 
+    <!-- EMPRESAS -->
     <ion-row>
       <ion-col
         size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2"
@@ -62,14 +63,16 @@
       </ion-col>
     </ion-row>
 
+    <!-- PROMOCIONES / PRODUCTOS -->
     <ion-row>
       <ion-col
         size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
         *ngFor="let promocion of promociones">
-        <ion-card (click)="abrirModalPromocion(promocion)" class="ion-card-embassy">
+        <ion-card class="ion-card-embassy">
           <app-producto
             [promocion]="promocion"
-            (addClicked)="abrirModalAgregar(promocion)">
+            (addClicked)="abrirModalAgregar(promocion)"
+            (qrClicked)="abrirModalPromocion(promocion)">
           </app-producto>
         </ion-card>
       </ion-col>

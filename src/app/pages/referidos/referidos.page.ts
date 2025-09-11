@@ -14,6 +14,9 @@ import { ReferidoService } from 'src/app/services/api.back.services/referido.ser
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { ModalAlerReferidoService } from 'src/app/services/modal.alert.referido.service';
 
+import { QrReferidoModalComponent } from 'src/app/modals/qr-referido.modal/qr-referido.modal.component';
+
+
 @Component({
   selector: 'app-referidos',
   templateUrl: './referidos.page.html',
@@ -171,6 +174,15 @@ export class ReferidosPage implements OnInit, AfterViewInit {
 
     const { data } = await modal.onDidDismiss();
     if (data) this.cargarReferidos();
+  }
+
+  async abrirQr(model: ReferidoDTO) {
+    const modal = await this.modalCtrl.create({
+      component: QrReferidoModalComponent,
+      cssClass: 'modal-redondeado',
+      componentProps: { referidoId: model.id, referidoNombre: model.nombreCompleto }
+    });
+    await modal.present();
   }
 
   async abrirModalVisualizacion(model: ReferidoDTO) {

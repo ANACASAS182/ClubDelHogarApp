@@ -206,3 +206,21 @@ ion-badge[color="success"] {
   flex-shrink: 0;
   margin-top: 2px;
 }
+
+.referido-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.referido-comision {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-qr {
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  height: 30px;
+}

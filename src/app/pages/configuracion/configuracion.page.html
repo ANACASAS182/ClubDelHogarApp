@@ -203,20 +203,32 @@
             <div class="file-drop">
               <input id="constanciaInput" type="file" accept="application/pdf"
                     (change)="onConstanciaSelected($event)" hidden>
+
+              <!-- Botón de subir SIEMPRE visible -->
               <label for="constanciaInput"
                     class="file-btn"
-                    [ngClass]="{ 'has-file': !!constanciaFile }">
+                    [ngClass]="{ 'has-file': tieneConstancia }">
                 <span class="icon-circle">
-                  <ion-icon [name]="constanciaFile ? 'document-attach-outline' : 'cloud-upload-outline'"></ion-icon>
+                  <ion-icon [name]="tieneConstancia ? 'document-attach-outline' : 'cloud-upload-outline'"></ion-icon>
                 </span>
                 <span class="file-name" [title]="constanciaLabel">{{ constanciaLabel }}</span>
               </label>
 
-              <button *ngIf="constanciaFile" type="button" class="file-clear">
-                Quitar PDF
-              </button>
+              <!-- Acciones cuando existe constancia (servidor o local) -->
+              <div class="file-actions" *ngIf="tieneConstancia">
+                <ion-button size="small" fill="outline" (click)="descargarConstancia()">
+                  <ion-icon name="download-outline" slot="start"></ion-icon>
+                  Descargar
+                </ion-button>
+                <ion-button size="small" color="medium" fill="clear" (click)="clearConstancia()">
+                  Quitar PDF
+                </ion-button>
+              </div>
+
+              <small class="file-help">Adjunta tu Constancia de situación fiscal (PDF).</small>
             </div>
-            <small class="file-help">Adjunta tu Constancia de situación fiscal (PDF).</small>
+
+
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -285,5 +297,24 @@
 
   </ion-card>
 
-
+  <!-- Modal de visualización del PDF 
+  <ion-modal [isOpen]="mostrarPdf" (didDismiss)="mostrarPdf = false">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar>
+          <ion-title>Constancia fiscal</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="mostrarPdf = false">
+              <ion-icon name="close"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+      <ion-content>
+        <iframe *ngIf="pdfUrl"
+                [src]="pdfUrl"
+                style="width:100%;height:85vh;border:0;"></iframe>
+      </ion-content>
+    </ng-template>
+  </ion-modal> -->
 </ion-content>

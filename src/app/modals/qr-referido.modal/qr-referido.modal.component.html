@@ -1,0 +1,30 @@
+<ion-header>
+  <ion-toolbar color="light">
+    <ion-title>QR - {{ referidoNombre }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button fill="clear" (click)="close()">
+        <ion-icon name="close" slot="icon-only"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding qr-modal-content">
+  <div class="qr-card">
+    <div class="qr-image">
+      <img [src]="imgUrl" alt="QR referido" />
+    </div>
+    <div class="qr-code-text">{{ codigo }}</div>
+
+    <div class="qr-actions">
+      <ion-button expand="block" color="primary" (click)="copyCodigo()">
+        <ion-icon name="copy-outline" slot="start"></ion-icon>
+        Copiar código
+      </ion-button>
+      <ion-button expand="block" fill="outline" color="dark" (click)="openInNewTab()">
+        <ion-icon name="open-outline" slot="start"></ion-icon>
+        Abrir imagen
+      </ion-button>
+    </div>
+  </div>
+</ion-content>

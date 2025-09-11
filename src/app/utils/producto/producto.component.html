@@ -1,61 +1,63 @@
-<div style="padding: 16px;">
-  <div style="margin-bottom: 8px;">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="10">
-          <h2 style="margin: 0; font-size: 1.5em;">{{promocion!.nombre}}</h2>
-          <span style="font-size: 0.9em; color: #666;">{{promocion!.empresaNombre}}</span>
-        </ion-col>
-        <ion-col size="2">
-          <img style="width: 100%; border-radius: 4px; border:1px solid #eee;"
-               [src]="promocion?.logotipoBase64" alt="Imagen" (error)="onImgError($event)" />
-        </ion-col>
-      </ion-row>
+<div class="card-inner">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="10">
+        <h2 class="titulo">{{ promocion!.nombre }}</h2>
+        <span class="empresa">{{ promocion!.empresaNombre }}</span>
+      </ion-col>
+      <ion-col size="2">
+        <img class="logo"
+             [src]="promocion?.logotipoBase64"
+             alt="Logo"
+             (error)="onImgError($event)" />
+      </ion-col>
+    </ion-row>
 
-      <ion-row>
-        <ion-col>
-          <p style="margin: 0 0 12px 0; font-size: 1em; color: #444;">
-            {{promocion!.descripcion}}
-          </p>
-        </ion-col>
-      </ion-row>
+    <ion-row>
+      <ion-col>
+        <p class="desc">
+          {{ promocion!.descripcion }}
+        </p>
+      </ion-col>
+    </ion-row>
 
-      <!-- NUEVO bloque referido -->
-        <ion-row>
-          <ion-col>
-            <div class="referido-mini">
-              <span class="referido-title">Referido</span>
+    <!-- Barra simple de acciones -->
+    <ion-row>
+      <ion-col>
+        <div class="ref-row">
+          <span class="ref-label">Referido</span>
 
-              <button type="button" class="btn-mini" (click)="$event.stopPropagation(); onAdd()">
-                <img src="assets/icons/add.png" alt="+" class="btn-icon" />
-                <span>Agregar</span>
-              </button>
+          <div class="ref-actions">
+            <button type="button"
+                    class="btn btn-green"
+                    (click)="$event.stopPropagation(); onAdd()">
+              <img src="assets/icons/add.png" alt="" />
+              <span>Agregar</span>
+            </button>
 
-              <!-- QR genérico (solo visual) -->
-              <div class="qr-chip" (click)="$event.stopPropagation()">
-                <img [src]="qrPlaceholder" alt="QR" />
-              </div>
-            </div>
-          </ion-col>
-        </ion-row>
-
-      <ion-row>
-        <ion-col>
-          <div style="text-align: right;">
-            <small style="font-size: 0.9em; color: #666;">Comisión</small><br />
-            <ng-container *ngIf="tipo === 0; else pctTpl">
-              <span style="font-size: 1.5em; font-weight: bold; color: #007b00;">
-                {{ formatPlano(monto, moneda) }}
-              </span>
-            </ng-container>
-            <ng-template #pctTpl>
-              <span style="font-size: 1.5em; font-weight: bold; color: #007b00;">
-                {{ pct | number:'1.0-2' }}%
-              </span>
-            </ng-template>
+            <button type="button"
+                    class="btn btn-outline"
+                    (click)="$event.stopPropagation(); onQr()">
+              <img [src]="qrPlaceholder" alt="" />
+              <span>Agregar</span>
+            </button>
           </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
-  </div>
+        </div>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <div class="comision">
+          <small>Comisión</small><br />
+          <ng-container *ngIf="tipo === 0; else pctTpl">
+            <span class="valor">{{ formatPlano(monto, moneda) }}</span>
+          </ng-container>
+          <ng-template #pctTpl>
+            <span class="valor">{{ pct | number:'1.0-2' }}%</span>
+          </ng-template>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 </div>

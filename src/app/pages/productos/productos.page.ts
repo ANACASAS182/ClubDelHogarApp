@@ -100,4 +100,6 @@ export class ProductosPage implements OnInit {
     });
     await modal.present();
   }
+
+  
 }

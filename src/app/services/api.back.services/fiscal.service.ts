@@ -47,4 +47,13 @@ export class FiscalService {
     fd.append('file', file, file.name);
     return this.http.post<GenericResponseDTO<{path:string; hash:string}>>(`${this.base}/subir-constancia`, fd);
   }
+
+  /*getConstanciaBlob() {
+  // baseUrl = `${environment.apiUrl}/fiscal`
+    return this.http.get(`${this.base}/constancia`, { responseType: 'blob' });
+  }*/
+
+  descargarConstanciaBlob() {
+    return this.http.get(`${this.base}/constancia/descargar`, { responseType: 'blob' });
+  }
 }

@@ -1,33 +1,27 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonGrid, IonRow, IonCol } from "@ionic/angular/standalone";
+import { IonGrid, IonRow, IonCol, IonIcon } from "@ionic/angular/standalone";
 
 @Component({
   selector: 'app-producto',
   templateUrl: './producto.component.html',
-  imports:[IonGrid, IonRow, IonCol, CommonModule],
   styleUrls: ['./producto.component.scss'],
+  imports:[IonGrid, IonRow, IonCol, IonIcon, CommonModule],
 })
 export class ProductoComponent implements OnInit, OnChanges {
   @Input() promocion: any;
   @Input() debug = false;
-
-  // ⬇️ NUEVO: se emite cuando el usuario quiere “Agregar”
   @Output() addClicked = new EventEmitter<void>();
+  @Output() qrClicked  = new EventEmitter<void>();
 
-   ngOnInit()  { if (this.debug) this.logPromo('OnInit'); }
+  ngOnInit()  { if (this.debug) this.logPromo('OnInit'); }
   ngOnChanges(ch: SimpleChanges) { if (this.debug && ch['promocion']) this.logPromo('OnChanges'); }
 
   onAdd() { this.addClicked.emit(); }
+  onQr()  { this.qrClicked.emit(); }      // <- NUEVO
 
-  // ======== SOLO BDD, PERO ROBUSTO A VARIANTES ========
   private tipoComisionDe(p: any): 0 | 1 {
-    const t =
-      p?.tipoComision ??
-      p?.TipoComision ??
-      p?.producto?.tipoComision ??
-      p?.producto?.TipoComision ??
-      0;
+    const t = p?.tipoComision ?? p?.TipoComision ?? p?.producto?.tipoComision ?? p?.producto?.TipoComision ?? 0;
     const n = Number(t);
     return (n === 1 || t === '1') ? 1 : 0;
   }
@@ -38,15 +32,11 @@ export class ProductoComponent implements OnInit, OnChanges {
   }
 
   /** 0 = MXN, 1 = % */
-  get tipo(): 0 | 1 {
-    return this.tipoComisionDe(this.promocion || {});
-  }
+  get tipo(): 0 | 1 { return this.tipoComisionDe(this.promocion || {}); }
 
   get monto(): number {
     const p = this.promocion || {};
-    const raw =
-      p?.comisionCantidad ?? p?.ComisionCantidad ??
-      p?.producto?.comisionCantidad ?? p?.producto?.ComisionCantidad;
+    const raw = p?.comisionCantidad ?? p?.ComisionCantidad ?? p?.producto?.comisionCantidad ?? p?.producto?.ComisionCantidad;
     const cant = (typeof raw === 'string' && raw.includes('%')) ? 0 : Number(raw) || 0;
     const precio = Number(p?.precio ?? p?.Precio ?? p?.producto?.precio ?? p?.producto?.Precio) || 0;
     const v = cant || precio || 0;
@@ -55,13 +45,10 @@ export class ProductoComponent implements OnInit, OnChanges {
 
   get pct(): number {
     const p = this.promocion || {};
-    let v =
-      Number(p?.comisionPorcentaje ?? p?.ComisionPorcentaje ??
-             p?.producto?.comisionPorcentaje ?? p?.producto?.ComisionPorcentaje) || 0;
-    if (v > 0 && v < 1) v *= 100; // por si alguna vez llega 0–1
+    let v = Number(p?.comisionPorcentaje ?? p?.ComisionPorcentaje ?? p?.producto?.comisionPorcentaje ?? p?.producto?.ComisionPorcentaje) || 0;
+    if (v > 0 && v < 1) v *= 100;
     return Number.isFinite(v) ? v : 0;
   }
-  // =====================================================
 
   private logPromo(tag: string) {
     const p = this.promocion || {};
@@ -88,6 +75,5 @@ export class ProductoComponent implements OnInit, OnChanges {
     (ev.target as HTMLImageElement).src = 'assets/imgs/logo-placeholder.png';
   }
 
-  // ------ QR
   qrPlaceholder = 'assets/icons/codigo-qr.png';
 }

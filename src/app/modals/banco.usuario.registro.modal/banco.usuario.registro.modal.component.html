@@ -1,41 +1,107 @@
-<ion-header translucent="true">
-  <ion-toolbar>
-    <ion-title class="sr-only">Agregar tarjeta</ion-title>
+<ion-header class="modal-header" translucent="true">
+  <div class="accent"></div>
+  <ion-toolbar class="toolbar">
+    <ion-title>Agregar tarjeta bancaria</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="close()">
+      <ion-button fill="clear" class="close-btn" (click)="close()">
         <ion-icon name="close"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
-  <form [formGroup]="formulario">
-    <h2 class="form-title ion-text-center">{{title}} TARJETA BANCARIA</h2>
+<ion-content class="modal-content">
+  <div class="card">
+    <h2 class="card-title">{{ title }} TARJETA BANCARIA</h2>
+    <p class="card-subtitle">Tus datos se guardan de forma segura.</p>
 
-    <ion-input class="embassy_input" label-placement="floating" label="Nombre del titular" [class.invalid]="getControl('titular')?.invalid && getControl('titular')?.touched"
-      formControlName="titular" placeholder="Nombre del titular*" type="text"
-      (ionBlur)="getControl('titular')?.markAsTouched()"></ion-input>
-    <ion-text color="danger" *ngIf="getControl('titular')?.invalid && getControl('titular')?.touched">
-      Campo obligatorio*
-    </ion-text>
+    <form [formGroup]="formulario" class="form">
+      <!-- Titular -->
+      <ion-item lines="none" class="field" [class.invalid]="getControl('titular')?.invalid && getControl('titular')?.touched">
+        <ion-label position="stacked">Nombre del titular</ion-label>
+        <ion-input
+          formControlName="titular"
+          placeholder="Ej. María Pérez López"
+          type="text"
+          (ionBlur)="getControl('titular')?.markAsTouched()">
+        </ion-input>
+      </ion-item>
+      <ion-text color="danger" class="err" *ngIf="getControl('titular')?.invalid && getControl('titular')?.touched">
+        Campo obligatorio*
+      </ion-text>
 
-    <ion-input class="embassy_input" label-placement="floating" label="Banco" [class.invalid]="getControl('banco')?.invalid && getControl('banco')?.touched"
-      formControlName="banco" placeholder="Banco*" type="text"
-      (ionBlur)="getControl('banco')?.markAsTouched()"></ion-input>
-    <ion-text color="danger" *ngIf="getControl('banco')?.invalid && getControl('banco')?.touched">
-      Campo obligatorio*
-    </ion-text>
+      <!-- Banco (select + 'Otro') -->
+      <ion-item lines="none" class="field"
+                [class.invalid]="getControl('banco')?.invalid && getControl('banco')?.touched">
+        <ion-label position="stacked">Banco</ion-label>
+        <ion-select interface="popover"
+                    placeholder="Selecciona un banco"
+                    formControlName="banco">
+          <ion-select-option *ngFor="let b of bancosMx" [value]="b.id">{{ b.nombre }}</ion-select-option>
+          <ion-select-option value="Otro">Otro</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-text color="danger" class="err"
+                *ngIf="getControl('banco')?.invalid && getControl('banco')?.touched">
+        Selecciona un banco*
+      </ion-text>
 
-    <ion-input class="embassy_input" label-placement="floating" label="Número de tarjeta o CLABE" [class.invalid]="getControl('cuenta')?.invalid && getControl('cuenta')?.touched"
-      formControlName="cuenta" placeholder="Número de tarjeta o CLABE*" type="text"
-      (ionBlur)="getControl('cuenta')?.markAsTouched()"></ion-input>
-    <ion-text color="danger" *ngIf="getControl('cuenta')?.invalid && getControl('cuenta')?.touched">
-      Campo obligatorio*
-    </ion-text>
+      <!-- Si 'Otro' => muestra input -->
+      <ion-item lines="none" class="field" *ngIf="isOtro"
+                [class.invalid]="getControl('bancoOtro')?.invalid && getControl('bancoOtro')?.touched">
+        <ion-label position="stacked">Especifica el banco</ion-label>
+        <ion-input formControlName="bancoOtro" placeholder="Nombre del banco" type="text"></ion-input>
+      </ion-item>
+      <ion-text color="danger" class="err"
+                *ngIf="isOtro && getControl('bancoOtro')?.invalid && getControl('bancoOtro')?.touched">
+        Campo obligatorio*
+      </ion-text>
+
+      <!-- Tipo de cuenta -->
+      <ion-item lines="none" class="field"
+                [class.invalid]="getControl('tipoCuenta')?.invalid && getControl('tipoCuenta')?.touched">
+        <ion-label position="stacked">Tipo de cuenta</ion-label>
+        <ion-segment formControlName="tipoCuenta">
+          <ion-segment-button [value]="0">Tarjeta</ion-segment-button>
+          <ion-segment-button [value]="1">CLABE</ion-segment-button>
+        </ion-segment>
+      </ion-item>
+      <ion-text color="medium" class="hint"
+                *ngIf="getControl('tipoCuenta')?.value === 0">
+        Tarjeta: 16 dígitos (algunas entre 15 y 19).
+      </ion-text>
+      <ion-text color="medium" class="hint"
+                *ngIf="getControl('tipoCuenta')?.value === 1">
+        CLABE: exactamente 18 dígitos.
+      </ion-text>
+
+      <!-- Número (aparece SOLO si ya eligió tipo) -->
+      <ion-item lines="none" class="field"
+                *ngIf="getControl('tipoCuenta')?.valid"
+                [class.invalid]="getControl('cuenta')?.invalid && getControl('cuenta')?.touched">
+        <ion-label position="stacked">
+          {{ getControl('tipoCuenta')?.value === 1 ? 'Número de CLABE' : 'Número de tarjeta' }}
+        </ion-label>
+        <ion-input formControlName="cuenta"
+                  type="tel" inputmode="numeric"
+                  [maxlength]="getControl('tipoCuenta')?.value === 1 ? 18 : 19"
+                  placeholder="{{ getControl('tipoCuenta')?.value === 1 ? '18 dígitos' : '16 dígitos' }}">
+        </ion-input>
+      </ion-item>
+      <ion-text color="danger" class="err"
+                *ngIf="getControl('tipoCuenta')?.valid && getControl('cuenta')?.invalid && getControl('cuenta')?.touched">
+        {{ getControl('tipoCuenta')?.value === 1 ? 'La CLABE debe tener 18 dígitos' : 'La tarjeta debe ser numérica (15–19 dígitos)' }}
+      </ion-text>
 
 
-    <ion-button class="customButton" shape="default" [disabled]="formEnviado" (click)="enviarFormulario()">{{btnName}}</ion-button>
+      <!-- CTA -->
+      <ion-button expand="block" class="btn-primary" [disabled]="formEnviado" (click)="enviarFormulario()">
+        {{ btnName }}
+      </ion-button>
 
-  </form>
+      <p class="small-note">
+        Tip: si es CLABE, debe tener 18 dígitos.
+      </p>
+    </form>
+  </div>
 </ion-content>

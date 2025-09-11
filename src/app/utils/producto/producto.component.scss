@@ -1,72 +1,95 @@
-.referido-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #f6f7f9;
-  border: 1px solid #e6e9ef;
-  border-radius: 10px;
-  padding: 10px 12px;
-  gap: 12px;
+/* ---- estructura básica ---- */
+.card-inner{ 
+  padding:16px; 
 }
 
-.referido-title {
-  font-size: 0.8em;
-  font-weight: 600;
-  color: #444;
+.titulo{ 
+  margin:0; 
+  font-size:1.4rem; 
+  font-weight:800; 
+  color:#1f2937; 
+  line-height:1.15; 
+}
+.empresa{ 
+  font-size:.9rem; 
+  color:#6b7280; 
 }
 
-.btn-mini:active { transform: translateY(1px) scale(0.98); }
-.btn-mini:disabled { opacity: .6; cursor: default; }
-
-.referido-mini {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-  margin-bottom: 4px;
+.logo{
+  width:100%; 
+  display:block; 
+  border-radius:8px; 
+  border:1px solid #e5e7eb;
+}
+.desc{ 
+  margin:6px 0 14px; 
+  font-size:.98rem; 
+  color:#374151; 
 }
 
-/* Botón más pequeño */
-.btn-mini {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  font-size: 0.8em;
-  border: none;
-  border-radius: 6px;
-  background: #1f8d2e;
-  color: #fff;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 3px 6px rgba(0,0,0,.1);
-  transition: transform .05s ease, box-shadow .2s ease, opacity .2s ease;
+/* ---- barra de referido: simple y ordenada ---- */
+.ref-row{
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between;
+  gap:12px; 
+  padding:10px 12px;
+  background:#f8fafc; 
+  border:1px solid #e5e7eb; 
+  border-radius:12px;
+}
+.ref-label{ 
+  font-weight:700; 
+  color:#4b5563; 
 }
 
-
-.btn-icon {
-  width: 14px;
-  height: 14px;
+/* Acciones a la derecha */
+.ref-actions{ 
+  display:flex; 
+  align-items:center; 
+  gap:8px; 
 }
 
-.referido-mini {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 8px 0 0 0;
-  .referido-title { font-weight: 600; color: #555; }
+/* Botón base: mismos tamaños */
+.btn{
+  display:inline-flex; align-items:center; gap:6px;
+  height:36px; padding:0 12px;
+  border-radius:10px; border:1px solid transparent; cursor:pointer;
+  font-weight:700; font-size:.9rem;
+}
+.btn img{ width:16px; 
+  height:16px; 
+  display:block; 
 }
 
-.qr-chip {
-  margin-left: auto;              /* se va a la derecha del renglón */
-  width: 46px;
-  height: 46px;
-  border-radius: 8px;
-  background: #fff;
-  border: 1px solid #e5e7eb;      /* gris suave */
-  box-shadow: 0 1px 3px rgba(0,0,0,.06);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  img { width: 38px; height: 38px; display: block; }
+/* Verde sólido (Agregar referido) */
+.btn-green{ background:#16a34a; 
+  color:#fff; 
+  border-color:#16a34a; 
+}
+/* Outline (Agregar promoción vía QR) */
+.btn-outline{ 
+  background:#fff; 
+  color:#16a34a; 
+  border-color:#bfe8cf; 
+}
+
+/* ---- comisión ---- */
+.comision{
+   text-align:right; 
+   margin-top:8px; 
+  }
+.comision small{ 
+  color:#6b7280; 
+}
+.comision .valor{ 
+  color:#16a34a; 
+  font-weight:900; 
+  font-size:1.35rem; 
+}
+
+/* ---- responsive ---- */
+@media (max-width:420px){
+  .btn{ height:34px; padding:0 10px; }
+  .btn span{ font-size:.85rem; }
 }

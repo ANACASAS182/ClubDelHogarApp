@@ -46,6 +46,12 @@
                 <div class="referido-comision">
                   <div class="monto" *ngIf="referido.estatusReferenciaID == 3">{{ referido.comisionTexto }}</div>
                   <div class="monto-pendiente" *ngIf="referido.estatusReferenciaID != 3">{{ referido.comisionTexto }}</div>
+
+                  <!-- Botón QR -->
+                  <ion-button size="small" fill="clear" class="btn-qr"
+                              (click)="abrirQr(referido); $event.stopPropagation()">
+                    <ion-icon slot="icon-only" name="qr-code-outline"></ion-icon>
+                  </ion-button>
                 </div>
               </section>
 

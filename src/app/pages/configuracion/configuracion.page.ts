@@ -16,6 +16,11 @@ import { UsuarioService } from 'src/app/services/api.back.services/usuario.servi
 // === NUEVO: servicio fiscal
 import { FiscalService, UsuarioFiscal } from 'src/app/services/api.back.services/fiscal.service';
 
+// --------- Ver PDF
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+
+
 // === Regex de validación fiscal
 const RFC_REGEX  = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
 const CURP_REGEX = /^[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i;
@@ -34,6 +39,8 @@ export class ConfiguracionPage implements OnInit {
   estados: CatalogoEstado[] = [];
   bancos: BancoUsuario[] = [];
   formUsuarioEnviado: boolean = false;
+  pdfUrl?: SafeResourceUrl;
+ /* mostrarPdf = false;*/
 
   // alert
   mostrarAlerta = false;
@@ -49,6 +56,9 @@ export class ConfiguracionPage implements OnInit {
   cargandoFiscal = false;
   guardandoFiscal = false;
   subiendoConstancia = false;
+  hasConstanciaServer = false;
+
+  get tieneConstancia() { return this.hasConstanciaServer || !!this.constanciaFile; }
 
   constructor(
     private fb: FormBuilder,
@@ -58,7 +68,8 @@ export class ConfiguracionPage implements OnInit {
     private modalCtrl: ModalController,
     private bancoUsuarioService: BancoUsuarioService,
     private alertController: AlertController,
-    private fiscalService: FiscalService   // NUEVO
+    private fiscalService: FiscalService,
+    private sanitizer: DomSanitizer,
   ) {
 
     this.formulario = this.fb.group({
@@ -81,65 +92,71 @@ export class ConfiguracionPage implements OnInit {
   }
 
   ngOnInit() {
-    const resolverData = this.route.snapshot.data['resolverData'];
-    this.estados = resolverData.estados;
+  const resolverData = this.route.snapshot.data['resolverData'];
+  this.estados = resolverData.estados;
 
-    this.obtenerBancos();
+  // ==== bancos ====
+  this.obtenerBancos();
 
-    this.usuarioService.getUsuario().subscribe({
-      next: (response: GenericResponseDTO<Usuario>) => {
-        this.loginUser = response.data;
+  // ==== perfil usuario ====
+  this.usuarioService.getUsuario().subscribe({
+    next: (response: GenericResponseDTO<Usuario>) => {
+      this.loginUser = response.data;
 
-        this.isNacional = !!(this.loginUser!.catalogoEstadoID && this.loginUser!.catalogoEstadoID > 0);
-        this.fechaRegistro = this.loginUser.fechaCreacion;
+      this.isNacional = !!(this.loginUser!.catalogoEstadoID && this.loginUser!.catalogoEstadoID > 0);
+      this.fechaRegistro = this.loginUser.fechaCreacion;
 
-        const nombreFull = [this.loginUser.nombres, this.loginUser.apellidos]
-          .filter(Boolean).join(' ').trim();
+      const nombreFull = [this.loginUser.nombres, this.loginUser.apellidos]
+        .filter(Boolean).join(' ').trim();
 
+      this.formulario.patchValue({
+        // perfil
+        nombre: this.loginUser.nombres,
+        apellido: this.loginUser.apellidos,
+        celular: this.loginUser.celular,
+        ciudad: this.loginUser.ciudad,
+        estado: this.loginUser.catalogoEstadoID,
+        estadoTexto: this.loginUser.estadoTexto,
+        email: this.loginUser.email,
+
+        // fiscales (default para nombre SAT)
+        nombreSat: nombreFull,
+      });
+    }
+  });
+
+  // ==== catálogo de regímenes ====
+  this.cargandoFiscal = true;
+  this.fiscalService.getRegimenes('F').subscribe({
+    next: r => this.regimenes = r.data || [],
+    error: _ => this.toast('No se pudo cargar el catálogo de regímenes', 'danger'),
+    complete: () => this.cargandoFiscal = false
+  });
+
+  // ==== mis datos fiscales ====
+  this.fiscalService.getMisDatos().subscribe({
+    next: r => {
+      const d = r.data;
+      if (d) {
         this.formulario.patchValue({
-          // perfil
-          nombre: this.loginUser.nombres,
-          apellido: this.loginUser.apellidos,
-          celular: this.loginUser.celular,
-          ciudad: this.loginUser.ciudad,
-          estado: this.loginUser.catalogoEstadoID,
-          estadoTexto: this.loginUser.estadoTexto,
-          email: this.loginUser.email,
-
-          // fiscales (defaults)
-          nombreSat: nombreFull,
+          nombreSat: d.nombreSAT,
+          rfc: d.rfc,
+          curp: d.curp,
+          cpFiscal: d.codigoPostal,
+          regimenFiscal: d.regimenClave
         });
-      }
-    });
 
-    // ====== Cargar catálogo y mis datos fiscales ======
-    this.cargandoFiscal = true;
-    this.fiscalService.getRegimenes('F').subscribe({
-      next: r => this.regimenes = r.data || [],
-      error: _ => this.toast('No se pudo cargar el catálogo de regímenes', 'danger'),
-      complete: () => this.cargandoFiscal = false
-    });
-
-    this.fiscalService.getMisDatos().subscribe({
-      next: r => {
-        const d = r.data;
-        if (d) {
-          this.formulario.patchValue({
-            nombreSat: d.nombreSAT,
-            rfc: d.rfc,
-            curp: d.curp,
-            cpFiscal: d.codigoPostal,
-            regimenFiscal: d.regimenClave
-          });
-          if (d.constanciaPath) {
-            const nombre = d.constanciaPath.split(/[\\/]/).pop() ?? '';
-            if (nombre) this.constanciaLabel = nombre;
-          }
+        if (d.constanciaPath) {
+          this.hasConstanciaServer = true; // 🔑 indica que el backend ya tiene PDF
+          const nombre = d.constanciaPath.split(/[\\/]/).pop() ?? '';
+          this.constanciaLabel = nombre || 'Constancia.pdf';
         }
-      },
-      error: _ => this.toast('No se pudo cargar tus datos fiscales', 'danger')
-    });
-  }
+      }
+    },
+    error: _ => this.toast('No se pudo cargar tus datos fiscales', 'danger')
+  });
+}
+
 
   /* ================= Bancos ================= */
 
@@ -249,11 +266,13 @@ export class ConfiguracionPage implements OnInit {
   }
 
   clearConstancia() {
-    this.constanciaFile = null;
-    this.constanciaLabel = 'Subir constancia (PDF)';
-    const el = document.getElementById('constanciaInput') as HTMLInputElement | null;
-    if (el) el.value = '';
-  }
+  // Solo limpia la selección local; no borra la del servidor.
+  this.constanciaFile = null;
+  this.constanciaLabel = 'Subir constancia (PDF)';
+  const el = document.getElementById('constanciaInput') as HTMLInputElement | null;
+  if (el) el.value = '';
+  // hasConstanciaServer SE QUEDA como estaba
+}
 
   guardarDatosFiscales(): void {
     if (this.guardandoFiscal) return;
@@ -291,6 +310,32 @@ export class ConfiguracionPage implements OnInit {
         error: _ => this.toast('Error al guardar datos fiscales', 'danger')
       });
   }
+
+  /*verConstancia() {
+    this.fiscalService.getConstanciaBlob().subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        this.pdfUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.mostrarPdf = true;
+      },
+      error: _ => this.toast('No se pudo abrir la constancia', 'danger')
+    });
+  }*/
+
+descargarConstancia() {
+  this.fiscalService.descargarConstanciaBlob().subscribe({
+    next: (blob) => {
+      const a = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      a.href = url; a.download = this.constanciaLabel || 'constancia.pdf';
+      a.click(); URL.revokeObjectURL(url);
+    },
+    error: (e) => {
+      const status = e?.status ?? '—';
+      this.toast(`No se pudo descargar la constancia (HTTP ${status})`, 'danger');
+    }
+  });
+}
 
 
   /* ================= Utils ================= */
