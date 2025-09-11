@@ -322,40 +322,37 @@ export class ConfiguracionPage implements OnInit {
     });
   }*/
 
-descargarConstancia() {
-  const url = this.fiscalService.directDownloadUrl();
+  descargarConstancia() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-  // iOS (Safari / PWA / WKWebView) prefiere navegación directa
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  try {
     if (isIOS) {
-      // En iOS abre visor y deja guardar/compartir
-      window.location.href = url;           // o window.open(url, '_blank')
+      // 1) Pedir link temporal usando credenciales (Authorization/cookie via XHR)
+      this.fiscalService.crearLinkDescarga().subscribe({
+        next: r => {
+          const url = r?.data?.url;
+          if (!url) { this.toast('No se pudo generar el link de descarga', 'danger'); return; }
+          // 2) Navegar: Safari/WKWebView abrirá visor/hoja de compartir
+          window.location.href = url; // o window.open(url, '_blank')
+        },
+        error: _ => this.toast('No se pudo generar el link de descarga', 'danger')
+      });
       return;
     }
 
-    // En desktop/Android también puedes ir directo:
-    // window.open(url, '_blank'); return;
-
-    // Si quieres mantener el flujo blob en no-iOS, déjalo así:
-    this.fiscalService.descargarConstanciaBlob().subscribe({
-      next: (blob) => {
-        const a = document.createElement('a');
-        const objUrl = URL.createObjectURL(blob);
-        a.href = objUrl;
-        a.download = this.constanciaLabel || 'constancia.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(objUrl);
-      },
-      error: (e) => this.toast(`No se pudo descargar la constancia (HTTP ${e?.status ?? '—'})`, 'danger')
-    });
-  } catch {
-    // último recurso: navegación directa
-    window.location.href = url;
-  }
+     // No-iOS: puedes mantener tu flujo blob
+  this.fiscalService.descargarConstanciaBlob().subscribe({
+    next: (blob) => {
+      const a = document.createElement('a');
+      const objUrl = URL.createObjectURL(blob);
+      a.href = objUrl;
+      a.download = this.constanciaLabel || 'constancia.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objUrl);
+    },
+    error: (e) => this.toast(`No se pudo descargar la constancia (HTTP ${e?.status ?? '—'})`, 'danger')
+  });
 }
 
 
