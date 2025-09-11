@@ -323,18 +323,39 @@ export class ConfiguracionPage implements OnInit {
   }*/
 
 descargarConstancia() {
-  this.fiscalService.descargarConstanciaBlob().subscribe({
-    next: (blob) => {
-      const a = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      a.href = url; a.download = this.constanciaLabel || 'constancia.pdf';
-      a.click(); URL.revokeObjectURL(url);
-    },
-    error: (e) => {
-      const status = e?.status ?? '—';
-      this.toast(`No se pudo descargar la constancia (HTTP ${status})`, 'danger');
+  const url = this.fiscalService.directDownloadUrl();
+
+  // iOS (Safari / PWA / WKWebView) prefiere navegación directa
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  try {
+    if (isIOS) {
+      // En iOS abre visor y deja guardar/compartir
+      window.location.href = url;           // o window.open(url, '_blank')
+      return;
     }
-  });
+
+    // En desktop/Android también puedes ir directo:
+    // window.open(url, '_blank'); return;
+
+    // Si quieres mantener el flujo blob en no-iOS, déjalo así:
+    this.fiscalService.descargarConstanciaBlob().subscribe({
+      next: (blob) => {
+        const a = document.createElement('a');
+        const objUrl = URL.createObjectURL(blob);
+        a.href = objUrl;
+        a.download = this.constanciaLabel || 'constancia.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(objUrl);
+      },
+      error: (e) => this.toast(`No se pudo descargar la constancia (HTTP ${e?.status ?? '—'})`, 'danger')
+    });
+  } catch {
+    // último recurso: navegación directa
+    window.location.href = url;
+  }
 }
 
 

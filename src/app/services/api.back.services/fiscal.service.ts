@@ -53,6 +53,10 @@ export class FiscalService {
     return this.http.get(`${this.base}/constancia`, { responseType: 'blob' });
   }*/
 
+    directDownloadUrl(): string {
+      return `${this.base}/constancia/descargar?ts=${Date.now()}`; // evita cache
+    }
+
   descargarConstanciaBlob() {
     return this.http.get(`${this.base}/constancia/descargar`, { responseType: 'blob' });
   }
