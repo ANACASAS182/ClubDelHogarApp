@@ -327,43 +327,33 @@ export class ConfiguracionPage implements OnInit {
     });
   }*/
 
+    private blobToBase64(b: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve((r.result as string).split(',')[1]); // quita "data:...;base64,"
+    r.onerror = reject;
+    r.readAsDataURL(b);
+  });
+}
+
   descargarConstancia() {
   this.fiscalService.descargarConstanciaBlob().subscribe({
     next: async (blob) => {
       const baseName = (this.constanciaLabel || 'constancia.pdf').replace(/\s+/g, '_');
-      const fileName = baseName.endsWith('.pdf') ? baseName : `${baseName}.pdf`;
+      const fileName = baseName.toLowerCase().endsWith('.pdf') ? baseName : `${baseName}.pdf`;
 
-      // iOS/app nativa (Capacitor)
       const isNativeIOS = Capacitor.isNativePlatform() && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
       if (isNativeIOS) {
-        // 1) Blob -> Base64
-        const toBase64 = (b: Blob) => new Promise<string>((resolve, reject) => {
-          const r = new FileReader();
-          r.onload = () => resolve((r.result as string).split(',')[1]); // quitar el prefijo data:
-          r.onerror = reject;
-          r.readAsDataURL(b);
-        });
-        const base64 = await toBase64(blob);
-
-        // 2) Guardar en Archivos: En mi iPhone > <TuApp> > Documents
+        // 1) Guardar en Archivos -> En mi iPhone -> <NombreApp> -> Documents
+        const base64 = await this.blobToBase64(blob);
         await Filesystem.writeFile({
           path: fileName,
           data: base64,
-          directory: Directory.Documents,
+          directory: Directory.Documents,   // carpeta Documents de la app
         });
 
-        // ✅ Opción A: solo guardar (silencioso)
-        // Muestra un toast para avisar dónde quedó
-        await this.toast(
-          'PDF guardado en Archivos → En mi iPhone → EmbassyBusiness → Documents',
-          'success'
-        );
-
-        return;
-
-        // 🔄 Opción B: compartir después de guardar (DESCOMENTA si quieres share-sheet)
-        /*
+        // 2) Obtener URI del archivo y abrir Share Sheet (guardar/enviar)
         const { uri } = await Filesystem.getUri({
           path: fileName,
           directory: Directory.Documents,
@@ -371,15 +361,14 @@ export class ConfiguracionPage implements OnInit {
 
         await Share.share({
           title: 'Constancia fiscal',
-          // iOS acepta file:// y capacitor://; getUri te da el correcto
-          url: uri,
-          dialogTitle: 'Compartir constancia'
+          url: uri,                         // iOS acepta file:// o capacitor:// (Filesystem te da el correcto)
+          dialogTitle: 'Compartir constancia',
         });
+
         return;
-        */
       }
 
-      // Web / Android (o iOS en navegador): descarga clásica con <a download>
+      // Web / Android: descarga clásica
       const a = document.createElement('a');
       const objUrl = URL.createObjectURL(blob);
       a.href = objUrl;
