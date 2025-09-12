@@ -330,36 +330,60 @@ export class ConfiguracionPage implements OnInit {
   descargarConstancia() {
   this.fiscalService.descargarConstanciaBlob().subscribe({
     next: async (blob) => {
-      const fileName = (this.constanciaLabel || 'constancia.pdf').replace(/\s+/g, '_');
+      const baseName = (this.constanciaLabel || 'constancia.pdf').replace(/\s+/g, '_');
+      const fileName = baseName.endsWith('.pdf') ? baseName : `${baseName}.pdf`;
 
-      // iOS/app nativa (Capacitor): guardar en Documents y abrir share sheet
-      if (Capacitor.isNativePlatform() && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        const toBase64 = (b: Blob) => new Promise<string>((res, rej) => {
+      // iOS/app nativa (Capacitor)
+      const isNativeIOS = Capacitor.isNativePlatform() && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+      if (isNativeIOS) {
+        // 1) Blob -> Base64
+        const toBase64 = (b: Blob) => new Promise<string>((resolve, reject) => {
           const r = new FileReader();
-          r.onload = () => res((r.result as string).split(',')[1]);
-          r.onerror = rej;
+          r.onload = () => resolve((r.result as string).split(',')[1]); // quitar el prefijo data:
+          r.onerror = reject;
           r.readAsDataURL(b);
         });
         const base64 = await toBase64(blob);
 
+        // 2) Guardar en Archivos: En mi iPhone > <TuApp> > Documents
         await Filesystem.writeFile({
-          path: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
+          path: fileName,
           data: base64,
+          directory: Directory.Documents,
+        });
+
+        // ✅ Opción A: solo guardar (silencioso)
+        // Muestra un toast para avisar dónde quedó
+        await this.toast(
+          'PDF guardado en Archivos → En mi iPhone → EmbassyBusiness → Documents',
+          'success'
+        );
+
+        return;
+
+        // 🔄 Opción B: compartir después de guardar (DESCOMENTA si quieres share-sheet)
+        /*
+        const { uri } = await Filesystem.getUri({
+          path: fileName,
           directory: Directory.Documents,
         });
 
         await Share.share({
           title: 'Constancia fiscal',
-          url: `capacitor://localhost/_app_file_/Documents/${fileName.endsWith('.pdf') ? fileName : fileName + '.pdf'}`
+          // iOS acepta file:// y capacitor://; getUri te da el correcto
+          url: uri,
+          dialogTitle: 'Compartir constancia'
         });
         return;
+        */
       }
 
-      // Web/Android: <a download> clásico
+      // Web / Android (o iOS en navegador): descarga clásica con <a download>
       const a = document.createElement('a');
       const objUrl = URL.createObjectURL(blob);
       a.href = objUrl;
-      a.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       a.remove();
