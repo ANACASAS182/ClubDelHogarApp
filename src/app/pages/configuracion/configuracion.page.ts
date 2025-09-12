@@ -19,6 +19,9 @@ import { FiscalService, UsuarioFiscal } from 'src/app/services/api.back.services
 // --------- Ver PDF
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { environment } from 'src/environments/environment';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 
 
@@ -325,28 +328,38 @@ export class ConfiguracionPage implements OnInit {
   }*/
 
   descargarConstancia() {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-
-  if (isIOS) {
-    this.fiscalService.crearLinkDescarga().subscribe({
-      next: r => {
-        let url = r?.data?.url as string | undefined;
-        if (!url) { this.toast('No se pudo generar el link de descarga', 'danger'); return; }
-        url = this.ensureAbsolute(url);            // 👈 fuerza absoluta
-        window.location.href = url;                // o window.open(url, '_blank', 'noopener')
-      },
-      error: _ => this.toast('No se pudo generar el link de descarga', 'danger')
-    });
-    return;
-  }
-
-  // Desktop/Android: blob (está bien)
   this.fiscalService.descargarConstanciaBlob().subscribe({
-    next: (blob) => {
+    next: async (blob) => {
+      const fileName = (this.constanciaLabel || 'constancia.pdf').replace(/\s+/g, '_');
+
+      // iOS/app nativa (Capacitor): guardar en Documents y abrir share sheet
+      if (Capacitor.isNativePlatform() && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        const toBase64 = (b: Blob) => new Promise<string>((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res((r.result as string).split(',')[1]);
+          r.onerror = rej;
+          r.readAsDataURL(b);
+        });
+        const base64 = await toBase64(blob);
+
+        await Filesystem.writeFile({
+          path: fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`,
+          data: base64,
+          directory: Directory.Documents,
+        });
+
+        await Share.share({
+          title: 'Constancia fiscal',
+          url: `capacitor://localhost/_app_file_/Documents/${fileName.endsWith('.pdf') ? fileName : fileName + '.pdf'}`
+        });
+        return;
+      }
+
+      // Web/Android: <a download> clásico
       const a = document.createElement('a');
       const objUrl = URL.createObjectURL(blob);
       a.href = objUrl;
-      a.download = this.constanciaLabel || 'constancia.pdf';
+      a.download = fileName.endsWith('.pdf') ? fileName : `${fileName}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -396,13 +409,10 @@ export class ConfiguracionPage implements OnInit {
   }
 
   private ensureAbsolute(url: string): string {
-  // si ya es absoluta, regresa igual
-  if (/^https?:\/\//i.test(url)) return url;
-
-  // Toma la base de tu API desde environment
-  const base = (environment.apiUrl || '').replace(/\/$/, '');
-  const path = (url || '').replace(/^\//, '');
-  return `${base}/${path}`;
-}
+    if (/^https?:\/\//i.test(url)) return url;
+    const base = (environment.apiUrl || '').replace(/\/$/, '');
+    const path = (url || '').replace(/^\//, '');
+    return `${base}/${path}`;
+  }
 
 }
