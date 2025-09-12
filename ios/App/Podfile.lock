@@ -7,14 +7,20 @@ PODS:
     - Capacitor
     - OSBarcodeLib (~> 1.1.3)
   - CapacitorCordova (7.2.0)
+  - CapacitorFilesystem (7.1.4):
+    - Capacitor
+    - IONFilesystemLib (~> 1.0.1)
   - CapacitorHaptics (7.0.1):
     - Capacitor
-  - CapacitorKeyboard (7.0.1):
+  - CapacitorKeyboard (7.0.2):
     - Capacitor
-  - CapacitorPreferences (7.0.1):
+  - CapacitorPreferences (7.0.2):
+    - Capacitor
+  - CapacitorShare (7.0.2):
     - Capacitor
   - CapacitorStatusBar (7.0.1):
     - Capacitor
+  - IONFilesystemLib (1.0.1)
   - OSBarcodeLib (1.1.3)
 
 DEPENDENCIES:
@@ -22,13 +28,16 @@ DEPENDENCIES:
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBarcodeScanner (from `../../node_modules/@capacitor/barcode-scanner`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
+  - "CapacitorFilesystem (from `../../node_modules/@capacitor/filesystem`)"
   - "CapacitorHaptics (from `../../node_modules/@capacitor/haptics`)"
   - "CapacitorKeyboard (from `../../node_modules/@capacitor/keyboard`)"
   - "CapacitorPreferences (from `../../node_modules/@capacitor/preferences`)"
+  - "CapacitorShare (from `../../node_modules/@capacitor/share`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
 
 SPEC REPOS:
   trunk:
+    - IONFilesystemLib
     - OSBarcodeLib
 
 EXTERNAL SOURCES:
@@ -40,12 +49,16 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/barcode-scanner"
   CapacitorCordova:
     :path: "../../node_modules/@capacitor/ios"
+  CapacitorFilesystem:
+    :path: "../../node_modules/@capacitor/filesystem"
   CapacitorHaptics:
     :path: "../../node_modules/@capacitor/haptics"
   CapacitorKeyboard:
     :path: "../../node_modules/@capacitor/keyboard"
   CapacitorPreferences:
     :path: "../../node_modules/@capacitor/preferences"
+  CapacitorShare:
+    :path: "../../node_modules/@capacitor/share"
   CapacitorStatusBar:
     :path: "../../node_modules/@capacitor/status-bar"
 
@@ -54,12 +67,15 @@ SPEC CHECKSUMS:
   CapacitorApp: d63334c052278caf5d81585d80b21905c6f93f39
   CapacitorBarcodeScanner: 3c32ee7c4f7088cefb1abf1b83c10a11202190a8
   CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
+  CapacitorFilesystem: ac0a386949ed6c295a3dffa129ecd26b881ae5be
   CapacitorHaptics: 70e47470fa1a6bd6338cd102552e3846b7f9a1b3
-  CapacitorKeyboard: 969647d0ca2e5c737d7300088e2517aa832434e2
-  CapacitorPreferences: cbf154e5e5519b7f5ab33817a334dda1e98387f9
+  CapacitorKeyboard: 056bbe3711830ccb782f1705a8ad183b27b6c51e
+  CapacitorPreferences: b583b5deb74e564c35968189d25d32c0fd41200d
+  CapacitorShare: 051c3ceee0ddf3bb54574851a622bbb317eed5bd
   CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
+  IONFilesystemLib: 89258b8e3e85465da93127d25d7ce37f977e8a6f
   OSBarcodeLib: f2e981270a64faf476cb790864262b29ab8cd68a
 
-PODFILE CHECKSUM: 084934c9444970bf14e9c72eea97343e9de0f52e
+PODFILE CHECKSUM: 3fc94243c048cd3926a9665cd01522d1bac0bb71
 
 COCOAPODS: 1.16.2
