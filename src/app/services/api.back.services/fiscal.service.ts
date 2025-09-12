@@ -42,10 +42,12 @@ export class FiscalService {
     return this.http.post<GenericResponseDTO<boolean>>(`${this.base}/guardar`, dto);
   }
 
-  subirConstancia(file: File): Observable<GenericResponseDTO<{path:string; hash:string}>> {
+  subirConstancia(file: File) {
     const fd = new FormData();
     fd.append('file', file, file.name);
-    return this.http.post<GenericResponseDTO<{path:string; hash:string}>>(`${this.base}/subir-constancia`, fd);
+    return this.http.post<GenericResponseDTO<{path:string; hash:string}>>(
+      `${this.base}/subir-constancia`, fd
+    );
   }
 
   /*getConstanciaBlob() {
@@ -54,16 +56,19 @@ export class FiscalService {
   }*/
 
     directDownloadUrl(): string {
-      return `${this.base}/constancia/descargar?ts=${Date.now()}`; // evita cache
-    }
-
-    crearLinkDescarga() {
-    return this.http.post<GenericResponseDTO<{url:string}>>(
-      `${this.base}/constancia/link-descarga`, {}
-    );
+    return `${this.base}/constancia/descargar?ts=${Date.now()}`;
   }
 
+    crearLinkDescarga() {
+      return this.http.post<GenericResponseDTO<{url:string}>>(
+        `${this.base}/constancia/link-descarga`, {}
+      );
+    }
+
+  // Desktop (opcional): descarga por blob con Authorization
   descargarConstanciaBlob() {
-    return this.http.get(`${this.base}/constancia/descargar`, { responseType: 'blob' });
+    return this.http.get(`${this.base}/constancia/descargar`, {
+      responseType: 'blob'
+    });
   }
 }

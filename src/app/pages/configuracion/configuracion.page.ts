@@ -18,6 +18,8 @@ import { FiscalService, UsuarioFiscal } from 'src/app/services/api.back.services
 
 // --------- Ver PDF
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { environment } from 'src/environments/environment';
+
 
 
 
@@ -323,23 +325,22 @@ export class ConfiguracionPage implements OnInit {
   }*/
 
   descargarConstancia() {
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
-    if (isIOS) {
-      // 1) Pedir link temporal usando credenciales (Authorization/cookie via XHR)
-      this.fiscalService.crearLinkDescarga().subscribe({
-        next: r => {
-          const url = r?.data?.url;
-          if (!url) { this.toast('No se pudo generar el link de descarga', 'danger'); return; }
-          // 2) Navegar: Safari/WKWebView abrirá visor/hoja de compartir
-          window.location.href = url; // o window.open(url, '_blank')
-        },
-        error: _ => this.toast('No se pudo generar el link de descarga', 'danger')
-      });
-      return;
-    }
+  if (isIOS) {
+    this.fiscalService.crearLinkDescarga().subscribe({
+      next: r => {
+        let url = r?.data?.url as string | undefined;
+        if (!url) { this.toast('No se pudo generar el link de descarga', 'danger'); return; }
+        url = this.ensureAbsolute(url);            // 👈 fuerza absoluta
+        window.location.href = url;                // o window.open(url, '_blank', 'noopener')
+      },
+      error: _ => this.toast('No se pudo generar el link de descarga', 'danger')
+    });
+    return;
+  }
 
-     // No-iOS: puedes mantener tu flujo blob
+  // Desktop/Android: blob (está bien)
   this.fiscalService.descargarConstanciaBlob().subscribe({
     next: (blob) => {
       const a = document.createElement('a');
@@ -354,6 +355,7 @@ export class ConfiguracionPage implements OnInit {
     error: (e) => this.toast(`No se pudo descargar la constancia (HTTP ${e?.status ?? '—'})`, 'danger')
   });
 }
+
 
 
   /* ================= Utils ================= */
@@ -392,4 +394,15 @@ export class ConfiguracionPage implements OnInit {
     });
     await t.present();
   }
+
+  private ensureAbsolute(url: string): string {
+  // si ya es absoluta, regresa igual
+  if (/^https?:\/\//i.test(url)) return url;
+
+  // Toma la base de tu API desde environment
+  const base = (environment.apiUrl || '').replace(/\/$/, '');
+  const path = (url || '').replace(/^\//, '');
+  return `${base}/${path}`;
+}
+
 }
