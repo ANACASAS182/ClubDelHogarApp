@@ -93,12 +93,16 @@ export class UsuarioService {
   }
 
   updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
-    return this.http.post<GenericResponseDTO<boolean>>(
-      `${this.apiUrlUsuario}/Save`,
-      user,
-      this.makeHeaders(skipErrorHandler)
-    );
-  }
+  // normaliza el correo ANTES de enviarlo (usa camelCase!)
+  if (user.email) user.email = user.email.trim().toLowerCase();
+
+  return this.http.post<GenericResponseDTO<boolean>>(
+    `${this.apiUrlUsuario}/ActualizarUsuario`,
+    user,
+    this.makeHeaders(skipErrorHandler)
+  );
+}
+
 
   postOnboardingA(user: UsuarioDTO): Observable<boolean> {
     return this.http.post<boolean>(`${this.apiUrlUsuario}/postOnboardingA`, user);

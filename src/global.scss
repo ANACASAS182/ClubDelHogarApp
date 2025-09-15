@@ -321,4 +321,99 @@ hr.spacer_embassy{
   border: 1px solid #666;
   transition: .1s;
  }
+
+ /* === Acciones (Agregar / QR) que no se salen === */
+.ref-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  /* evita que el label empuje a los botones fuera */
+  min-width: 0;
+}
+
+.ref-label{
+  flex: 0 0 auto;
+  font-weight: 600;
+  color: #111822;
+}
+
+/* Contenedor de botones */
+.ref-actions{
+  display: flex;
+  flex-wrap: wrap;         /* <- clave para que no se salgan */
+  gap: 8px;
+  max-width: 100%;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 0;
+}
+
+/* Botones */
+.ref-actions .btn{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: 600;
+  line-height: 1;
+  border: 1px solid #d6d6d6;
+  background: #fff;
+  color: #111822;
+  /* Para que se adapten sin salirse */
+  flex: 0 1 auto;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.ref-actions .btn span{
+  white-space: nowrap;         /* texto en una línea… */
+  overflow: hidden;            /* …pero sin salirse */
+  text-overflow: ellipsis;
+}
+
+/* Iconos dentro del botón */
+.ref-actions .btn img{
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* Variantes */
+.ref-actions .btn-green{
+  background: var(--ion-color-success, #28a745);
+  color: #fff;
+  border-color: var(--ion-color-success, #28a745);
+}
+
+.ref-actions .btn-outline{
+  background: transparent;
+  color: #111822;
+  border-color: #c8c8c8;
+}
+
+/* Responsive muy estrecho: apílalos a 2 columnas o 1 si es necesario */
+@media (max-width: 420px){
+  .ref-actions .btn{
+    flex: 1 1 calc(50% - 8px); /* dos columnas */
+    justify-content: center;
+  }
+}
+
+@media (max-width: 340px){
+  .ref-actions .btn{
+    flex: 1 1 100%;            /* una columna */
+  }
+}
+
+/* Bonus: evita que el contenido del card desborde */
+.card-inner{
+  padding: 12px;
+  overflow: hidden;            /* cinturón de seguridad */
+}
+
+.comision .valor{
+  word-break: break-word;      /* por si vienen números larguísimos */
+}
   
