@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: "https://localhost:7146/"
-  //apiUrl: "https://ebg-api.bithub.com.mx/" //cambiar por Dominio de produccion
+  //apiUrl: "https://localhost:7146/"
+  apiUrl: "https://ebg-api.bithub.com.mx/" //cambiar por Dominio de produccion
 
 };
 
