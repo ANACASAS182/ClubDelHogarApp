@@ -1,0 +1,90 @@
+<ion-header class="pagesHeader">
+  <ion-toolbar>
+    <ion-buttons slot="start"><ion-menu-button></ion-menu-button></ion-buttons>
+    <ion-title><h1><ion-icon name="star" color="white"></ion-icon> Referencias</h1></ion-title>
+  </ion-toolbar>
+
+  <!-- Search fijo debajo del toolbar -->
+  <div class="search-wrap">
+    <ion-searchbar debounce="400" placeholder="Buscar por nombre, email, celular o producto"
+      (ionInput)="search$.next($any($event.target).value)"></ion-searchbar>
+
+    <div class="chip-row">
+      <!-- Estatus -->
+      <ion-chip outline (click)="setEstatus(undefined)">
+        <ion-icon name="filter-outline"></ion-icon>
+        <ion-label>{{ estatus == null ? 'Todos' : ('Estatus: ' + estatus) }}</ion-label>
+      </ion-chip>
+      <!-- Si quieres chips por estado fijo: -->
+      <ion-chip (click)="setEstatus(1)" [class.active]="estatus===1"><ion-label>Nuevo</ion-label></ion-chip>
+      <ion-chip (click)="setEstatus(2)" [class.active]="estatus===2"><ion-label>Contactado</ion-label></ion-chip>
+      <ion-chip (click)="setEstatus(3)" [class.active]="estatus===3"><ion-label>Convertido</ion-label></ion-chip>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="pagesContent" [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content pullingText="Desliza para actualizar"></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- Skeleton loading -->
+  <ng-container *ngIf="loading && page===0">
+    <ion-list>
+      <ion-item *ngFor="let s of [1,2,3,4,5]">
+        <ion-avatar slot="start"><ion-skeleton-text animated style="width:40px;height:40px;"></ion-skeleton-text></ion-avatar>
+        <ion-label>
+          <h3><ion-skeleton-text animated style="width:60%"></ion-skeleton-text></h3>
+          <p><ion-skeleton-text animated style="width:80%"></ion-skeleton-text></p>
+          <p><ion-skeleton-text animated style="width:40%"></ion-skeleton-text></p>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-container>
+
+  <!-- Lista real -->
+  <ion-list *ngIf="!loading || page>0">
+    <ion-item class="ref-card" lines="none" *ngFor="let r of items" (click)="openSeguimiento(r.id)">
+      <div class="card-row">
+        <div class="card-main">
+          <div class="title">{{ r.nombre }}</div>
+          <div class="meta">
+            <ion-icon name="mail-outline"></ion-icon> {{ r.email || '—' }}
+            <span class="dot">•</span>
+            <ion-icon name="call-outline"></ion-icon> {{ r.celular || '—' }}
+          </div>
+
+          <div class="producto">
+            <ion-badge [color]="r.productoVigente ? 'success' : 'danger'">
+              {{ r.productoVigente ? 'Vigente' : 'No vigente' }}
+            </ion-badge>
+            <span *ngIf="getFechaVigencia(r) as fv" class="vig">hasta {{ fv | date:'dd MMM y':'':'es-MX' }}</span>
+          </div>
+        </div>
+
+        <div class="card-side">
+          <div class="pill">{{ r.estatusReferencia || 'Sin estatus' }}</div>
+          <div class="sub">
+            <ion-icon name="person-outline"></ion-icon> {{ r.embajador || '—' }}
+          </div>
+          <div class="sub" *ngIf="r.empresa">
+            <ion-icon name="business-outline"></ion-icon> {{ r.empresa }}
+          </div>
+          <ion-button size="small" fill="clear" (click)="$event.stopPropagation(); openQR(r.codigoQR)">
+            <ion-icon slot="icon-only" name="qr-code-outline"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </ion-item>
+  </ion-list>
+
+  <ion-infinite-scroll threshold="120px" (ionInfinite)="load($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles" loadingText="Cargando más..."></ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+
+  <!-- Empty state -->
+  <div class="empty" *ngIf="!loading && items.length===0">
+    <ion-icon name="albums-outline"></ion-icon>
+    <p>No se encontraron referencias.</p>
+  </div>
+</ion-content>

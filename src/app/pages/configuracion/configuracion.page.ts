@@ -23,12 +23,14 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
-
-
+// imports arriba
+import { EmpresaFiscalService } from 'src/app/services/api.back.services/empresa-fiscal.service';
 
 // === Regex de validación fiscal
 const RFC_REGEX  = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/i;
 const CURP_REGEX = /^[A-Z][AEIOU][A-Z]{2}\d{6}[HM][A-Z]{5}[A-Z0-9]\d$/i;
+
+
 
 @Component({
   selector: 'app-configuracion',
@@ -45,6 +47,11 @@ export class ConfiguracionPage implements OnInit {
   bancos: BancoUsuario[] = [];
   formUsuarioEnviado: boolean = false;
   pdfUrl?: SafeResourceUrl;
+  esPersonaFisica = false;
+  empresaIdActual?: number;
+  empresaMetodoPago: string = 'PPD'; // default sensato
+  empresaUsoCFDI: string = 'P01';    // default sensato
+  esSocio: boolean | null = null; // 👈 en vez de false
  /* mostrarPdf = false;*/
 
   // alert
@@ -74,6 +81,7 @@ export class ConfiguracionPage implements OnInit {
     private bancoUsuarioService: BancoUsuarioService,
     private alertController: AlertController,
     private fiscalService: FiscalService,
+    private empFiscalSrv: EmpresaFiscalService,
     private sanitizer: DomSanitizer,
   ) {
 
@@ -100,22 +108,14 @@ export class ConfiguracionPage implements OnInit {
   const resolverData = this.route.snapshot.data['resolverData'];
   this.estados = resolverData.estados;
 
-  // ==== bancos ====
-  this.obtenerBancos();
-
-  // ==== perfil usuario ====
   this.usuarioService.getUsuario().subscribe({
-    next: (response: GenericResponseDTO<Usuario>) => {
+    next: (response) => {
       this.loginUser = response.data;
-
       this.isNacional = !!(this.loginUser!.catalogoEstadoID && this.loginUser!.catalogoEstadoID > 0);
       this.fechaRegistro = this.loginUser.fechaCreacion;
 
-      const nombreFull = [this.loginUser.nombres, this.loginUser.apellidos]
-        .filter(Boolean).join(' ').trim();
-
+      const nombreFull = [this.loginUser.nombres, this.loginUser.apellidos].filter(Boolean).join(' ').trim();
       this.formulario.patchValue({
-        // perfil
         nombre: this.loginUser.nombres,
         apellido: this.loginUser.apellidos,
         celular: this.loginUser.celular,
@@ -123,44 +123,113 @@ export class ConfiguracionPage implements OnInit {
         estado: this.loginUser.catalogoEstadoID,
         estadoTexto: this.loginUser.estadoTexto,
         email: this.loginUser.email,
-
-        // fiscales (default para nombre SAT)
         nombreSat: nombreFull,
       });
-    }
+
+      // === Definir rol y comportamiento fiscal/bancos ===
+      const rolId = (this.loginUser as any)?.rolID ?? (this.loginUser as any)?.rolesID ?? 0;
+      const ES_EMBAJADOR = Number(rolId) === 2;
+
+      this.esSocio = ES_EMBAJADOR;
+
+      if (ES_EMBAJADOR) {
+        // Persona física → fiscales a nivel usuario
+        this.cargarFiscalesUsuario();
+        // 🚫 no cargamos bancos si es socio
+      } else {
+        // Persona moral → fiscales a nivel empresa
+        this.usuarioService.getEmpresaByUsuario(this.loginUser.id!).subscribe({
+          next: (empResp: GenericResponseDTO<any>) => {
+            const empresa = empResp?.data;
+            const empresaId = empresa?.id ?? empresa?.ID;
+            if (!empresaId) { this.cargarFiscalesUsuario(); return; }
+            this.empresaIdActual = empresaId;
+            this.cargarFiscalesEmpresa(empresaId);
+          },
+          error: _ => this.cargarFiscalesUsuario()
+        });
+
+        // Solo cargamos bancos si no es socio
+        this.obtenerBancos();
+      }
+    },
+    error: _ => { this.esSocio = false; } // fallback
   });
 
-  // ==== catálogo de regímenes ====
+  // catálogo de regímenes
   this.cargandoFiscal = true;
   this.fiscalService.getRegimenes('F').subscribe({
     next: r => this.regimenes = r.data || [],
     error: _ => this.toast('No se pudo cargar el catálogo de regímenes', 'danger'),
     complete: () => this.cargandoFiscal = false
   });
-
-  // ==== mis datos fiscales ====
-  this.fiscalService.getMisDatos().subscribe({
-    next: r => {
-      const d = r.data;
-      if (d) {
-        this.formulario.patchValue({
-          nombreSat: d.nombreSAT,
-          rfc: d.rfc,
-          curp: d.curp,
-          cpFiscal: d.codigoPostal,
-          regimenFiscal: d.regimenClave
-        });
-
-        if (d.constanciaPath) {
-          this.hasConstanciaServer = true; // 🔑 indica que el backend ya tiene PDF
-          const nombre = d.constanciaPath.split(/[\\/]/).pop() ?? '';
-          this.constanciaLabel = nombre || 'Constancia.pdf';
-        }
-      }
-    },
-    error: _ => this.toast('No se pudo cargar tus datos fiscales', 'danger')
-  });
 }
+
+
+  // helper que ya usabas pero envuelto
+  private cargarFiscalesUsuario() {
+    // 🔑 Marca que es persona física
+    this.esPersonaFisica = true;
+
+    this.fiscalService.getMisDatos().subscribe({
+      next: r => {
+        const d = r.data;
+        if (d) {
+          this.formulario.patchValue({
+            nombreSat: d.nombreSAT || '',
+            rfc: d.rfc || '',
+            curp: d.curp || '',
+            cpFiscal: d.codigoPostal || '',
+            regimenFiscal: d.regimenClave || ''
+          });
+
+          // Solo aplica constancia para usuario
+          if (d.constanciaPath) {
+            this.hasConstanciaServer = true;
+            const nombre = d.constanciaPath.split(/[\\/]/).pop() ?? '';
+            this.constanciaLabel = nombre || 'Constancia.pdf';
+          }
+        }
+      },
+      error: _ => this.toast('No se pudo cargar tus datos fiscales', 'danger')
+    });
+  }
+
+  private cargarFiscalesEmpresaSiAplica() {
+    this.usuarioService.getEmpresaByUsuario(this.loginUser!.id!).subscribe({
+      next: (empResp) => {
+        const empresa = empResp?.data;
+        const empresaId = empresa?.id ?? empresa?.ID;
+        if (!empresaId) { this.cargarFiscalesUsuario(); return; }
+        this.empresaIdActual = empresaId;
+        this.cargarFiscalesEmpresa(empresaId);
+      },
+      error: _ => this.cargarFiscalesUsuario()
+    });
+  }
+  private cargarFiscalesEmpresa(empresaId: number) {
+    // 🔑 Marca que es empresa (persona moral)
+    this.esPersonaFisica = false;
+
+    this.empFiscalSrv.get(empresaId).subscribe({
+      next: r => {
+        const d = r?.data;
+        if (d) {
+          this.formulario.patchValue({
+            nombreSat: d.razonSocialSAT || '',
+            rfc: d.rfc || '',
+            cpFiscal: d.codigoPostal || '',
+            // en empresa el régimen suele ser fijo (601),
+            // pero si lo traes del backend lo pones:
+            regimenFiscal: d.regimenClave || '601'
+          });
+          // ⚠️ Ojo: no parcheamos curp ni constancia porque no aplica
+        }
+      },
+      error: _ => this.toast('No se pudo cargar los datos fiscales de la empresa', 'danger')
+    });
+  }
+
 
 
   /* ================= Bancos ================= */
@@ -282,39 +351,76 @@ export class ConfiguracionPage implements OnInit {
   guardarDatosFiscales(): void {
     if (this.guardandoFiscal) return;
 
-    const dto: UsuarioFiscal = {
-      nombreSAT: (this.formulario.value.nombreSat || '').trim(),
-      rfc: (this.formulario.value.rfc || '').toUpperCase().trim(),
-      curp: (this.formulario.value.curp || '').toUpperCase().trim(),
-      codigoPostal: (this.formulario.value.cpFiscal || '').trim(),
-      regimenClave: (this.formulario.value.regimenFiscal || '').trim()
-    };
+    if (this.esPersonaFisica) {
+      // === PERSONA FÍSICA (usuario)
+      const dto: UsuarioFiscal = {
+        nombreSAT: (this.formulario.value.nombreSat || '').trim(),
+        rfc: (this.formulario.value.rfc || '').toUpperCase().trim(),
+        // manda NULL si viene vacío, para no violar el CHECK
+        curp: ((this.formulario.value.curp || '').trim().toUpperCase()) || null,
+        codigoPostal: (this.formulario.value.cpFiscal || '').trim(),
+        regimenClave: (this.formulario.value.regimenFiscal || '').trim()
+      };
 
-    // Validaciones suaves (si llenó, que sea válido)
-    if (dto.rfc && !RFC_REGEX.test(dto.rfc)) { this.toast('RFC inválido', 'danger'); return; }
-    if (dto.curp && !CURP_REGEX.test(dto.curp)) { this.toast('CURP inválida', 'danger'); return; }
-    if (dto.codigoPostal && !/^\d{5}$/.test(dto.codigoPostal)) { this.toast('CP inválido', 'danger'); return; }
+      // validaciones suaves
+      if (dto.rfc && !RFC_REGEX.test(dto.rfc)) { this.toast('RFC inválido', 'danger'); return; }
+      if (dto.curp && !CURP_REGEX.test(dto.curp)) { this.toast('CURP inválida', 'danger'); return; }
+      if (dto.codigoPostal && !/^\d{5}$/.test(dto.codigoPostal)) { this.toast('CP inválido', 'danger'); return; }
+      if (!dto.regimenClave) { this.toast('Selecciona un régimen', 'danger'); return; }
 
-    this.guardandoFiscal = true;
-    this.fiscalService.guardar(dto)
-      .pipe(finalize(() => this.guardandoFiscal = false))
-      .subscribe({
-        next: _ => {
-          this.toast('Datos fiscales guardados', 'success');
+      this.guardandoFiscal = true;
+      this.fiscalService.guardar(dto)
+        .pipe(finalize(() => this.guardandoFiscal = false))
+        .subscribe({
+          next: _ => {
+            this.toast('Datos fiscales guardados', 'success');
+            if (this.constanciaFile) {
+              this.subiendoConstancia = true;
+              this.fiscalService.subirConstancia(this.constanciaFile)
+                .pipe(finalize(() => this.subiendoConstancia = false))
+                .subscribe({
+                  next: _r => this.toast('Constancia subida', 'success'),
+                  error: _e => this.toast('No se pudo subir el PDF', 'danger')
+                });
+            }
+          },
+          error: _ => this.toast('Error al guardar datos fiscales', 'danger')
+        });
 
-          if (this.constanciaFile) {
-            this.subiendoConstancia = true;
-            this.fiscalService.subirConstancia(this.constanciaFile)
-              .pipe(finalize(() => this.subiendoConstancia = false))
-              .subscribe({
-                next: _r => this.toast('Constancia subida', 'success'),
-                error: _e => this.toast('No se pudo subir el PDF', 'danger')
-              });
-          }
-        },
-        error: _ => this.toast('Error al guardar datos fiscales', 'danger')
-      });
+    } else {
+      // === PERSONA MORAL (empresa)
+      const empresaId = this.empresaIdActual ?? null;
+                        
+      if (!empresaId) { this.toast('No se encontró EmpresaID', 'danger'); return; }
+
+      const dtoEmp = {
+        empresaID: empresaId,
+        rfc: (this.formulario.value.rfc || '').toUpperCase().trim(),
+        razonSocialSAT: (this.formulario.value.nombreSat || '').trim(),
+        codigoPostal: (this.formulario.value.cpFiscal || '').trim(),
+        metodoPago: this.empresaMetodoPago, // ✅
+        usoCFDI: this.empresaUsoCFDI,       // ✅
+        regimenClave: '601'
+      };
+
+
+      // validaciones básicas PM
+      if (!RFC_REGEX.test(dtoEmp.rfc)) {
+        this.toast('RFC inválido', 'danger');
+        return;
+      }
+      if (!/^\d{5}$/.test(dtoEmp.codigoPostal)) { this.toast('CP inválido', 'danger'); return; }
+
+      this.guardandoFiscal = true;
+      this.empFiscalSrv.guardar(dtoEmp)
+        .pipe(finalize(() => this.guardandoFiscal = false))
+        .subscribe({
+          next: _ => this.toast('Datos fiscales de empresa guardados', 'success'),
+          error: _ => this.toast('Error al guardar datos fiscales de empresa', 'danger')
+        });
+    }
   }
+
 
   /*verConstancia() {
     this.fiscalService.getConstanciaBlob().subscribe({

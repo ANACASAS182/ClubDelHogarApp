@@ -1,25 +1,34 @@
 <ion-content>
   <ng-container *ngIf="!isMobile; else mobileTabs">
-    <!-- Menú lateral para escritorio -->
+    <!-- Menú lateral escritorio -->
     <ion-split-pane contentId="main-content">
       <ion-menu class="custom-menu" contentId="main-content" type="push" swipeGesture="true">
         <ion-content>
           <ion-list id="inbox-list">
 
-            <ion-item lines="none" detail="false" routerLinkActive="selected">
-              <img src="assets/logo_white.png" style="margin-top: 48px;" alt="Logo" />
-            </ion-item>
+            <ion-menu-toggle auto-hide="false">
+              <img src="assets/logo_white.png" style="margin-top:48px;" alt="Logo" />
+            </ion-menu-toggle>
 
+            <!-- Items del menú (visibilidad por rol) -->
             @for (p of appPages; track p; let i = $index) {
               <ion-menu-toggle auto-hide="false">
-                <ion-item routerDirection="root" [routerLink]="p.url" lines="none" detail="false"
+                <ion-item
+                  *ngIf="p.visible"
+                  routerDirection="root"
+                  [routerLink]="p.url"
+                  lines="none"
+                  detail="false"
                   routerLinkActive="selected">
-                  <img [src]="'assets/icons/' + p.icon + '.png'" alt="Icono Network" style="width: 20px; height: 20px; margin-right: 8px; vertical-align: middle;" />
+                  <img [src]="'assets/icons/' + p.icon + '.png'"
+                       alt="icon"
+                       style="width:20px;height:20px;margin-right:8px;vertical-align:middle;" />
                   <ion-label>{{ p.title }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             }
 
+            <!-- Botón QR solo Socio -->
             <ion-menu-toggle auto-hide="false" *ngIf="esSocio">
               <div class="logout-button-container">
                 <ion-button expand="block" color="light" size="small" (click)="abrirModalQr()">
@@ -27,19 +36,27 @@
                   Validar promoción
                 </ion-button>
               </div>
-            </ion-menu-toggle> 
+            </ion-menu-toggle>
 
+            <!-- Separador -->
             <div class="menu-separator"></div>
 
             <ion-menu-toggle auto-hide="false">
-              <div class="user-container">
-                <div class="user-badge">USUARIO</div>
-                <div class="name-text">{{ userName }}</div>
+              <div class="user-meta">
+                <!-- Empresa SOLO si NO es Embajador -->
+                <div class="meta-row" *ngIf="!esEmbajador && empresaName">
+                  <span class="meta-label">Empresa</span>
+                  <span class="meta-value">{{ empresaName }}</span>
+                </div>
+
+                <div class="meta-row">
+                  <span class="meta-label">Usuario</span>
+                  <span class="meta-value">{{ userName }}</span>
+                </div>
               </div>
             </ion-menu-toggle>
 
-
-            <div style="height: 10px;"></div>
+            <div style="height:10px;"></div>
 
             <ion-menu-toggle auto-hide="false">
               <div class="logout-button-container">
@@ -49,12 +66,12 @@
                 </ion-button>
               </div>
             </ion-menu-toggle>
-            
+
           </ion-list>
         </ion-content>
       </ion-menu>
 
-      <div class="ion-page"  id="main-content">
+      <div class="ion-page" id="main-content">
         <ion-router-outlet></ion-router-outlet>
       </div>
     </ion-split-pane>
@@ -62,14 +79,15 @@
 
   <!-- Menú móvil -->
   <ng-template #mobileTabs>
-    
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>
 
       <ion-tab-bar slot="bottom">
-        @for (p of appPages; track p; let i = $index) {
-          <ion-tab-button routerDirection="root" [routerLink]="p.url">
-            <img [src]="'assets/icons/' + p.icon + '.png'" alt="Icono Network" style="width: 20px; height: 20px;  vertical-align: middle;" />
+        @for (p of appPages; track p) {
+          <ion-tab-button *ngIf="p.visible" routerDirection="root" [routerLink]="p.url">
+            <img [src]="'assets/icons/' + p.icon + '.png'"
+                 alt="icon"
+                 style="width:20px;height:20px;vertical-align:middle;" />
             <ion-label><small>{{ p.tituloMovil }}</small></ion-label>
           </ion-tab-button>
         }

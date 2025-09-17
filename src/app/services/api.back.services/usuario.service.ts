@@ -12,6 +12,10 @@ import { PasswordResetDTO } from 'src/app/models/DTOs/PasswordResetDTO';
 import { Usuario } from 'src/app/models/Usuario';
 import { UsuarioCelula } from 'src/app/models/DTOs/CelulaDTO';
 
+import { catchError } from 'rxjs/operators';
+import { of } from 'rxjs';
+
+
 @Injectable({ providedIn: 'root' })
 export class UsuarioService {
   private apiUrlUsuario      = `${environment.apiUrl}api/Usuario`;
@@ -125,6 +129,17 @@ export class UsuarioService {
         .set('yoId', String(yoId))
         .set('limit', String(limit))
     });
+  }
+
+  getEmpresaByUsuario(usuarioId: number, skipErrorHandler = false) {
+    const params = new HttpParams().set('usuarioID', String(usuarioId)); // <= OJO: usuarioID (long)
+    const headers = this.makeHeaders(skipErrorHandler).headers;
+
+    const url = `${this.apiUrlUsuario}/GetEmpresaUsuario`;
+    return this.http.get<GenericResponseDTO<any>>(url, { params, headers }).pipe(
+      // si el back responde 404 → data=null; no truena la app
+      catchError(err => of({ success: false, data: null, message: err?.error?.message ?? 'error' } as any))
+    );
   }
 }
 

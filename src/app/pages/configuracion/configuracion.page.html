@@ -154,17 +154,18 @@
             ></ion-input>
           </ion-col>
 
-          <ion-col size="12" size-md="3">
-            <ion-input
-              class="embassy_input"
-              label-placement="floating"
-              label="CURP"
-              formControlName="curp"
-              placeholder="CURP"
-              type="text"
-              maxlength="18"
-            ></ion-input>
-          </ion-col>
+          <!-- Solo visible si es persona física -->
+        <ion-col size="12" size-md="3" *ngIf="esPersonaFisica">
+          <ion-input
+            class="embassy_input"
+            label-placement="floating"
+            label="CURP"
+            formControlName="curp"
+            placeholder="CURP"
+            type="text"
+            maxlength="18">
+          </ion-input>
+        </ion-col>
         </ion-row>
 
         <ion-row>
@@ -181,25 +182,23 @@
             </ion-input>
           </ion-col>
 
-          <ion-col size="12" size-md="9">
-            <!-- puedes cambiar a input de texto si prefieres libre -->
+          <ion-col size="12" size-md="9" *ngIf="esPersonaFisica">
             <ion-select
               class="embassy_input"
               label-placement="floating"
               label="Régimen fiscal"
               formControlName="regimenFiscal"
               placeholder="Seleccionar">
-              <ion-select-option value="605">Sueldos y salarios e ingresos asimilados a salarios</ion-select-option>
-              <ion-select-option value="612">Personas Físicas con Actividades Empresariales y Profesionales</ion-select-option>
-              <ion-select-option value="621">Incorporación Fiscal (RIF)</ion-select-option>
-              <ion-select-option value="626">Régimen Simplificado de Confianza (RESICO PF)</ion-select-option>
-              <ion-select-option value="otros">Otro / No especificado</ion-select-option>
+              <ion-select-option value="605">Sueldos y Salarios</ion-select-option>
+              <ion-select-option value="612">Personas Físicas con Actividades Empresariales</ion-select-option>
+              <ion-select-option value="621">RIF</ion-select-option>
+              <ion-select-option value="626">RESICO PF</ion-select-option>
             </ion-select>
           </ion-col>
         </ion-row>
 
         <ion-row>
-          <ion-col size="12" size-md="8">
+          <ion-col size="12" size-md="8" *ngIf="esPersonaFisica">
             <div class="file-drop">
               <input id="constanciaInput" type="file" accept="application/pdf"
                     (change)="onConstanciaSelected($event)" hidden>
@@ -247,10 +246,12 @@
 
   <!-- Bancos -->
 
-  <ion-card class="customCard">
-    <ion-card-header class="headerCustomCard">
-      <ion-card-title class="titleCustomCard"> <ion-icon name="card-outline" color="white"></ion-icon> Métodos de pago</ion-card-title>
-    </ion-card-header>
+  <ion-card class="customCard" *ngIf="esSocio === false">
+  <ion-card-header class="headerCustomCard">
+    <ion-card-title class="titleCustomCard">
+      <ion-icon name="card-outline" color="white"></ion-icon> Métodos de pago
+    </ion-card-title>
+  </ion-card-header>
 
     <ion-card-content>
       <ion-grid>

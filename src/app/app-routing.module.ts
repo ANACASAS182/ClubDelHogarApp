@@ -63,6 +63,10 @@ const routes: Routes = [
     canActivate: [AuthGuard, OnboardingGuard],
     runGuardsAndResolvers: 'always'
   },
+  { path: 'dashboard/referencias-app', 
+    loadChildren: () => import('./pages/referencias-app/referencias-app.module').then(m => m.ReferenciasAppModule) 
+  }
+
 ];
 
 @NgModule({

@@ -37,6 +37,7 @@ ion-tab-button.ion-selected {
 
 
 
+
 //--------------------
 
 
@@ -102,3 +103,53 @@ ion-menu.custom-menu,
 ion-menu.custom-menu ion-content {
   height: 100%;
 }
+
+.user-inline {
+  display: flex;
+  justify-content: space-between; /* Empresa a la izq, Usuario a la der */
+  align-items: center;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  gap: 16px; /* espacio entre ambos pares */
+}
+
+.user-meta {
+  width: calc(100% - 24px);
+  margin: 10px 12px 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  backdrop-filter: saturate(120%) blur(0.5px);
+}
+
+/* Filas Empresa / Usuario */
+.meta-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  line-height: 1.2;
+  margin: 4px 0;
+}
+
+/* Etiqueta y valor (mismos tokens que el panel 2) */
+.meta-label {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #cbd5e1;           /* slate-300 */
+  font-weight: 700;
+  min-width: 64px;          /* alinea etiquetas */
+}
+.meta-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,.2);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.user-inline, .user-inline .pair { display: none; }
