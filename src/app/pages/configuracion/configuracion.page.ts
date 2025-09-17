@@ -126,18 +126,34 @@ export class ConfiguracionPage implements OnInit {
         nombreSat: nombreFull,
       });
 
-      // === Definir rol y comportamiento fiscal/bancos ===
+      // === Roles correctos ===
       const rolId = (this.loginUser as any)?.rolID ?? (this.loginUser as any)?.rolesID ?? 0;
-      const ES_EMBAJADOR = Number(rolId) === 2;
+      const ES_SOCIO = Number(rolId) === 2;
+      const ES_EMBAJADOR = Number(rolId) === 3;
 
-      this.esSocio = ES_EMBAJADOR;
+      // Para la vista (ocultar métodos de pago si es socio)
+      this.esSocio = ES_SOCIO;
 
       if (ES_EMBAJADOR) {
-        // Persona física → fiscales a nivel usuario
+        // Embajador -> Persona física (fiscales de usuario)
         this.cargarFiscalesUsuario();
-        // 🚫 no cargamos bancos si es socio
+        // Embajador sí puede tener métodos de pago
+        this.obtenerBancos();
+      } else if (ES_SOCIO) {
+        // Socio -> Persona moral (fiscales de empresa)
+        this.usuarioService.getEmpresaByUsuario(this.loginUser.id!).subscribe({
+          next: (empResp: GenericResponseDTO<any>) => {
+            const empresa = empResp?.data;
+            const empresaId = empresa?.id ?? empresa?.ID;
+            if (!empresaId) { this.cargarFiscalesUsuario(); return; } // fallback
+            this.empresaIdActual = empresaId;
+            this.cargarFiscalesEmpresa(empresaId);
+          },
+          error: _ => this.cargarFiscalesUsuario()
+        });
+        // ❌ No cargar bancos si es socio (se oculta el card)
       } else {
-        // Persona moral → fiscales a nivel empresa
+        // Otros roles: trata como empresa si existe, si no, usuario
         this.usuarioService.getEmpresaByUsuario(this.loginUser.id!).subscribe({
           next: (empResp: GenericResponseDTO<any>) => {
             const empresa = empResp?.data;
@@ -148,15 +164,13 @@ export class ConfiguracionPage implements OnInit {
           },
           error: _ => this.cargarFiscalesUsuario()
         });
-
-        // Solo cargamos bancos si no es socio
         this.obtenerBancos();
       }
     },
-    error: _ => { this.esSocio = false; } // fallback
+    error: _ => { this.esSocio = false; } // fallback para la vista
   });
 
-  // catálogo de regímenes
+  // Catálogo de regímenes (si usas distinto para PM, cámbialo a 'M')
   this.cargandoFiscal = true;
   this.fiscalService.getRegimenes('F').subscribe({
     next: r => this.regimenes = r.data || [],
@@ -164,6 +178,7 @@ export class ConfiguracionPage implements OnInit {
     complete: () => this.cargandoFiscal = false
   });
 }
+
 
 
   // helper que ya usabas pero envuelto
