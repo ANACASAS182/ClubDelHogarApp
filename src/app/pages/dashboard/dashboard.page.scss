@@ -36,6 +36,31 @@ ion-tab-button.ion-selected {
 }
 
 
+//------------
+
+/* Referencias.page.scss (o global si lo prefieres) */
+
+/* Estilo base que ya tienes */
+.top-bar ion-searchbar{
+  --background: #fff;
+  --border-radius: 14px;
+  --box-shadow: 0 4px 14px rgba(0,0,0,.06);
+}
+
+/* Evita que el ícono se vea “fuera” del borde redondo */
+.top-bar ion-searchbar::part(container){
+  overflow: hidden;                 /* recorta cualquier desborde */
+}
+
+/* Reposiciona la lupa un poco hacia adentro */
+.top-bar ion-searchbar::part(search-icon){
+  inset-inline-start: 12px;         /* mueve la lupa desde la izquierda (RTL-safe) */
+}
+
+/* (Opcional) si quieres que el texto arranque un poco después de la lupa */
+.top-bar ion-searchbar{
+  --padding-start: 36px;            /* espacio para el texto dentro del input */
+}
 
 
 //--------------------
