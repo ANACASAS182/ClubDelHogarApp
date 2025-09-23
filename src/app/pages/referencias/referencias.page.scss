@@ -223,6 +223,11 @@ ion-header{
   }
 }
 
+.top-bar ion-searchbar::part(container) {
+  padding-inline-start: 16px;   /* antes 8–10 aprox */
+  overflow: hidden;             /* garantiza que no se “salga” del borde */
+}
+
 .meta .dot {
   opacity: .6;
 }
