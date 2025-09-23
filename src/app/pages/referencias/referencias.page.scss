@@ -25,35 +25,39 @@
 
   ion-searchbar {
     --border-radius: 12px;
-    --box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
+    --box-shadow: 0 4px 14px rgba(0,0,0,.06);
     --background: #fff;
-    --icon-color: #6b7280; /* color de la lupa */
+    --icon-color: #6b7280;
+    contain: paint;
 
-    /* Altura y bordes consistentes */
-    min-height: 44px;
+    /* altura fija y sin recorte */
+    height: 44px;
 
-    /* Contenedor del searchbar (no recortar y dar aire lateral) */
     &::part(container) {
-      padding-inline-start: 16px;  /* espacio para la lupa */
+      height: 44px;
+      padding-inline-start: 16px; /* aire para la lupa */
       padding-inline-end: 12px;
-      overflow: visible;           /* evita que se corte la lupa */
       border-radius: 12px;
+      overflow: visible;          /* evita clipping */
     }
 
-    /* Icono de búsqueda: tamaño y posición seguras */
+    /* ¡clave! centra la lupa siempre */
     &::part(search-icon) {
       width: 18px;
       height: 18px;
-      inset-inline-start: 12px;    /* posición desde el borde izquierdo */
+      inset-inline-start: 12px;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
-    /* Input: deja espacio para el icono */
+    /* que el texto no invada la lupa */
     &::part(input) {
-      padding-inline-start: 36px;  /* no se encime con la lupa */
+      height: 44px;
+      padding-block: 0;
+      padding-inline-start: 36px;
       line-height: 20px;
     }
 
-    /* Botones (clear / cancel) no invaden el icono */
     &::part(clear-button) { margin-inline-end: 2px; }
     &::part(cancel-button) { margin-inline-start: 6px; }
   }
