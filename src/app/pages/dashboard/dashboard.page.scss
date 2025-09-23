@@ -153,3 +153,66 @@ ion-menu.custom-menu ion-content {
 }
 
 .user-inline, .user-inline .pair { display: none; }
+
+.role-card{
+  margin: 12px 12px 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.role-title{
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.role-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #e2e8f0; /* base por si no hay rol */
+
+  ion-icon{ font-size: 18px; }
+}
+
+/* Colores por rol */
+.role-pill.admin{
+  background: #fde68a; /* amber-300 */
+  color: #7c2d12;
+}
+.role-pill.socio{
+  background: #bbf7d0; /* green-200 */
+  color: #064e3b;
+}
+.role-pill.embajador{
+  background: #bae6fd; /* sky-200 */
+  color: #0c4a6e;
+}
+
+/* Centrar el recuadro de rol */
+.role-card{
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* ← centra horizontal */
+  text-align: center;      /* título centrado */
+}
+
+.role-title{
+  width: 100%;
+  text-align: center;
+}
+
+.role-pill{
+  align-self: center;      /* asegura que la pill quede al centro */
+  margin: 4px 0 0;
+}
+

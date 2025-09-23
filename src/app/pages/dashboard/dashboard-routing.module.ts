@@ -50,6 +50,11 @@ const routes: Routes = [
         path: '',
         redirectTo: '/dashboard/network',
         pathMatch: 'full'
+      },
+      {
+        path: 'referencias',
+        loadChildren: () => import('../referencias/referencias.module')
+          .then(m => m.ReferenciasPageModule),
       }
     ]
   }

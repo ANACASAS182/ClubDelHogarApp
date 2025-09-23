@@ -38,6 +38,21 @@
               </div>
             </ion-menu-toggle>
 
+            <!-- Recuadro: Rol actual -->
+            <ion-menu-toggle auto-hide="false">
+              <div class="role-card">
+                <div class="role-title">Rol actual</div>
+
+                <div class="role-pill"
+                    [class.admin]="isAdmin"
+                    [class.socio]="esSocio"
+                    [class.embajador]="esEmbajador">
+                  <ion-icon name="ribbon-outline"></ion-icon>
+                  <span>{{ rolActual }}</span>
+                </div>
+              </div>
+            </ion-menu-toggle>
+
             <!-- Separador -->
             <div class="menu-separator"></div>
 

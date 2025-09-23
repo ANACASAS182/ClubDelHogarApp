@@ -42,6 +42,7 @@ export class DashboardPage implements OnInit {
     { title: 'Network',   tituloMovil: 'Network',   url: '/dashboard/network',       icon: 'network',       visible: false, access: [1,2,3] },
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos',     icon: 'referidos',     visible: false, access: [1,3] },
     { title: 'Mi Célula', tituloMovil: 'Célula',    url: '/dashboard/celula',        icon: 'network',       visible: false, access: [3]     },
+    { title: 'Referencias', tituloMovil: 'Referencias',url: '/dashboard/referencias', icon: 'referidos', visible: false,   access: [2] },
     /*{ title: 'Referencias', tituloMovil: 'Referencias', url: '/dashboard/referencias-app', icon: 'referidos', visible: false, access: [2] },*/
     { title: 'Mis Datos', tituloMovil: 'Mis Datos', url: '/dashboard/configuracion', icon: 'configuracion', visible: false, access: [1,2,3] }
   ];
@@ -168,5 +169,12 @@ export class DashboardPage implements OnInit {
       canDismiss: async () => !formDirty || true
     });
     await modal.present();
+  }
+
+  get rolActual(): string {
+    if (this.isAdmin) return 'Administrador';
+    if (this.esEmbajador) return 'Embajador';
+    if (this.esSocio) return 'Socio';
+    return '—';
   }
 }

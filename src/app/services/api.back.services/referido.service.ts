@@ -59,6 +59,39 @@ export class ReferidoService {
   getQrPngByReferidoUrl(referidoId: number) {
     return `${this.promocionesUrl}/QrByReferido/${referidoId}`;
   }
+
+  // NUEVO: empresa + producto
+  getReferidosByEmpresaPaginated(params: {
+    empresaID: number;
+    productoID?: number;                 // opcional
+    page: number; size: number;
+    sortBy: string; sortDir: string;
+    searchQuery: string;
+    statusEnum?: number; usuarioID?: number;
+  }) {
+    const qp = new URLSearchParams();
+    qp.set('empresaID', String(params.empresaID));
+
+    // Solo enviar si > 0. Mandamos ambos nombres por compatibilidad con el backend.
+    if (params.productoID && params.productoID > 0) {
+      qp.set('productoID', String(params.productoID));
+      qp.set('productoId', String(params.productoID)); // <-- compat camelCase
+    }
+
+    qp.set('page', String(params.page));
+    qp.set('size', String(params.size));
+    qp.set('sortBy', params.sortBy || 'id');
+    qp.set('sortDir', params.sortDir || 'desc');
+    qp.set('searchQuery', params.searchQuery || '');
+
+    if (typeof params.statusEnum === 'number') qp.set('statusEnum', String(params.statusEnum));
+    if (params.usuarioID) qp.set('usuarioID', String(params.usuarioID));
+
+    return this.http.get<GenericResponseDTO<PaginationModelDTO<ReferidoDTO[]>>>(
+      `${this.referidoUrl}/GetReferidosByEmpresaPaginated?${qp.toString()}`
+    );
+  }
+
 }
 
   export type UltimoSeguimientoDTO = {
