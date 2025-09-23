@@ -27,6 +27,35 @@
     --border-radius: 12px;
     --box-shadow: 0 4px 14px rgba(0, 0, 0, .06);
     --background: #fff;
+    --icon-color: #6b7280; /* color de la lupa */
+
+    /* Altura y bordes consistentes */
+    min-height: 44px;
+
+    /* Contenedor del searchbar (no recortar y dar aire lateral) */
+    &::part(container) {
+      padding-inline-start: 16px;  /* espacio para la lupa */
+      padding-inline-end: 12px;
+      overflow: visible;           /* evita que se corte la lupa */
+      border-radius: 12px;
+    }
+
+    /* Icono de búsqueda: tamaño y posición seguras */
+    &::part(search-icon) {
+      width: 18px;
+      height: 18px;
+      inset-inline-start: 12px;    /* posición desde el borde izquierdo */
+    }
+
+    /* Input: deja espacio para el icono */
+    &::part(input) {
+      padding-inline-start: 36px;  /* no se encime con la lupa */
+      line-height: 20px;
+    }
+
+    /* Botones (clear / cancel) no invaden el icono */
+    &::part(clear-button) { margin-inline-end: 2px; }
+    &::part(cancel-button) { margin-inline-start: 6px; }
   }
 
   /* Item del select de producto, con label stacked y caja suave */
@@ -216,16 +245,11 @@ ion-header{
   gap: 6px;
   color: #6b7280;
   font-size: 12px;
-  flex-wrap: wrap;   /* permite salto de línea */
+  flex-wrap: wrap;
 
   ion-icon {
     font-size: 14px;
   }
-}
-
-.top-bar ion-searchbar::part(container) {
-  padding-inline-start: 16px;   /* antes 8–10 aprox */
-  overflow: hidden;             /* garantiza que no se “salga” del borde */
 }
 
 .meta .dot {
