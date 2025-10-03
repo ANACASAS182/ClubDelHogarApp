@@ -7,6 +7,9 @@ import { Usuario } from 'src/app/models/Usuario';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { ReferidoService } from 'src/app/services/api.back.services/referido.service';
 import { ProductoService } from 'src/app/services/api.back.services/producto.service'; // ← tu service
+import { ModalController } from '@ionic/angular';
+import { ReferidoSeguimientoModalComponent } from 'src/app/modals/referido.seguimiento.modal/referido.seguimiento.modal.component';
+
 
 type RefItem = {
   id: number;
@@ -19,8 +22,13 @@ type RefItem = {
   empresa?: string;
   embajador?: string;
   estatusRerefencia?: string;
-  estatus?: string | null;   // <-- quita el `number`
-  _raw?: any;  
+  estatus?: string | null;
+  _raw?: any;
+
+  ultimoSeguimientoTexto?: string;
+  ultimoSeguimientoFecha?: Date;
+  _segEsReciente?: boolean;
+
   vigencia?: any; fechaVigencia?: any; vigenteHasta?: any; vigenciaHasta?: any;
   fechaFinVigencia?: any; fechaVencimiento?: any; finVigencia?: any;
 };
@@ -62,7 +70,8 @@ export class ReferenciasPage implements OnInit, OnDestroy {
     private usuarioService: UsuarioService,
     private referidoService: ReferidoService,
     private productoService: ProductoService,
-    private toast: ToastController
+    private toast: ToastController,
+    private modalCtrl: ModalController
   ) {}
 
   async ngOnInit() {
@@ -96,6 +105,49 @@ export class ReferenciasPage implements OnInit, OnDestroy {
       this.loading = false;
     }
   }
+
+  private buildReferidoForModal(it: RefItem): any {
+    const r = it?._raw ?? {};
+    const comisionNum =
+      r?.comision ?? r?.Comision ?? r?.comisionMonto ?? r?.ComisionMonto ?? null;
+
+    return {
+      id: r?.id ?? r?.ID ?? it.id,
+      // nombres tolerantes
+      nombreCompleto: r?.nombreCompleto ?? r?.NombreCompleto ?? r?.nombre ?? r?.Nombre ?? it.nombre ?? '',
+      email: r?.email ?? r?.Email ?? it.email ?? '',
+      celular: r?.celular ?? r?.Celular ?? it.celular ?? '',
+      empresaRazonSocial: r?.empresaRazonSocial ?? r?.EmpresaRazonSocial ?? r?.empresa ?? r?.Empresa ?? it.empresa ?? '',
+      productoNombre: r?.productoNombre ?? r?.ProductoNombre ?? r?.producto ?? r?.Producto ?? it.producto ?? '',
+      estatusReferenciaID: r?.estatusReferenciaID ?? r?.EstatusReferenciaID ?? null,
+      comision: comisionNum != null ? Number(comisionNum) : null,
+      comisionTexto:
+        r?.comisionTexto ??
+        r?.ComisionTexto ??
+        (comisionNum != null ? ('$' + Number(comisionNum).toFixed(2)) : '')
+    };
+  }
+
+  async abrirModalVisualizacionDesdeLista(it: RefItem) {
+    const model = this.buildReferidoForModal(it);
+    const modal = await this.modalCtrl.create({
+      component: ReferidoSeguimientoModalComponent,
+      cssClass: 'modal-redondeado',
+      componentProps: { referido: model }
+    });
+    await modal.present();
+    await modal.onDidDismiss();
+  }
+
+  async abrirModalVisualizacion(modelRaw: any) {
+  const modal = await this.modalCtrl.create({
+    component: ReferidoSeguimientoModalComponent,
+    cssClass: 'modal-redondeado',
+    componentProps: { referido: modelRaw }
+  });
+  await modal.present();
+  await modal.onDidDismiss();
+}
 
   ngOnDestroy(): void {}
 
@@ -134,6 +186,65 @@ export class ReferenciasPage implements OnInit, OnDestroy {
       ev.target.complete();
     }
   }
+
+  formatFecha(fecha?: Date | string | null): string {
+    if (!fecha) return 'No aplica';
+    const f = new Date(fecha);
+    if (isNaN(f.getTime())) return 'No aplica';
+    const dia = f.getDate().toString().padStart(2, '0');
+    let mes = f.toLocaleString('es-MX', { month: 'short' });
+    mes = mes.charAt(0).toUpperCase() + mes.slice(1);
+    const anio = f.getFullYear();
+    let horas = f.getHours();
+    const minutos = f.getMinutes().toString().padStart(2, '0');
+    const ampm = horas >= 12 ? 'PM' : 'AM';
+    horas = horas % 12; horas = horas ? horas : 12;
+    const horaFormateada = horas.toString().padStart(2, '0');
+    return `${dia} ${mes} ${anio} - ${horaFormateada}:${minutos} ${ampm}`;
+  }
+
+  // Mezcla en los items el último seguimiento (texto + fecha) en lote
+  private async mergeUltimosSeguimientos(items: RefItem[]): Promise<void> {
+    const ids = items.map(x => x.id).filter(Boolean);
+    if (!ids.length) return;
+
+    try {
+      const lista: any[] = await firstValueFrom(this.referidoService.getUltimosSeguimientos(ids));
+
+      const mapSeg = new Map<number, any>();
+      (lista || []).forEach(x => {
+        const key =
+          Number(x?.referidoId ?? x?.ReferidoId ?? x?.referidoID ?? x?.ReferidoID ?? x?.id ?? 0) || 0;
+        if (key) mapSeg.set(key, x);
+      });
+
+      for (const it of items) {
+        const seg = mapSeg.get(it.id);
+        if (!seg) continue;
+
+        // nombres tolerantes
+        const txt =
+          seg?.texto ??
+          seg?.detalle ??
+          seg?.descripcion ?? seg?.Descripcion ??
+          seg?.observacion ?? seg?.Observacion ?? null;
+
+        const fRaw =
+          seg?.fecha ??
+          seg?.createdAt ?? seg?.creadoEl ??
+          seg?.Fecha ?? null;
+
+        const f = fRaw ? new Date(fRaw) : undefined;
+
+        it.ultimoSeguimientoTexto = (txt ?? '').toString().trim() || undefined;
+        it.ultimoSeguimientoFecha = f;
+        it._segEsReciente = !!(f && (Date.now() - f.getTime() <= 48 * 60 * 60 * 1000));
+      }
+    } catch (e) {
+      console.warn('mergeUltimosSeguimientos error', e);
+    }
+  }
+
 
   async reload() {
     this.page = 0;
@@ -266,6 +377,8 @@ export class ReferenciasPage implements OnInit, OnDestroy {
 
       const mapped = (itemsRaw || []).map(r => this.mapDtoToRefItem(r));
       for (const r of mapped) if (!r.celular && r.telefono) r.celular = r.telefono;
+
+      await this.mergeUltimosSeguimientos(mapped);
 
       return mapped;
     } catch (e) {

@@ -17,7 +17,7 @@ type PageItem = {
   url: string;
   icon: string;
   visible: boolean;
-  access: number[]; // roles permitidos
+  access: number[];
 };
 
 @Component({
@@ -28,6 +28,7 @@ type PageItem = {
 })
 export class DashboardPage implements OnInit {
   userName = '';
+  userEmail: string | null = null; // 👈 nuevo (correo normalizado)
   currentDate = '';
   empresaName: string | null = null;
 
@@ -37,13 +38,12 @@ export class DashboardPage implements OnInit {
   isAdmin = false;
   esEmbajador = false;
 
-  // 1 = Admin, 2 = Socio, 3 = Embajador (ajústalo a tu enum real)
+  // 1 = Admin, 2 = Socio, 3 = Embajador
   public appPages: PageItem[] = [
     { title: 'Network',   tituloMovil: 'Network',   url: '/dashboard/network',       icon: 'network',       visible: false, access: [1,2,3] },
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos',     icon: 'referidos',     visible: false, access: [1,3] },
-    { title: 'Mi Célula', tituloMovil: 'Célula',    url: '/dashboard/celula',        icon: 'network',       visible: false, access: [3]     },
-    { title: 'Referencias', tituloMovil: 'Referencias',url: '/dashboard/referencias', icon: 'referidos', visible: false,   access: [2] },
-    /*{ title: 'Referencias', tituloMovil: 'Referencias', url: '/dashboard/referencias-app', icon: 'referidos', visible: false, access: [2] },*/
+    { title: 'Mi Célula', tituloMovil: 'Célula',    url: '/dashboard/celula',        icon: 'network',       visible: false, access: [3] },
+    { title: 'Referencias', tituloMovil: 'Referencias', url: '/dashboard/referencias', icon: 'referidos', visible: false, access: [2] },
     { title: 'Mis Datos', tituloMovil: 'Mis Datos', url: '/dashboard/configuracion', icon: 'configuracion', visible: false, access: [1,2,3] }
   ];
 
@@ -63,12 +63,12 @@ export class DashboardPage implements OnInit {
       (this.datePipe.transform(now, 'fullDate') ?? '') + ' - ' +
       (this.datePipe.transform(now, 'hh:mm a') ?? '');
 
-    // Carga del usuario
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         const u: any = response.data;
 
-        this.userName = `${u?.nombres ?? ''} ${u?.apellidos ?? ''}`.trim();
+        this.userName  = `${u?.nombres ?? ''} ${u?.apellidos ?? ''}`.trim();
+        this.userEmail = this.getEmailFallback(u); // 👈 setear correo (minúsculas, trim)
         this.UsuarioID = u?.id ?? u?.ID ?? 0;
 
         const roleVal = (u?.rolesId ?? u?.rolesID ?? 0);
@@ -82,7 +82,7 @@ export class DashboardPage implements OnInit {
         // empresa rápida
         this.empresaName = this.getEmpresaNombreFallback(u);
 
-        // empresa fina solo si no es embajador (o si quieres solo para socio, deja el if como estaba)
+        // mantener comportamiento previo: NO buscar empresa si es embajador
         if (!this.esEmbajador && this.UsuarioID) {
           this.usuarioService.getEmpresaByUsuario(this.UsuarioID, true).subscribe({
             next: (resp: any) => {
@@ -96,6 +96,22 @@ export class DashboardPage implements OnInit {
         if (u?.mostrarOnboarding) this.mostrarOnboarding();
       }
     });
+  }
+
+  /** Email desde varias fuentes; regresa minúsculas y sin espacios */
+  private getEmailFallback(u: any): string | null {
+    const raw =
+      u?.email ??
+      u?.Email ??
+      u?.correo ??
+      u?.Correo ??
+      (this.tokenService as any)?.getClaim?.('email') ??
+      (this.tokenService as any)?.getClaim?.('preferred_username') ??
+      null;
+
+    if (!raw) return null;
+    const clean = String(raw).trim().toLowerCase();
+    return clean || null;
   }
 
   /** Lee nombre empresa desde varias fuentes sin levantar toasts */
@@ -118,7 +134,7 @@ export class DashboardPage implements OnInit {
     if (ls && ls.trim()) return ls.trim();
 
     return '(Sin empresa)';
-    }
+  }
 
   /** Normaliza el nombre devuelto por el endpoint */
   private pickEmpresaNombre(e: any): string | null {
@@ -133,7 +149,7 @@ export class DashboardPage implements OnInit {
   }
 
   @HostListener('window:resize', [])
-  onResize() { /* si quieres, recalcula isMobile */ }
+  onResize() { /* opcional */ }
 
   checkScreenSize() { /* opcional: this.isMobile = window.innerWidth <= 768; */ }
 

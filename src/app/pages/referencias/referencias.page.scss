@@ -266,6 +266,33 @@ ion-header{
   justify-content: center;
 }
 
+/* línea del preview: texto + acción */
+.seg-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* el texto ocupa el espacio y no choca con el chip */
+.seg-text {
+  flex: 1 1 auto;
+  min-width: 0; /* importante para el clamp */
+}
+
+/* chip “Ver todo” */
+.seg-chip {
+  flex: 0 0 auto;
+  height: 26px;
+  --background: #eef2f7;
+  --color: #111827;
+  --border-radius: 999px;
+  padding-inline: 8px;
+
+  ion-icon { font-size: 16px; margin-right: 4px; }
+  ion-label { font-size: 12px; font-weight: 600; }
+}
+
+
 /* Pequeños ajustes responsive */
 @media (min-width: 768px) {
   .pagesContent {

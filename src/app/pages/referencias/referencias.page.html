@@ -131,6 +131,38 @@
           <span>{{ getEstatus(r) }}</span>
           <!-- <pre style="font-size:10px;opacity:.6">{{ r | json }}</pre>  -->
         </div>
+
+        <!-- Último seguimiento -->
+        <section class="ref-ultimo-seg" *ngIf="r.ultimoSeguimientoTexto; else sinSegPrev" (click)="$event.stopPropagation()">
+          <ion-icon name="chatbubble-ellipses-outline" class="seg-icon"></ion-icon>
+
+          <div class="seg-line">
+            <div class="seg-text line-clamp-2">
+              {{ r.ultimoSeguimientoTexto }}
+            </div>
+
+             <ion-chip
+              class="seg-chip"
+              (click)="abrirModalVisualizacionDesdeLista(r); $event.stopPropagation()">
+              <ion-icon name="chevron-forward-outline"></ion-icon>
+              <ion-label>Ver todo</ion-label>
+            </ion-chip>
+          </div>
+
+          <div class="seg-meta">  
+            <ion-icon name="time-outline"></ion-icon>
+            <span class="seg-date">{{ formatFecha(r.ultimoSeguimientoFecha) }}</span>
+            <ion-badge color="success" *ngIf="r._segEsReciente">nuevo</ion-badge>
+          </div>
+        </section>
+
+        <ng-template #sinSegPrev>
+          <section class="ref-ultimo-seg muted" (click)="$event.stopPropagation()">
+            <ion-icon name="chatbubble-ellipses-outline" class="seg-icon"></ion-icon>
+            <div class="seg-text">Aún no hay seguimientos</div>
+          </section>
+        </ng-template>
+
       </ion-card-content>
     </ion-card>
   </ion-list>

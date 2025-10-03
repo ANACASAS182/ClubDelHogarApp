@@ -57,8 +57,22 @@
             <div class="menu-separator"></div>
 
             <ion-menu-toggle auto-hide="false">
+            <!-- Vista SOLO para Socio: Empresa + Correo -->
+            <div class="user-meta" *ngIf="esSocio; else noSocioMeta">
+              <div class="meta-row" *ngIf="empresaName">
+                <span class="meta-label">Empresa</span>
+                <span class="meta-value">{{ empresaName }}</span>
+              </div>
+
+              <div class="meta-row" *ngIf="userEmail">
+                <span class="meta-label">Correo</span>
+                <span class="meta-value">{{ userEmail }}</span>
+              </div>
+            </div>
+
+            <!-- Vista para NO Socio (Admin y Embajador) -->
+            <ng-template #noSocioMeta>
               <div class="user-meta">
-                <!-- Empresa SOLO si NO es Embajador -->
                 <div class="meta-row" *ngIf="!esEmbajador && empresaName">
                   <span class="meta-label">Empresa</span>
                   <span class="meta-value">{{ empresaName }}</span>
@@ -69,18 +83,22 @@
                   <span class="meta-value">{{ userName }}</span>
                 </div>
               </div>
-            </ion-menu-toggle>
+            </ng-template>
+          </ion-menu-toggle>
 
-            <div style="height:10px;"></div>
+          <!-- separador opcional -->
+          <div style="height:10px;"></div>
 
-            <ion-menu-toggle auto-hide="false">
-              <div class="logout-button-container">
-                <ion-button expand="block" color="light" size="small" (click)="logout()">
-                  <ion-icon slot="start" name="power"></ion-icon>
-                  Cerrar Sesión
-                </ion-button>
-              </div>
-            </ion-menu-toggle>
+          <!-- Botón Cerrar Sesión (restaurado) -->
+          <ion-menu-toggle auto-hide="false">
+            <div class="logout-button-container">
+              <ion-button expand="block" color="light" size="small" (click)="logout()">
+                <ion-icon slot="start" name="power"></ion-icon>
+                Cerrar Sesión
+              </ion-button>
+            </div>
+          </ion-menu-toggle>
+
 
           </ion-list>
         </ion-content>

@@ -87,43 +87,58 @@ export class ModalQRComponent implements OnInit {
 
   }
 
+  private extraerCodigo(src: string): string | null {
+    const s = (src || '').trim();
 
-  iniciarCaptura(decodedText:string) {
-    if (decodedText.includes('https://ebg.bithub.com.mx/val/')) {
-      this.codigoPromocion = decodedText.replace('https://ebg.bithub.com.mx/val/', '');
-      this.EstatusObtenerInformacionDelCodigo = 1;
+    // 1) URL con /val/{guid} en cualquier dominio
+    const m = s.match(/\/val\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+    if (m) return m[1];
 
-      let request: ValidarPromocionQrRequest = {
-        UsuarioID: 1,
-        codigoPromocion: this.codigoPromocion
-      };
+    // 2) Solo el GUID
+    const g = s.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+    if (g) return s;
 
-      this.promocionesService.ConsultarEstatusDelCodigoQr(request).subscribe({
-        next: (data) => {
-          if (data.estatus == 1) {
-            this.EstatusDelCodigo = 1;
-            this.promocionRelacionada = data.promocion;
-          }
-          if (data.estatus == -1) {
-            this.EstatusDelCodigo = -1;
-            this.MotivoInactividad = data.mensaje;
-          }
-        },
-        error: (err) => {
-          this.EstatusDelCodigo = -1;
-          this.MotivoInactividad = "Ocurrió un error, por favor intente nuevamente";
-        },
-        complete: () => {
-          this.EstatusObtenerInformacionDelCodigo = 0;
-        }
-      });
-
-    } else {
-      this.codigoPromocion = "NO VALIDO";
-      this.EstatusDelCodigo = -1;
-      this.MotivoInactividad = "El Código QR proporcionado no pertenece a Embassy";
-    }
+    return null;
   }
+
+
+  iniciarCaptura(decodedText: string) {
+  const codigo = this.extraerCodigo(decodedText);
+
+  if (!codigo) {
+    this.codigoPromocion = "NO VALIDO";
+    this.EstatusDelCodigo = -1;
+    this.MotivoInactividad = "El Código QR proporcionado no pertenece a Embassy";
+    return;
+  }
+
+  this.codigoPromocion = codigo;
+  this.EstatusObtenerInformacionDelCodigo = 1;
+
+  const request: ValidarPromocionQrRequest = {
+    UsuarioID: 1,
+    codigoPromocion: codigo
+  };
+
+  this.promocionesService.ConsultarEstatusDelCodigoQr(request).subscribe({
+    next: (data) => {
+      if (data.estatus === 1) {
+        this.EstatusDelCodigo = 1;
+        this.promocionRelacionada = data.promocion ?? data.promocion; // por si cambia el nombre
+      } else {
+        this.EstatusDelCodigo = -1;
+        this.MotivoInactividad = data.mensaje;
+      }
+    },
+    error: () => {
+      this.EstatusDelCodigo = -1;
+      this.MotivoInactividad = "Ocurrió un error, por favor intente nuevamente";
+    },
+    complete: () => {
+      this.EstatusObtenerInformacionDelCodigo = 0;
+    }
+  });
+}
 
   
 
