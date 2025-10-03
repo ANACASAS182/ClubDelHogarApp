@@ -56,18 +56,17 @@
     </ion-row>
 
     <!-- Lista -->
-    <ion-row *ngIf="!cargandoPromociones && promociones && promociones.length > 0">
-      <ion-col
-        size="12"
-        size-sm="6"
-        size-md="4"
-        size-lg="4"
-        size-xl="4"
-        *ngFor="let promocion of promociones">
-        <ion-card class="ion-card-embassy">
-          <app-producto [promocion]="promocion"></app-producto>
-        </ion-card>
-      </ion-col>
-    </ion-row>
+      <ion-row *ngIf="!cargandoPromociones && promociones && promociones.length > 0">
+        <ion-col
+          size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
+          *ngFor="let promocion of promociones">
+          <ion-card class="ion-card-embassy">
+            <app-producto
+              [promocion]="promocion"
+              [mostrarAcciones]="!esSocio">       <!-- 👈 NUEVO -->
+            </app-producto>
+          </ion-card>
+        </ion-col>
+      </ion-row>
   </ion-grid>
 </ion-content>

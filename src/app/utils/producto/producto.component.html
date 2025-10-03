@@ -22,29 +22,29 @@
     </ion-row>
 
     <!-- Barra simple de acciones -->
-    <ion-row>
-      <ion-col>
-        <div class="ref-row">
-          <span class="ref-label">Referido</span>
+      <ion-row *ngIf="mostrarAcciones">  <!-- 👈 envolver con *ngIf -->
+        <ion-col>
+          <div class="ref-row">
+            <span class="ref-label">Referido</span>
 
-          <div class="ref-actions">
-            <button type="button"
-                    class="btn btn-green"
-                    (click)="$event.stopPropagation(); onAdd()">
-              <img src="assets/icons/add.png" alt="" />
-              <span>Agregar</span>
-            </button>
+            <div class="ref-actions">
+              <button type="button"
+                      class="btn btn-green"
+                      (click)="$event.stopPropagation(); onAdd()">
+                <img src="assets/icons/add.png" alt="" />
+                <span>Agregar</span>
+              </button>
 
-            <button type="button"
-                    class="btn btn-outline"
-                    (click)="$event.stopPropagation(); onQr()">
-              <img [src]="qrPlaceholder" alt="" />
-              <span>Agregar</span>
-            </button>
+              <button type="button"
+                      class="btn btn-outline"
+                      (click)="$event.stopPropagation(); onQr()">
+                <img [src]="qrPlaceholder" alt="" />
+                <span>Agregar</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </ion-col>
-    </ion-row>
+        </ion-col>
+      </ion-row>
 
     <ion-row>
       <ion-col>

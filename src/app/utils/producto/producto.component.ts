@@ -11,8 +11,10 @@ import { IonGrid, IonRow, IonCol, IonIcon } from "@ionic/angular/standalone";
 export class ProductoComponent implements OnInit, OnChanges {
   @Input() promocion: any;
   @Input() debug = false;
+   @Input() mostrarAcciones: boolean = true;
   @Output() addClicked = new EventEmitter<void>();
   @Output() qrClicked  = new EventEmitter<void>();
+  
 
   ngOnInit()  { if (this.debug) this.logPromo('OnInit'); }
   ngOnChanges(ch: SimpleChanges) { if (this.debug && ch['promocion']) this.logPromo('OnChanges'); }

@@ -14,7 +14,6 @@ import { UsuarioService } from 'src/app/services/api.back.services/usuario.servi
 import { PromocionComponent } from 'src/app/modals/promocion/promocion.component';
 import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro.modal/referido.registro.modal.component';
 
-
 @Component({
   selector: 'app-empresas.network',
   templateUrl: './empresas.network.page.html',
@@ -24,6 +23,7 @@ import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro
 export class EmpresasNetworkPage implements OnInit {
 
   UsuarioID = 0;
+  esSocio = false;
 
   empresas: Empresa[] = [];
   promociones: Promocion[] = [];
@@ -50,6 +50,15 @@ export class EmpresasNetworkPage implements OnInit {
       next: (response: GenericResponseDTO<Usuario>) => {
         const user = response.data;
         this.UsuarioID = user.id;
+
+        // ⚠️ clave: en JSON viene como rolesID
+        const rolId = Number(
+          (user as any)?.rolesID ?? (user as any)?.RolesID ??
+          (user as any)?.rolID   ?? (user as any)?.rolId   ??
+          (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
+        );
+        this.esSocio = (rolId === 2);
+        console.log('[EmpresasNetwork] rolId=', rolId, 'esSocio=', this.esSocio);
 
         this.empresaService.getAllEmpresasByUsuarioId(this.UsuarioID).subscribe({
           next: (data) => {
@@ -122,57 +131,28 @@ export class EmpresasNetworkPage implements OnInit {
       },
     });
 
-    console.groupCollapsed('📦 Promos recibidas');
-    (this.promociones as any[]).forEach((p,i) => {
-      const lvlKeys = ['nivel_1','nivel_2','nivel_3','nivel_4','nivel_base','nivel_master',
-                       'nivel1','nivel2','nivel3','nivel4','nivelInvitacion','nivelMaster'];
-      const lvlSum = lvlKeys.reduce((a,k)=>a+(Number(p[k])||0),0);
-      console.table([{
-        idx: i,
-        id: p.id ?? p.ID,
-        nombre: p.nombre ?? p.Nombre,
-        tipoComision: p.tipoComision ?? p.TipoComision,
-        comisionCantidad: p.comisionCantidad ?? p.ComisionCantidad,
-        comisionPorcentaje: p.comisionPorcentaje ?? p.ComisionPorcentaje,
-        comisionStr: p.comision,
-        precio: p.precio ?? p.Precio,
-        lvlSum,
-        keys: Object.keys(p).join(',')
-      }]);
+    await modal.present();
+    await modal.onDidDismiss();
+  }
+
+  async abrirModalAgregar(promo: any) {
+    let formDirty = false;
+
+    const empresaId =
+      promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ?? this.empresaActualId ?? 0;
+
+    const modal = await this.modalCtrl.create({
+      component: ReferidoRegistroModalComponent,
+      cssClass: 'modal-registro-referido',
+      componentProps: {
+        empresaID: Number(empresaId),
+        setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
+      },
+      breakpoints: [0, 0.9],
+      initialBreakpoint: 0.9
     });
-    console.groupEnd();
 
     await modal.present();
-
-    const { data } = await modal.onDidDismiss();
-    if (data) {
-      console.log(data);
-    }
+    await modal.onWillDismiss();
   }
-  async abrirModalAgregar(promo: any) {
-  let formDirty = false;
-
-  const empresaId =
-    promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ?? this.empresaActualId ?? 0;
-
-  const modal = await this.modalCtrl.create({
-    component: ReferidoRegistroModalComponent,
-    cssClass: 'modal-registro-referido',
-    componentProps: {
-      empresaID: Number(empresaId),
-      setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
-    },
-    breakpoints: [0, 0.9],
-    initialBreakpoint: 0.9
-  });
-
-  await modal.present();
-
-  const { role, data } = await modal.onWillDismiss();
-  if (role === 'confirm') {
-    // aquí puedes refrescar la lista, mostrar toast, etc.
-    // this.cargarPromosEmpresa(this.empresaActualId!);
-    console.log('Referido guardado', data);
-  }
-}
 }
