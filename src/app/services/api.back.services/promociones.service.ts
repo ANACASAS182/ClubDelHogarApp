@@ -1,17 +1,22 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { RespuestaEstatusMensaje, RespuestaEstatusPromocion } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Promocion } from 'src/app/models/Promocion';
 import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PromocionesService {
-  // Asegúrate que environment.apiUrl termine con "/" o ajusta los templates abajo
   private readonly apiPromos = `${environment.apiUrl}api/Promociones`;
   private readonly apiEmpresa = `${environment.apiUrl}api/Empresa`;
 
   constructor(private http: HttpClient) {}
+
+  // Helper para validar IDs numéricos
+  private validId(v: unknown): v is number {
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0;
+  }
 
   // ===== EXISTENTES =====
   GenerarCodigoPromocion(solicitud: SolicitudCodigoQrRequest): Observable<SolicitudCodigoQrResponse> {
@@ -19,27 +24,28 @@ export class PromocionesService {
   }
 
   GetResumenEmbajador(UsuarioID: number): Observable<ResumenEmbajadorDTO> {
-    return this.http.get<ResumenEmbajadorDTO>(`${this.apiPromos}/GetResumenEmbajador`, {
-      params: { UsuarioID }
-    });
+    const params = new HttpParams().set('UsuarioID', String(UsuarioID));
+    return this.http.get<ResumenEmbajadorDTO>(`${this.apiPromos}/GetResumenEmbajador`, { params });
   }
 
   GetPromociones(UsuarioID: number): Observable<Promocion[]> {
-    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromociones`, {
-      params: { UsuarioID }
-    });
+    const params = new HttpParams().set('UsuarioID', String(UsuarioID));
+    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromociones`, { params });
   }
 
   GetPromocionesSocio(UsuarioID: number): Observable<Promocion[]> {
-    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromocionesSocio`, {
-      params: { UsuarioID }
-    });
+    const params = new HttpParams().set('UsuarioID', String(UsuarioID));
+    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromocionesSocio`, { params });
   }
 
-  GetPromocionesEmpresa(EmpresaID: number): Observable<Promocion[]> {
-    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromocionesEmpresa`, {
-      params: { EmpresaID }
-    });
+  // ⛑️ Blindado para no mandar ?EmpresaID=NaN
+  GetPromocionesEmpresa(EmpresaID: unknown): Observable<Promocion[]> {
+    if (!this.validId(EmpresaID)) {
+      console.warn('[PromocionesService] EmpresaID inválido:', EmpresaID);
+      return of([]); // evita llamada con NaN
+    }
+    const params = new HttpParams().set('EmpresaID', String(EmpresaID));
+    return this.http.get<Promocion[]>(`${this.apiPromos}/GetPromocionesEmpresa`, { params });
   }
 
   ConsultarEstatusDelCodigoQr(request: ValidarPromocionQrRequest): Observable<RespuestaEstatusPromocion> {
@@ -55,13 +61,15 @@ export class PromocionesService {
   }
 
   // ===== NUEVOS =====
-  /** Server-side filter: empresa del TOKEN (endpoint en EmpresaController) */
   getPromocionesVigentes(): Observable<Promocion[]> {
     return this.http.get<Promocion[]>(`${this.apiEmpresa}/GetVigentes`);
   }
 
-  /** Server-side filter: empresa explícita (endpoint en PromocionesController) */
-  GetPromocionesVigentesByEmpresa(empresaId: number): Observable<Promocion[]> {
+  GetPromocionesVigentesByEmpresa(empresaId: unknown): Observable<Promocion[]> {
+    if (!this.validId(empresaId)) {
+      console.warn('[PromocionesService] empresaId inválido (vigentes):', empresaId);
+      return of([]);
+    }
     const params = new HttpParams().set('empresaId', String(empresaId));
     return this.http.get<Promocion[]>(`${this.apiPromos}/GetVigentesByEmpresa`, { params });
   }

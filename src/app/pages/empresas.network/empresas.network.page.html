@@ -40,7 +40,7 @@
           [class.activa]="item.id === empresaActualId"
           (click)="seleccionarEmpresa(item)">
           <div class="img-box">
-            <img [src]="item.logotipoBase64" alt="Imagen" />
+            <img [src]="ensureDataUrl(item.logotipoBase64) || item.logotipoPath || 'assets/img/no-logo.svg'" alt="Logo" />
           </div>
         </ion-card>
       </ion-col>

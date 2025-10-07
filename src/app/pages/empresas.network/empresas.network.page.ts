@@ -51,7 +51,7 @@ export class EmpresasNetworkPage implements OnInit {
         const user = response.data;
         this.UsuarioID = user.id;
 
-        // ⚠️ clave: en JSON viene como rolesID
+        // ⚠️ roles a prueba de balas
         const rolId = Number(
           (user as any)?.rolesID ?? (user as any)?.RolesID ??
           (user as any)?.rolID   ?? (user as any)?.rolId   ??
@@ -60,15 +60,33 @@ export class EmpresasNetworkPage implements OnInit {
         this.esSocio = (rolId === 2);
         console.log('[EmpresasNetwork] rolId=', rolId, 'esSocio=', this.esSocio);
 
+        // Empresas del usuario
         this.empresaService.getAllEmpresasByUsuarioId(this.UsuarioID).subscribe({
           next: (data) => {
-            this.empresas = data.data || [];
+            const crudas = (data as any)?.data ?? data ?? [];
+
+            // 🔧 normaliza id en todos los elementos (todas las variantes)
+            this.empresas = (crudas || []).map((e: any) => {
+              const anyId =
+                e?.id ?? e?.ID ?? e?.Id ?? e?.iD ??
+                e?.empresaID ?? e?.EmpresaID ?? e?.empresaId ?? e?.EmpresaId ??
+                e?.empresa_id ?? e?.Empresa_id ?? e?.Empresa_id;
+              const id = Number(anyId) || 0;
+              return { ...e, id };
+            });
+
+            console.log('[EmpresasNetwork] empresas[0]=', this.empresas[0]);
+
             this.cargandoEmpresas = false;
 
-            if (this.empresas.length > 0) {
-              this.empresaActualId = Number(this.empresas[0].id);
+            // Toma la primera con id válido > 0
+            const primeraConId = this.empresas.find(x => Number((x as any)?.id) > 0);
+            if (primeraConId) {
+              this.empresaActualId = Number((primeraConId as any).id);
+              console.log('[EmpresasNetwork] empresaActualId =', this.empresaActualId);
               this.cargarPromosEmpresa(this.empresaActualId);
             } else {
+              console.warn('[EmpresasNetwork] ninguna empresa con id válido');
               this.promociones = [];
               this.cargandoPromociones = false;
             }
@@ -80,6 +98,7 @@ export class EmpresasNetworkPage implements OnInit {
             this.cargandoPromociones = false;
           }
         });
+
       },
       error: _ => {
         this.cargandoEmpresas = false;
@@ -89,17 +108,39 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   seleccionarEmpresa(item: Empresa) {
-    const id = Number((item as any)?.id);
-    if (!id || id === this.empresaActualId) return;
+    const id = this.getEmpresaId(item);
+    if (!id || id <= 0) return;
+    if (id === this.empresaActualId) return;
     this.empresaActualId = id;
     this.cargarPromosEmpresa(id);
   }
 
+  // helper robusto
+  private getEmpresaId(e: any): number {
+    return Number(
+      e?.id ?? e?.ID ?? e?.Id ?? e?.iD ??
+      e?.empresaID ?? e?.EmpresaID ?? e?.empresaId ?? e?.EmpresaId ??
+      e?.empresa_id ?? e?.Empresa_id ?? e?.Empresa_id ?? 0
+    ) || 0;
+  }
+
   private cargarPromosEmpresa(empresaId: number) {
+    if (!empresaId || empresaId <= 0) {
+      console.warn('[EmpresasNetwork] cargarPromosEmpresa: empresaId inválido', empresaId);
+      this.promociones = [];
+      this.cargandoPromociones = false;
+      return;
+    }
+
     this.cargandoPromociones = true;
     this.promocionesService.GetPromocionesEmpresa(empresaId).subscribe({
       next: (data) => {
-        this.promociones = data || [];
+        // Tolera respuesta plana ([]) o envuelta (GenericResponseDTO)
+        const payload: any = data as any;
+        const arr = Array.isArray(payload?.data) ? payload.data
+                  : Array.isArray(payload) ? payload
+                  : [];
+        this.promociones = arr || [];
         this.cargandoPromociones = false;
       },
       error: _ => {
@@ -110,8 +151,17 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   verMas(item: any) {
-    this.router.navigate(['/dashboard/empresa/detalle'], { queryParams: { empresaID: item.id } });
+    const id = this.getEmpresaId(item);
+    this.router.navigate(['/dashboard/empresa/detalle'], { queryParams: { empresaID: id } });
   }
+
+  ensureDataUrl(b64?: string): string {
+    if (!b64) return '';
+    const clean = (b64 || '').trim().replace(/\s+/g, ''); // quita CR/LF/espacios
+    if (clean.startsWith('data:')) return clean;
+    return `data:image/png;base64,${clean}`;
+  }
+
 
   async abrirModalPromocion(promoSeleccionada: Promocion) {
     let formDirty = false;
@@ -139,7 +189,8 @@ export class EmpresasNetworkPage implements OnInit {
     let formDirty = false;
 
     const empresaId =
-      promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ?? this.empresaActualId ?? 0;
+      promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ??
+      this.empresaActualId ?? 0;
 
     const modal = await this.modalCtrl.create({
       component: ReferidoRegistroModalComponent,
