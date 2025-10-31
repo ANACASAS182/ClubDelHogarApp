@@ -1,145 +1,118 @@
-.userLabel {
-    color: #ececec;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.top-padding{
-    padding-top: 96px !important;
-}
-
-.fechaLabel {
-    color: #001744;
-    font-weight: bold;
-    font-size: 12px;
-}
-
+/* ====== Base colores/tabbar móvil ====== */
 ion-tab-bar {
-  background-color: #111822; // fondo azul oscuro
-  color: #ececec; // color de íconos/texto no activo
-
+  background-color: #111822;
+  color: #ececec;
   --background: #111822;
   --color: #ececec;
-  --color-selected: #ffffff; // ítem seleccionado
-
-  border-top: 1px solid rgba(255, 255, 255, 0.1); // línea superior sutil
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3); // sombra superior
+  --color-selected: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
 }
+ion-tab-button { --ripple-color: #ffffff44; font-size: 12px; }
+ion-tab-button.ion-selected { color: #ffffff; }
 
-ion-tab-button {
-  --ripple-color: #ffffff44;
-  font-size: 12px;
-}
+.top-padding { padding-top: 96px !important; }
+.userLabel { color: #ececec; font-weight: bold; font-size: 12px; }
+.fechaLabel { color: #001744; font-weight: bold; font-size: 12px; }
+.buttonHeader { --color: #001744; font-weight: bold; font-size: 12px; }
 
-ion-tab-button.ion-selected {
-  color: #ffffff;
-}
-
-
-//------------
-
-/* Referencias.page.scss (o global si lo prefieres) */
-
-/* Estilo base que ya tienes */
+/* ====== Searchbar (si la usas en la top-bar) ====== */
 .top-bar ion-searchbar{
   --background: #fff;
   --border-radius: 14px;
   --box-shadow: 0 4px 14px rgba(0,0,0,.06);
+  --padding-start: 36px; /* espacio para el texto */
+}
+.top-bar ion-searchbar::part(container){ overflow: hidden; }
+.top-bar ion-searchbar::part(search-icon){ inset-inline-start: 12px; }
+
+/* ====== Menú lateral ====== */
+ion-menu.custom-menu { --background: #141820; height: 100%; }
+ion-menu.custom-menu ion-content { height: 100%; }
+
+/* Header con logo fijo y centrado */
+.custom-menu .menu-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 12px;
+  background: inherit;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.custom-menu .menu-header img {
+  max-width: 180px;
+  width: 70%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.25));
+}
+@media (min-width: 992px) {
+  .custom-menu .menu-header img { max-width: 200px; width: 75%; }
 }
 
-/* Evita que el ícono se vea “fuera” del borde redondo */
-.top-bar ion-searchbar::part(container){
-  overflow: hidden;                 /* recorta cualquier desborde */
+/* Scroll del menú sin barra visible */
+ion-menu.custom-menu ion-content::part(scroll) {
+  overflow-y: auto;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
+  padding-right: 0 !important;
+}
+ion-menu.custom-menu ion-content::part(scroll)::-webkit-scrollbar {
+  width: 0; height: 0; display: none;
 }
 
-/* Reposiciona la lupa un poco hacia adentro */
-.top-bar ion-searchbar::part(search-icon){
-  inset-inline-start: 12px;         /* mueve la lupa desde la izquierda (RTL-safe) */
-}
-
-/* (Opcional) si quieres que el texto arranque un poco después de la lupa */
-.top-bar ion-searchbar{
-  --padding-start: 36px;            /* espacio para el texto dentro del input */
-}
-
-
-//--------------------
-
-
-.buttonHeader {
-    --color: #001744;
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.menu-separator {
-    height: 1px;
-    background-color: white;
-    margin: 10px 10px;
-}
-
-.logout-button-container {
-    justify-content: center;
-    margin: 0 10px;
-}
-
-//---------------
-
+/* Separadores / contenedores */
 .menu-separator {
   height: 1px;
   background: rgba(255,255,255,0.2);
   margin: 12px 16px 8px;
 }
+.logout-button-container { padding: 0 16px 16px; display: flex; }
 
-.user-container {
+/* Tarjeta de rol */
+.role-card{
+  margin: 12px 12px 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
   display: flex;
-  justify-content: center;
-  padding: 8px 16px;
-}
-
-.name-text {
-  color: #fff;
-  font-weight: 700;
-  font-size: 14px;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
-
-.logout-button-container {
-  padding: 0 16px 16px;
-}
-
-//------
-/* Quitar la barra de scroll visible en el menú lateral (Ionic 6/7) */
-ion-menu.custom-menu ion-content::part(scroll) {
-  /* Mantiene el scroll funcional si hiciera falta, pero sin barra */
-  overflow-y: auto;
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* IE/Edge */
-  padding-right: 0 !important;  /* evita reservar espacio para la barra */
-}
-ion-menu.custom-menu ion-content::part(scroll)::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;                /* Chrome/Safari */
-}
-
-/* Por si algún estilo raro estaba forzando altura */
-ion-menu.custom-menu,
-ion-menu.custom-menu ion-content {
-  height: 100%;
-}
-
-.user-inline {
-  display: flex;
-  justify-content: space-between; /* Empresa a la izq, Usuario a la der */
-  align-items: center;
+.role-title{
   width: 100%;
-  padding: 8px 12px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 8px;
-  gap: 16px; /* espacio entre ambos pares */
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #cbd5e1;
+  font-weight: 700;
+  margin-bottom: 6px;
 }
+.role-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #e2e8f0;
+  margin: 4px 0 0;
+  ion-icon{ font-size: 18px; }
+}
+/* Colores por rol */
+.role-pill.admin{ background: #fde68a; color: #7c2d12; }
+.role-pill.socio{ background: #bbf7d0; color: #064e3b; }
+.role-pill.embajador{ background: #bae6fd; color: #0c4a6e; }
 
+/* Ficha meta de usuario */
 .user-meta {
   width: calc(100% - 24px);
   margin: 10px 12px 8px;
@@ -149,8 +122,6 @@ ion-menu.custom-menu ion-content {
   border: 1px solid rgba(255,255,255,0.10);
   backdrop-filter: saturate(120%) blur(0.5px);
 }
-
-/* Filas Empresa / Usuario */
 .meta-row {
   display: flex;
   align-items: baseline;
@@ -158,15 +129,13 @@ ion-menu.custom-menu ion-content {
   line-height: 1.2;
   margin: 4px 0;
 }
-
-/* Etiqueta y valor (mismos tokens que el panel 2) */
 .meta-label {
   font-size: 11px;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: #cbd5e1;           /* slate-300 */
+  color: #cbd5e1;
   font-weight: 700;
-  min-width: 64px;          /* alinea etiquetas */
+  min-width: 64px;
 }
 .meta-value {
   font-size: 14px;
@@ -177,67 +146,7 @@ ion-menu.custom-menu ion-content {
   text-rendering: optimizeLegibility;
 }
 
+/* Utilidades que no usas ahora, pero dejo por si se requieren */
+.user-container { display: flex; justify-content: center; padding: 8px 16px; }
+.name-text { color:#fff; font-weight:700; font-size:14px; text-align:center; }
 .user-inline, .user-inline .pair { display: none; }
-
-.role-card{
-  margin: 12px 12px 6px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.10);
-}
-
-.role-title{
-  font-size: 11px;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: #cbd5e1;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.role-pill{
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 9999px;
-  font-weight: 700;
-  color: #0f172a;
-  background: #e2e8f0; /* base por si no hay rol */
-
-  ion-icon{ font-size: 18px; }
-}
-
-/* Colores por rol */
-.role-pill.admin{
-  background: #fde68a; /* amber-300 */
-  color: #7c2d12;
-}
-.role-pill.socio{
-  background: #bbf7d0; /* green-200 */
-  color: #064e3b;
-}
-.role-pill.embajador{
-  background: #bae6fd; /* sky-200 */
-  color: #0c4a6e;
-}
-
-/* Centrar el recuadro de rol */
-.role-card{
-  display: flex;
-  flex-direction: column;
-  align-items: center;     /* ← centra horizontal */
-  text-align: center;      /* título centrado */
-}
-
-.role-title{
-  width: 100%;
-  text-align: center;
-}
-
-.role-pill{
-  align-self: center;      /* asegura que la pill quede al centro */
-  margin: 4px 0 0;
-}
-
