@@ -2,8 +2,8 @@ import { CapacitorConfig } from '@capacitor/cli';
 import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard';
 
 const config: CapacitorConfig = {
-  appId: 'com.embassy.app',
-  appName: 'EmbassyApp',
+  appId: 'com.elclubdelhogar.com',
+  appName: 'Club Del Hogar',
   webDir: 'www',
   bundledWebRuntime: false,
   server: {
