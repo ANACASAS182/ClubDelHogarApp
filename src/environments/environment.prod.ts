@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: "https://ebg-api.bithub.com.mx/" //cambiar por Dominio de produccion
+  apiUrl: "https://api-cdh.bithub.com.mx/" //cambiar por Dominio de produccion
 };
