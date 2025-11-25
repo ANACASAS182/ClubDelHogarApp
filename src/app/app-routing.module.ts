@@ -5,69 +5,80 @@ import { UsuarioRegistroResolver } from './resolvers/usuario.registro.resolver';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { AuthGuard } from './guards/auth.guard';
 import { OnboardingGuard } from './guards/onboarding.guard';
-
-// Si tu onboarding es componente standalone:
 import { OnboardingComponent } from './modals/onboarding/onboarding.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
+  // App arranca en network
+  { path: '', redirectTo: 'dashboard/network', pathMatch: 'full' },
+
+  // LOGIN (por si luego lo quieres usar manualmente)
   {
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule),
-    canActivate: [NoAuthGuard],
   },
 
+  // REGISTRO (flujo de referencias)
   {
     path: 'registro',
-    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module').then(m => m.UsuarioRegistroPageModule),
-    canActivate: [NoAuthGuard],
+    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module')
+      .then(m => m.UsuarioRegistroPageModule),
     resolve: { resolverData: UsuarioRegistroResolver }
   },
   {
     path: 'registro/:codigo',
-    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module').then(m => m.UsuarioRegistroPageModule),
-    canActivate: [NoAuthGuard],
+    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module')
+      .then(m => m.UsuarioRegistroPageModule),
     resolve: { resolverData: UsuarioRegistroResolver }
   },
 
+  // PASSWORD
   {
     path: 'password/recovery',
-    loadChildren: () => import('./pages/usuario.password.recovery/usuario.password.recovery.module').then(m => m.UsuarioPasswordRecoveryPageModule),
-    canActivate: [NoAuthGuard]
+    loadChildren: () => import('./pages/usuario.password.recovery/usuario.password.recovery.module')
+      .then(m => m.UsuarioPasswordRecoveryPageModule)
   },
   {
     path: 'password/reset',
-    loadChildren: () => import('./pages/usuario.password.reset/usuario.password.reset.module').then(m => m.UsuarioPasswordResetPageModule),
-    canActivate: [NoAuthGuard]
+    loadChildren: () => import('./pages/usuario.password.reset/usuario.password.reset.module')
+      .then(m => m.UsuarioPasswordResetPageModule)
   },
 
-  // 👇 Ruta al Onboarding (protegida solo por AuthGuard)
+  // ONBOARDING
   {
     path: 'onboarding',
     component: OnboardingComponent,
-    canActivate: [AuthGuard],
-    // si tienes pasos, puedes anidar children (ej. bienvenida, datos, ubicación)
   },
 
-  // 👇 Rutas privadas: requieren sesión **y** pasar OnboardingGuard
+  // DASHBOARD
   {
     path: 'dashboard',
-    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
-    canActivate: [AuthGuard, OnboardingGuard],
-    runGuardsAndResolvers: 'always'
+    // 🚫 SIN AuthGuard
+    canActivate: [OnboardingGuard],   // solo revisa si debe mostrar onboarding
+    loadChildren: () =>
+      import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
   },
-  {
-    path: 'activaciones',
-    loadChildren: () => import('./pages/activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
-    canActivate: [AuthGuard, OnboardingGuard],
-    runGuardsAndResolvers: 'always'
-  },
-  { path: 'dashboard/referencias-app', 
-    loadChildren: () => import('./pages/referencias-app/referencias-app.module').then(m => m.ReferenciasAppModule) 
-  }
 
+  // VALIDAR CÓDIGO
+  {
+    path: 'validar-codigo',
+    loadChildren: () =>
+      import('./pages/usuario.codigo.validar/usuario.codigo.validar.module')
+        .then(m => m.UsuarioCodigoValidarPageModule)
+  },
+
+  // CREAR PASSWORD
+  {
+    path: 'usuario-crear-password',
+    loadChildren: () =>
+      import('./pages/usuario-crear-password/usuario-crear-password.module')
+        .then(m => m.UsuarioCrearPasswordPageModule)
+  },
+
+  // Fallback
+  { path: '**', redirectTo: 'dashboard/network' },
 ];
+
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, { preloadingStrategy: PreloadAllModules })],

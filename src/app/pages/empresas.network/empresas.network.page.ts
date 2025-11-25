@@ -49,6 +49,12 @@ export class EmpresasNetworkPage implements OnInit {
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         const user = response.data;
+        if (!user) {
+          this.cargandoEmpresas = false;
+          this.cargandoPromociones = false;
+          return;
+        }
+
         this.UsuarioID = user.id;
 
         // ⚠️ roles a prueba de balas
@@ -90,6 +96,9 @@ export class EmpresasNetworkPage implements OnInit {
               this.promociones = [];
               this.cargandoPromociones = false;
             }
+
+            // 👇 después de tener usuario/empresas, revisamos si hay un referido pendiente
+            this.checkPendingReferral();
           },
           error: _ => {
             this.empresas = [];
@@ -121,6 +130,15 @@ export class EmpresasNetworkPage implements OnInit {
       e?.id ?? e?.ID ?? e?.Id ?? e?.iD ??
       e?.empresaID ?? e?.EmpresaID ?? e?.empresaId ?? e?.EmpresaId ??
       e?.empresa_id ?? e?.Empresa_id ?? e?.Empresa_id ?? 0
+    ) || 0;
+  }
+
+  // nuevo helper para obtener el producto de la promo
+  private getProductoId(p: any): number {
+    return Number(
+      p?.productoID ?? p?.ProductoID ??
+      p?.productoId ?? p?.producto_id ??
+      p?.id ?? p?.ID ?? 0
     ) || 0;
   }
 
@@ -162,7 +180,6 @@ export class EmpresasNetworkPage implements OnInit {
     return `data:image/png;base64,${clean}`;
   }
 
-
   async abrirModalPromocion(promoSeleccionada: Promocion) {
     let formDirty = false;
 
@@ -185,6 +202,7 @@ export class EmpresasNetworkPage implements OnInit {
     await modal.onDidDismiss();
   }
 
+  // 👇 aquí conectamos CARD → registro / referidos
   async abrirModalAgregar(promo: any) {
     let formDirty = false;
 
@@ -192,11 +210,36 @@ export class EmpresasNetworkPage implements OnInit {
       promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ??
       this.empresaActualId ?? 0;
 
+    const productoId = this.getProductoId(promo);
+
+    const tel = localStorage.getItem('cdh_tel');
+
+    // Si NO está registrado (no tiene telefono guardado) → guardamos pendiente y mandamos a registro
+    if (!tel) {
+      localStorage.setItem(
+        'cdh_pending_ref',
+        JSON.stringify({
+          empresaId: Number(empresaId) || 0,
+          productoId: Number(productoId) || 0,
+        })
+      );
+
+      this.router.navigate(['/registro'], {
+        queryParams: {
+          productoID: productoId || null
+        }
+      });
+
+      return;
+    }
+
+    // Si ya está registrado → abrimos el modal de referido normal, con empresa/producto preseleccionados
     const modal = await this.modalCtrl.create({
       component: ReferidoRegistroModalComponent,
       cssClass: 'modal-registro-referido',
       componentProps: {
         empresaID: Number(empresaId),
+        productoID: Number(productoId) || 0,
         setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
       },
       breakpoints: [0, 0.9],
@@ -205,5 +248,73 @@ export class EmpresasNetworkPage implements OnInit {
 
     await modal.present();
     await modal.onWillDismiss();
+  }
+
+  // Al entrar a network después del registro/onboarding revisamos si hay un referido pendiente
+  private async checkPendingReferral() {
+    const raw = localStorage.getItem('cdh_pending_ref');
+    if (!raw) return;
+
+    localStorage.removeItem('cdh_pending_ref');
+
+    let pending: { empresaId: number; productoId: number };
+    try {
+      pending = JSON.parse(raw);
+    } catch {
+      return;
+    }
+
+    let formDirty = false;
+
+    const modal = await this.modalCtrl.create({
+      component: ReferidoRegistroModalComponent,
+      cssClass: 'modal-registro-referido',
+      componentProps: {
+        empresaID: Number(pending.empresaId) || 0,
+        productoID: Number(pending.productoId) || 0,
+        setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
+      },
+      breakpoints: [0, 0.9],
+      initialBreakpoint: 0.9
+    });
+
+    await modal.present();
+    await modal.onWillDismiss();
+  }
+
+  redirigirAlRegistro(promo: any) {
+    const empresaId =
+      promo?.empresaID ?? promo?.EmpresaID ?? promo?.empresaId ??
+      this.empresaActualId ?? 0;
+
+    const productoId = this.getProductoId(promo);
+    const tel = localStorage.getItem('cdh_tel');
+
+    console.log('[Network] click promo', { empresaId, productoId, tel });
+
+    // 1) Si NO está registrado → guardamos pendiente y mandamos a registro
+    if (!tel) {
+      localStorage.setItem(
+        'cdh_pending_ref',
+        JSON.stringify({
+          empresaId: Number(empresaId) || 0,
+          productoId: Number(productoId) || 0,
+        })
+      );
+
+      this.router.navigate(['/registro'], {
+        queryParams: {
+          productoID: productoId || null
+        }
+      });
+
+      return;
+    }
+
+    // 2) Si YA está registrado → abrimos el modal de referido directo
+    this.abrirModalAgregar({
+      ...promo,
+      empresaID: empresaId,
+    });
   }
 }

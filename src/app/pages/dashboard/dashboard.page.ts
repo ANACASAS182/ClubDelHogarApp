@@ -39,13 +39,25 @@ export class DashboardPage implements OnInit {
   esEmbajador = false;
 
   // 1 = Admin, 2 = Socio, 3 = Embajador
-  public appPages: PageItem[] = [
+  /*public appPages: PageItem[] = [
     { title: 'Network',   tituloMovil: 'Network',   url: '/dashboard/network',       icon: 'network',       visible: false, access: [1,2,3] },
     { title: 'Referidos', tituloMovil: 'Referidos', url: '/dashboard/referidos',     icon: 'referidos',     visible: false, access: [1,3] },
     { title: 'Mi Célula', tituloMovil: 'Célula',    url: '/dashboard/celula',        icon: 'network',       visible: false, access: [3] },
     { title: 'Referencias', tituloMovil: 'Referencias', url: '/dashboard/referencias', icon: 'referidos', visible: false, access: [2] },
     { title: 'Mis Datos', tituloMovil: 'Mis Datos', url: '/dashboard/configuracion', icon: 'configuracion', visible: false, access: [1,2,3] }
+  ]; */
+
+  public appPages: PageItem[] = [
+    { 
+      title: 'Network',
+      tituloMovil: 'Network',
+      url: '/dashboard/network',
+      icon: 'network',
+      visible: true,     // 👈 SIEMPRE visible
+      access: []         // 👈 desactivamos filtros por rol
+    }
   ];
+
 
   constructor(
     private router: Router,
@@ -77,7 +89,7 @@ export class DashboardPage implements OnInit {
         this.esEmbajador = roleVal === 3;
 
         // visibilidad por rol
-        this.appPages.forEach(p => p.visible = p.access.includes(roleVal));
+        //this.appPages.forEach(p => p.visible = p.access.includes(roleVal));
 
         // empresa rápida
         this.empresaName = this.getEmpresaNombreFallback(u);

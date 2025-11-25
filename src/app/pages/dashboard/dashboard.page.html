@@ -2,15 +2,19 @@
   <ng-container *ngIf="!isMobile; else mobileTabs">
     <!-- Menú lateral escritorio -->
     <ion-split-pane contentId="main-content">
+
       <ion-menu class="custom-menu" contentId="main-content" type="push" swipeGesture="true">
         <ion-content>
           <ion-list id="inbox-list">
 
+            <!-- Logo -->
             <ion-menu-toggle auto-hide="false">
               <img src="assets/logo_blancoCDH.png" style="margin-top:10px;" alt="Logo" />
             </ion-menu-toggle>
 
-            <!-- Items del menú (visibilidad por rol) -->
+            <!-- ==========================================
+                 ITEMS VISIBLES (SOLO NETWORK)
+                 ========================================== -->
             @for (p of appPages; track p; let i = $index) {
               <ion-menu-toggle auto-hide="false">
                 <ion-item
@@ -20,15 +24,20 @@
                   lines="none"
                   detail="false"
                   routerLinkActive="selected">
+
                   <img [src]="'assets/icons/' + p.icon + '.png'"
                        alt="icon"
                        style="width:20px;height:20px;margin-right:8px;vertical-align:middle;" />
+
                   <ion-label>{{ p.title }}</ion-label>
                 </ion-item>
               </ion-menu-toggle>
             }
 
-            <!-- Botón QR solo Socio -->
+            <!-- ==========================================
+                 BOTÓN QR (OCULTO)
+                 ========================================== -->
+            <!--
             <ion-menu-toggle auto-hide="false" *ngIf="esSocio">
               <div class="logout-button-container">
                 <ion-button expand="block" color="light" size="small" (click)="abrirModalQr()">
@@ -37,8 +46,12 @@
                 </ion-button>
               </div>
             </ion-menu-toggle>
+            -->
 
-            <!-- Recuadro: Rol actual -->
+            <!-- ==========================================
+                 ROL ACTUAL (OCULTO)
+                 ========================================== -->
+            <!--
             <ion-menu-toggle auto-hide="false">
               <div class="role-card">
                 <div class="role-title">Rol actual</div>
@@ -52,65 +65,76 @@
                 </div>
               </div>
             </ion-menu-toggle>
+            -->
 
             <!-- Separador -->
             <div class="menu-separator"></div>
 
+            <!-- ==========================================
+                 DATOS DE USUARIO / EMPRESA (OCULTOS)
+                 ========================================== -->
+            <!--
             <ion-menu-toggle auto-hide="false">
-            <!-- Vista SOLO para Socio: Empresa + Correo -->
-            <div class="user-meta" *ngIf="esSocio; else noSocioMeta">
-              <div class="meta-row" *ngIf="empresaName">
-                <span class="meta-label">Empresa</span>
-                <span class="meta-value">{{ empresaName }}</span>
-              </div>
-
-              <div class="meta-row" *ngIf="userEmail">
-                <span class="meta-label">Correo</span>
-                <span class="meta-value">{{ userEmail }}</span>
-              </div>
-            </div>
-
-            <!-- Vista para NO Socio (Admin y Embajador) -->
-            <ng-template #noSocioMeta>
-              <div class="user-meta">
-                <div class="meta-row" *ngIf="!esEmbajador && empresaName">
+              <div class="user-meta" *ngIf="esSocio; else noSocioMeta">
+                <div class="meta-row" *ngIf="empresaName">
                   <span class="meta-label">Empresa</span>
                   <span class="meta-value">{{ empresaName }}</span>
                 </div>
 
-                <div class="meta-row">
-                  <span class="meta-label">Usuario</span>
-                  <span class="meta-value">{{ userName }}</span>
+                <div class="meta-row" *ngIf="userEmail">
+                  <span class="meta-label">Correo</span>
+                  <span class="meta-value">{{ userEmail }}</span>
                 </div>
               </div>
-            </ng-template>
-          </ion-menu-toggle>
 
-          <!-- separador opcional -->
-          <div style="height:10px;"></div>
+              <ng-template #noSocioMeta>
+                <div class="user-meta">
+                  <div class="meta-row" *ngIf="!esEmbajador && empresaName">
+                    <span class="meta-label">Empresa</span>
+                    <span class="meta-value">{{ empresaName }}</span>
+                  </div>
 
-          <!-- Botón Cerrar Sesión (restaurado) -->
-          <ion-menu-toggle auto-hide="false">
-            <div class="logout-button-container">
-              <ion-button expand="block" color="light" size="small" (click)="logout()">
-                <ion-icon slot="start" name="power"></ion-icon>
-                Cerrar Sesión
-              </ion-button>
-            </div>
-          </ion-menu-toggle>
+                  <div class="meta-row">
+                    <span class="meta-label">Usuario</span>
+                    <span class="meta-value">{{ userName }}</span>
+                  </div>
+                </div>
+              </ng-template>
+            </ion-menu-toggle>
+            -->
 
+            <!-- Separador -->
+            <div style="height:10px;"></div>
+
+            <!-- ==========================================
+                 BOTÓN CERRAR SESIÓN (OCULTO)
+                 ========================================== -->
+            <!--
+            <ion-menu-toggle auto-hide="false">
+              <div class="logout-button-container">
+                <ion-button expand="block" color="light" size="small" (click)="logout()">
+                  <ion-icon slot="start" name="power"></ion-icon>
+                  Cerrar Sesión
+                </ion-button>
+              </div>
+            </ion-menu-toggle>
+            -->
 
           </ion-list>
         </ion-content>
       </ion-menu>
 
+      <!-- CONTENIDO PRINCIPAL -->
       <div class="ion-page" id="main-content">
         <ion-router-outlet></ion-router-outlet>
       </div>
+
     </ion-split-pane>
   </ng-container>
 
-  <!-- Menú móvil -->
+  <!-- ==========================================
+       MENÚ MÓVIL — SOLO NETWORK
+       ========================================== -->
   <ng-template #mobileTabs>
     <ion-tabs>
       <ion-router-outlet></ion-router-outlet>

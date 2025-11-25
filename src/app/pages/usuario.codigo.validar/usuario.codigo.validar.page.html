@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Revisa tu WhatsApp</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="codigo-content">
+
+  <p class="titulo">Ingresa el código que enviamos a:</p>
+  <p class="dato"><strong>{{ telefonoORcorreo }}</strong></p>
+
+  <form [formGroup]="form">
+
+    <ion-item>
+      <ion-input
+        placeholder="Ej. 25188"
+        formControlName="codigo"
+        inputmode="numeric">
+      </ion-input>
+    </ion-item>
+
+    <ion-button
+      [disabled]="loading || form.invalid"
+      (click)="validarCodigo()"
+    >
+      Validar
+    </ion-button>
+
+
+    <p class="mensaje">¿Ingresaste el número equivocado?</p>
+
+    <ion-button expand="block" color="light"
+      (click)="regresar()">
+      Regresar
+    </ion-button>
+
+    <ion-button expand="block" color="secondary"
+      (click)="reenviarCodigo()">
+      Reenviar código
+    </ion-button>
+
+  </form>
+
+</ion-content>

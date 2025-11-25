@@ -10,14 +10,13 @@ const routes: Routes = [
   {
     path: '',
     component: DashboardPage,
-    canActivate: [AuthGuard],
+    //canActivate: [AuthGuard],
     children: [
       {
         path: 'network',
-        loadChildren: () => import('../empresas.network/empresas.network.module').then(m => m.EmpresasNetworkPageModule),
-        resolve: {
-          resolverData: EmpresaResolver
-        }
+        loadChildren: () => import('../empresas.network/empresas.network.module')
+          .then(m => m.EmpresasNetworkPageModule),
+        resolve: { resolverData: EmpresaResolver }
       },
       {
         path: 'configuracion',

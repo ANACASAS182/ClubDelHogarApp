@@ -79,23 +79,39 @@ export class UsuarioService {
 
   // ------------------- USUARIO / PERFIL -------------------
   /** PERFIL del usuario logueado (anti-caché y con tipado) */
-  getUsuarioLogeado(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
+  getUsuarioLogeado(telOrSkip?: string | boolean): Observable<GenericResponseDTO<Usuario>> {
+    let tel: string | undefined;
+    let skipErrorHandler = false;
+
+    if (typeof telOrSkip === 'string') {
+      tel = telOrSkip;
+    } else if (typeof telOrSkip === 'boolean') {
+      skipErrorHandler = telOrSkip;
+    }
+
     let headers = new HttpHeaders()
       .set('ngsw-bypass', 'true')
       .set('Cache-Control', 'no-cache')
       .set('Pragma', 'no-cache');
 
-    if (skipErrorHandler) headers = headers.set('skipErrorHandler', 'true');
+    if (skipErrorHandler) {
+      headers = headers.set('skipErrorHandler', 'true');
+    }
 
-    const url = `${this.apiUrlUsuario}/GetUsuarioLogeado?t=${Date.now()}`;
+    const localTel = tel || localStorage.getItem('cdh_tel') || undefined;
+
+    let url = `${this.apiUrlUsuario}/GetUsuarioLogeado`;
+    if (localTel) {
+      url += `?tel=${encodeURIComponent(localTel)}`;
+    }
+
     return this.http.get<GenericResponseDTO<Usuario>>(url, { headers });
   }
 
-  /** Wrapper por compatibilidad con código existente */
-  getUsuario(skipErrorHandler = false): Observable<GenericResponseDTO<Usuario>> {
+  getUsuario(skipErrorHandler = false) {
     return this.getUsuarioLogeado(skipErrorHandler);
   }
-
+  
   updateUsuario(user: UsuarioDTO, skipErrorHandler = false): Observable<GenericResponseDTO<boolean>> {
   // normaliza el correo ANTES de enviarlo (usa camelCase!)
   if (user.email) user.email = user.email.trim().toLowerCase();

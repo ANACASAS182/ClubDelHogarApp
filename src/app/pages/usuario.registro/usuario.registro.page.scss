@@ -1,144 +1,42 @@
-.page {
-    --background: #e3edf7;
-    height: 100%;
+.section {
+  margin-top: 20px;
 }
 
-.center-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; 
-    padding-top: 40px; 
-    height: auto; 
-    min-height: 100%;
-    width: 100%;
-    box-sizing: border-box;
+.label {
+  font-weight: 500;
+  margin-bottom: 6px;
 }
 
-.card {
-    position: relative;
-    background: #ffffff;
-    border-radius: 20px;
-    width: 90%; 
-    max-width: 1000px; 
-    padding: 40px 20px 100px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    text-align: center;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    height: auto;
-    max-height: none;
-    overflow: visible;
+.input-box {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding-left: 12px;
+  height: 45px;
+  display: flex;
+  align-items: center;
 }
 
-.form-title {
-    font-weight: bold;
-    color: #2c3e50;
+.btn-center {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.input {
-    margin: 12px 0;
-    --background: #f1f1f1;
-    --border-radius: 4px;
-    --padding-start: 16px;
-    --padding-end: 16px;
-    width: 100%;
-    color: #2c3e50 !important;
-
-    border: 1px solid transparent;
-    border-radius: 4px;
-    border-color: black;
-    transition: border-color 0.3s ease;
-    text-align: left;
+.spacer {
+  height: 60px;
 }
 
-.input.invalid {
-    border-color: var(--ion-color-danger, red);
+.small-info {
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 
-  
-.button {
-    --background: #0d3b66;
-    // --border-radius: 30px;
-    font-weight: bold;
-    // width: 100%;
-    color:white;
+.registro-content {
+  padding: 16px;
 }
 
-.inner-curve {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100px;
-
-    svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-    }
+.mensaje-whatsapp {
+  margin: 6px 0 12px 4px;
+  font-size: 13px;
+  color: #1c7c24;
 }
-
-
-/* codigo de invitacion */
-
-.codigo-cupon {
-    border: 2px dashed #4caf50;
-    background-color: #f0fff0;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    max-width: 320px;
-    margin: 0 auto 20px auto;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-  
-  .codigo-texto {
-    font-size: 24px;
-    font-weight: bold;
-    color: #2e7d32;
-    margin: 0;
-  }
-  
-  .invitador-texto {
-    font-size: 14px;
-    color: #555;
-    margin-top: 8px;
-  }
-  
-
-  .mensaje-confirmacion {
-    background-color: #f0fdf4; /* verde claro */
-    border: 1px solid #34d399; /* verde medio */
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    max-width: 400px;
-    margin: 40px auto;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  }
-  
-  .mensaje-texto {
-    font-size: 16px;
-    color: #065f46;
-    margin-bottom: 20px;
-  }
-  
-  .btn-iniciar-sesion {
-    display: inline-block;
-    background-color: #10b981; /* verde fuerte */
-    color: white;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-  }
-  
-  .btn-iniciar-sesion:hover {
-    background-color: #059669; /* más oscuro al hacer hover */
-  }
-  

@@ -15,7 +15,8 @@
 
 <ion-content class="contentCustom">
     <app-resumen
-    [MostrarIngresos]="true"
+    *ngIf="false"
+    [MostrarIngresos]="false"
     [MostrarInvitados]="false"
     [MostrarAceptados]="false">
   </app-resumen>
@@ -68,14 +69,21 @@
         <ion-col
           size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
           *ngFor="let promocion of promociones">
-          <ion-card class="ion-card-embassy">
+          <ion-card class="ion-card-embassy"
+          (click)="redirigirAlRegistro(promocion)">
             <app-producto
               [promocion]="promocion"
-              [mostrarAcciones]="!esSocio"
+              [mostrarAcciones]="false">
+            </app-producto>
+          </ion-card>
+          <!--<ion-card class="ion-card-embassy">
+            <app-producto
+              [promocion]="promocion"
+              [mostrarAcciones]="false"
               (addClicked)="abrirModalAgregar(promocion)"
               (qrClicked)="abrirModalPromocion(promocion)">
             </app-producto>
-          </ion-card>
+          </ion-card>  -->
         </ion-col>
       </ion-row>
   </ion-grid>

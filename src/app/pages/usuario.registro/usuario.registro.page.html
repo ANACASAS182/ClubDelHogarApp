@@ -1,106 +1,57 @@
-<ion-content class="page" fullscreen>
-  
-    <div [formGroup]="formularioRegistro">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <div style ="text-align: center;margin-top: 48px;margin-bottom: 16px;">
-              <img style="width: 128px;" src="https://www.embassyen.com/assets/logo_transparente.png" />
-              <h3>¡Te damos la bienvenida!</h3>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-            </div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <div class="codigo-cupon" *ngIf="codigo != ''">
-              <p class="invitador-texto">Fuiste invitado a unirte por <br/><strong>{{ nombreInvitador }}</strong></p>
-            </div>
-      
-          </ion-col>
-        </ion-row>
-        
-      </ion-grid>
-      
+<ion-content class="registro-content">
 
-     
-      
-      <ng-container *ngIf="cuentaCreadaCorrectamente == 0">
-      <ion-grid>
+  <form [formGroup]="form">
 
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <p>Ingresa tus datos para crear tu cuenta</p>
-          </ion-col>
-        </ion-row>
+  <!-- TELÉFONO (solo si NO usa correo) -->
+  <ion-item *ngIf="!usarCorreo">
+    <ion-label position="stacked">Número de teléfono</ion-label>
+    <ion-input
+      placeholder="Ej. +52 6561234567"
+      formControlName="telefono"
+      inputmode="tel">
+    </ion-input>
+  </ion-item>
 
-        
-        <ion-row>
+  <!-- Mensaje WhatsApp -->
+  <p class="mensaje-whatsapp"
+    *ngIf="form.get('telefono')?.valid && !usarCorreo">
+    Te enviaremos un código por WhatsApp para validar tu número.
+  </p>
 
-          <ion-col size="12" size-md="12">
-            <ion-input class="input" [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched"
-              formControlName="email" label-placement="floating" label="Correo electrónico" type="text"
-              (ionBlur)="getControl('email')?.markAsTouched()"  [readonly]="codigo != ''">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
-              Es obligatorio ingresar tu correo electrónico
-            </ion-text>
-          </ion-col>
+  <!-- CHECK -->
+  <ion-item lines="none">
+    <ion-checkbox slot="start" formControlName="usarCorreo"></ion-checkbox>
+    <ion-label>No tengo número de teléfono</ion-label>
+  </ion-item>
 
+  <!-- CORREO (solo si usa correo) -->
+  <ion-item *ngIf="usarCorreo">
+    <ion-label position="stacked">Correo electrónico</ion-label>
+    <ion-input
+      placeholder="Ej. correo@dominio.com"
+      formControlName="correo"
+      inputmode="email">
+    </ion-input>
+  </ion-item>
 
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('password')?.invalid && getControl('password')?.touched"
-              formControlName="password" placeholder="Crear tu contraseña" type="password"
-              (ionBlur)="getControl('password')?.markAsTouched()" (ionInput)="checkStrength()">
-              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-            </ion-input>
-            <ion-progress-bar [value]="passwordStrengthValue" [color]="passwordStrengthColor"></ion-progress-bar>
-            <ion-text color="{{ passwordStrengthColor }}">
-              {{ passwordStrengthText }}
-            </ion-text>
-            <ion-text color="danger" *ngIf="getControl('password')?.hasError('required') && getControl('password')?.touched">
-              Es obligatorio ingresar tu contraseña
-            </ion-text>
-            <ion-text color="danger" *ngIf="getControl('password')?.hasError('minlength') && getControl('password')?.touched">
-              La contraseña debe tener al menos 6 caracteres.
-            </ion-text>
-          </ion-col>
+  <div style="height: 20px;"></div>
 
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched"
-              formControlName="confirmPassword" placeholder="Confirmar contraseña" type="password"
-              (ionBlur)="getControl('confirmPassword')?.markAsTouched()">
-              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-            </ion-input>
-            <ion-text color="danger"
-              *ngIf="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched">
-              Es obligatorio confirmar tu contraseña
-            </ion-text>
-            <ion-text color="danger"
-              *ngIf="getControl('confirmPassword')?.errors?.['mustMatch'] && getControl('confirmPassword')?.touched">
-              <br/>La contraseña no coincide
-            </ion-text>
-          </ion-col>
+  <ion-button
+    expand="block"
+    color="primary"
+    [disabled]="!formularioValido"
+    (click)="continuar()">
 
-        </ion-row>
-      </ion-grid>
+    CONTINUAR
 
-      <ion-button class="customButton" shape="round" expand="block" type="submit" [disabled]="formEnviado" (click)="enviarFormulario()">
-        CREAR CUENTA
-      </ion-button>
+  </ion-button>
 
-    </ng-container>
-
-    <div *ngIf="cuentaCreadaCorrectamente" class="mensaje-confirmacion">
-      <p class="mensaje-texto">
-        Tu cuenta ha sido creada correctamente. Inicia sesión en la aplicación de Embassy y comienza a generar ingresos.
-      </p>
-      <a href="https://www.embassyen.com/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
-    </div>
-    
-
-    </div>
+</form>
 
 </ion-content>

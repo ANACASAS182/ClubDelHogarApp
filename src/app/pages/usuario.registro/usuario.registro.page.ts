@@ -1,177 +1,104 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ToastController } from '@ionic/angular';
-import { finalize } from 'rxjs';
-import { CatalogoEstado } from 'src/app/models/CatalogoEstado';
-import { CatalogoPais } from 'src/app/models/CatalogoPais';
-import { FuenteOrigenDTO } from 'src/app/models/DTOs/FuenteOrigenDTO';
-import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
-import { UsuarioRegistrarBasicoDTO } from 'src/app/models/DTOs/UsuarioDTO';
-import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
-import { matchValidator } from 'src/app/validators/custom.validators';
-import { EmbajadoresService } from '../../services/api.back.services/embajadores.service';
+import { Router } from '@angular/router';
+import { ApiBackServicesCDH } from 'src/app/services/api.back.services.cdh/registro.service';
 
 @Component({
-  selector: 'app-usuario.registro',
+  selector: 'app-usuario-registro',
   templateUrl: './usuario.registro.page.html',
   styleUrls: ['./usuario.registro.page.scss'],
   standalone: false
 })
 export class UsuarioRegistroPage implements OnInit {
 
-  codigo: string = ""; //codigo de invitacion
-  nombreInvitador:string = "Nombre Embajador";
-  EmbajadorReferenteId:number = 0;
+  form!: FormGroup;
 
-  formularioRegistro: FormGroup;
-  paises: CatalogoPais[] = [];
-  estados: CatalogoEstado[] = [];
-  fuentesOrigen: FuenteOrigenDTO[] = [];
-
-  isNacional: boolean = false;
-  formEnviado: boolean = false;
-
-  //password
-  password: string = '';
-  passwordStrengthValue: number = 0;
-  passwordStrengthColor: string = 'danger';
-  passwordStrengthText: string = 'Seguridad BAJA'
-
-  constructor(private fb: FormBuilder,
-    private route: ActivatedRoute,
+  constructor(
+    private fb: FormBuilder,
     private router: Router,
-    private toastController: ToastController,
-    private embajadoresService:EmbajadoresService,
-    private usuarioService: UsuarioService) {
-    this.formularioRegistro = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required]
-    },
-      {
-        validators: [
-          matchValidator('password', 'confirmPassword'),
-        ],
-      });
+    private cdhService: ApiBackServicesCDH
+  ) {}
+
+  // --- Getters ---
+  get usarCorreo(): boolean {
+    return this.form.get('usarCorreo')?.value === true;
   }
+
+  get formularioValido(): boolean {
+    const usarCorreo = this.usarCorreo;
+
+    if (usarCorreo) {
+      return this.form.get('correo')?.valid || false;
+    } else {
+      return this.form.get('telefono')?.valid || false;
+    }
+  }
+
+   // --- Methods ---
 
   ngOnInit() {
-    
-    // Capturamos el parámetro 'codigo' de la URL
-    this.route.paramMap.subscribe(params => {
-      this.codigo = params.get('codigo') || '';
-      console.log('Código recibido:', this.codigo);
-      this.embajadoresService.GetDatosInvitacion(this.codigo).subscribe({
-        next : (data) =>{
-          this.nombreInvitador = data.nombreInvitador;
-          this.formularioRegistro.controls['email'].setValue(data.correoElectronicoInvitacion);
-          this.EmbajadorReferenteId = data.embajadorReferenteId;
-        }
-      });
+    this.form = this.fb.group({
+      telefono: ['', [
+        Validators.required,
+        Validators.pattern(/^\+?\d{10,15}$/)
+      ]],
+      usarCorreo: [false],
+      correo: ['']
     });
 
-  }
-
-  enviarFormulario() {
-    if (this.formEnviado) return;
-
-    this.formEnviado = true;
-    if (!this.formularioRegistro.valid) {
-      this.formularioRegistro.markAllAsTouched();
-      this.formEnviado = false;
-      return;
-    }
-
-    var user: UsuarioRegistrarBasicoDTO = {
-      email: this.formularioRegistro.controls["email"].value,
-      codigoInvitacion: this.codigo,
-      password: this.formularioRegistro.controls["password"].value,
-      }
-    this.usuarioService.registerCodigoInvitacion(user).pipe(
-      finalize(() => {
-        this.formEnviado = false;
-      })
-    ).subscribe({
-      next: (response: GenericResponseDTO<boolean>) => {
-        if(response.data){
-          this.cuentaCreadaCorrectamente = 1;
-        }
-      }
+    this.form.get('usarCorreo')?.valueChanges.subscribe(usar => {
+      this.aplicarModoCorreo(usar);
     });
   }
 
-  cuentaCreadaCorrectamente:number = 0;
+  aplicarModoCorreo(usar: boolean) {
 
+    if (usar) {
+      this.form.get('telefono')?.setValue('');
+      this.form.get('telefono')?.clearValidators();
+      this.form.get('telefono')?.updateValueAndValidity();
 
-  onPaisChange(event: any) {
-    const idSelected = event.detail.value;
-
-    var pais = this.paises.find(t => t.id == idSelected);
-
-    const estadoControl = this.formularioRegistro.get('estado');
-    const estadoTextoControl = this.formularioRegistro.get('estadoTexto');
-
-    if (pais!.codigo == "MEX") {
-      this.isNacional = true;
-      estadoControl?.setValidators([Validators.required]);
-      estadoTextoControl?.clearValidators();
+      this.form.get('correo')?.setValidators([Validators.required, Validators.email]);
+      this.form.get('correo')?.updateValueAndValidity();
     } else {
-      this.isNacional = false;
-      estadoTextoControl?.setValidators([Validators.required]);
-      estadoControl?.clearValidators();
-    }
+      this.form.get('correo')?.setValue('');
+      this.form.get('correo')?.clearValidators();
+      this.form.get('correo')?.updateValueAndValidity();
 
-    estadoControl?.updateValueAndValidity();
-    estadoTextoControl?.updateValueAndValidity();
+      this.form.get('telefono')?.setValidators([
+        Validators.required,
+        Validators.pattern(/^\+?\d{10,15}$/)
+      ]);
+      this.form.get('telefono')?.updateValueAndValidity();
+    }
   }
 
+  continuar() {
+    const usarCorreo = this.form.value.usarCorreo;
 
-  getControl(campo: string) {
-    return this.formularioRegistro.get(campo);
-  }
+    const payload = {
+      telefono: usarCorreo ? undefined : this.form.value.telefono,
+      correo: usarCorreo ? this.form.value.correo : undefined,
+      usarCorreo
+    };
 
-  checkStrength() {
-    const password = this.formularioRegistro.get('password')?.value;
-    let strength = 0;
+    this.cdhService.enviarCodigo(payload).subscribe({
+      next: (resp) => {
+        console.log('Código generado:', resp.data);
 
-    if (!password) {
-      this.passwordStrengthValue = 0;
-      this.passwordStrengthColor = 'danger';
-      this.passwordStrengthText = 'Seguridad BAJA';
-      return;
-    }
-
-    if (password.length >= 6) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (password.match(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/)) strength += 1;
-    if (password.length >= 10) strength++;
-
-    switch (strength) {
-      case 0:
-      case 1:
-      case 2:
-        this.passwordStrengthValue = 0.25;
-        this.passwordStrengthColor = 'danger';
-        this.passwordStrengthText = 'Seguridad BAJA';
-        break;
-      case 3:
-        this.passwordStrengthValue = 0.5;
-        this.passwordStrengthColor = 'warning';
-        this.passwordStrengthText = 'Seguridad MEDIA';
-        break;
-      case 4:
-        this.passwordStrengthValue = 0.75;
-        this.passwordStrengthColor = 'success';
-        this.passwordStrengthText = 'Seguridad BUENA';
-        break;
-      case 5:
-        this.passwordStrengthValue = 1.0;
-        this.passwordStrengthColor = 'success';
-        this.passwordStrengthText = 'Seguridad FUERTE';
-        break;
-    }
+        this.router.navigate(['/validar-codigo'], {
+          state: {
+            telefono: payload.telefono ?? null,
+            correo: payload.correo ?? null,
+            codigoGenerado: resp.data
+          }
+        });
+      },
+      error: (err) => {
+        alert('Error enviando el código');
+        console.error(err);
+      }
+    });
   }
 
 }
