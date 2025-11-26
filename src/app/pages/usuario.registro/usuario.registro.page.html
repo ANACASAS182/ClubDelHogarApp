@@ -5,53 +5,177 @@
 </ion-header>
 
 <ion-content class="registro-content">
+  <div class="registro-wrapper">
+    <div class="registro-card">
 
-  <form [formGroup]="form">
+      <!-- PASOS (franja superior, igual que ahora) -->
+      <div class="steps">
+        <div [class.active]="step === 1">
+          1<br />
+          <small>Contacto</small>
+        </div>
+        <div [class.active]="step === 2">
+          2<br />
+          <small>Código</small>
+        </div>
+        <div [class.active]="step === 3">
+          3<br />
+          <small>Contraseña</small>
+        </div>
+      </div>
 
-  <!-- TELÉFONO (solo si NO usa correo) -->
-  <ion-item *ngIf="!usarCorreo">
-    <ion-label position="stacked">Número de teléfono</ion-label>
-    <ion-input
-      placeholder="Ej. +52 6561234567"
-      formControlName="telefono"
-      inputmode="tel">
-    </ion-input>
-  </ion-item>
+      <!-- CUERPO DE LA TARJETA (logo + formulario + texto) -->
+      <div class="card-body">
 
-  <!-- Mensaje WhatsApp -->
-  <p class="mensaje-whatsapp"
-    *ngIf="form.get('telefono')?.valid && !usarCorreo">
-    Te enviaremos un código por WhatsApp para validar tu número.
-  </p>
+        <!-- LOGO CENTRADO TIPO MOCKUP -->
+        <div class="hero">
+          <div class="logo-box">
+            <img src="assets/logo_verdeCDH.png" alt="Club del Hogar" />
+          </div>
+          <p class="hero-text">
+            Completa los pasos para empezar a usar la app.
+          </p>
+        </div>
 
-  <!-- CHECK -->
-  <ion-item lines="none">
-    <ion-checkbox slot="start" formControlName="usarCorreo"></ion-checkbox>
-    <ion-label>No tengo número de teléfono</ion-label>
-  </ion-item>
+        <!-- FORMULARIO -->
+        <form [formGroup]="form" class="registro-form">
 
-  <!-- CORREO (solo si usa correo) -->
-  <ion-item *ngIf="usarCorreo">
-    <ion-label position="stacked">Correo electrónico</ion-label>
-    <ion-input
-      placeholder="Ej. correo@dominio.com"
-      formControlName="correo"
-      inputmode="email">
-    </ion-input>
-  </ion-item>
+          <!-- ===== PASO 1: TELÉFONO / CORREO ===== -->
+          <ng-container *ngIf="step === 1">
 
-  <div style="height: 20px;"></div>
+            <ion-label class="campo-titulo">Número de contacto</ion-label>
 
-  <ion-button
-    expand="block"
-    color="primary"
-    [disabled]="!formularioValido"
-    (click)="continuar()">
+            <!-- TELÉFONO (solo si NO usa correo) -->
+            <ion-item *ngIf="!usarCorreo">
+              <ion-input
+                placeholder="Ej. 6561234567"
+                formControlName="telefono"
+                inputmode="tel">
+              </ion-input>
+            </ion-item>
 
-    CONTINUAR
+            <!-- Mensaje WhatsApp -->
+            <p class="mensaje-whatsapp"
+               *ngIf="form.get('telefono')?.valid && !usarCorreo">
+              Te enviaremos un código para validar tu número.
+            </p>
 
-  </ion-button>
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                color="primary"
+                [disabled]="loading || !puedeContinuarPaso1"
+                (click)="continuarPaso1()">
+                {{ loading ? 'Enviando código...' : 'Continuar' }}
+              </ion-button>
+            </div>
 
-</form>
+          </ng-container>
+
+          <!-- ===== PASO 2: VALIDAR CÓDIGO ===== -->
+          <ng-container *ngIf="step === 2">
+
+            <p class="titulo">Ingresa el código que enviamos a:</p>
+            <p class="dato"><strong>{{ telefonoORcorreo }}</strong></p>
+
+            <ion-item>
+              <ion-input
+                placeholder="Ej. 25188"
+                formControlName="codigo"
+                inputmode="numeric">
+              </ion-input>
+            </ion-item>
+
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                color="primary"
+                [disabled]="loading || !puedeContinuarPaso2"
+                (click)="validarCodigo()">
+                {{ loading ? 'Validando...' : 'Validar código' }}
+              </ion-button>
+            </div>
+
+            <p class="mensaje">¿Ingresaste el número o correo equivocado?</p>
+
+            <ion-button
+              expand="block"
+              color="light"
+              (click)="volverPaso1()">
+              Regresar
+            </ion-button>
+
+            <ion-button
+              expand="block"
+              color="secondary"
+              [disabled]="loading"
+              (click)="reenviarCodigo()">
+              Reenviar código
+            </ion-button>
+
+          </ng-container>
+
+          <!-- ===== PASO 3: CREAR CONTRASEÑA ===== -->
+          <ng-container *ngIf="step === 3">
+
+            <p class="titulo">Crea tu contraseña</p>
+
+            <ion-item>
+              <ion-label position="floating">Contraseña</ion-label>
+              <ion-input
+                type="password"
+                formControlName="password">
+              </ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-label position="floating">Repetir contraseña</ion-label>
+              <ion-input
+                type="password"
+                formControlName="password2">
+              </ion-input>
+            </ion-item>
+
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                class="ion-margin-top"
+                color="primary"
+                [disabled]="loading || !puedeGuardarPassword"
+                (click)="guardarPassword()">
+                {{ loading ? 'Guardando...' : 'Guardar' }}
+              </ion-button>
+            </div>
+
+            <ion-button
+              expand="block"
+              color="light"
+              (click)="volverPaso2()">
+              Regresar
+            </ion-button>
+
+          </ng-container>
+
+        </form>
+
+        <!-- TEXTO INFORMATIVO AL PIE DEL FORM EN PASO 1 -->
+        <p class="registro-benefit" *ngIf="step === 1">
+          Al completar el registro podrás hacer uso de las promociones que desees.
+        </p>
+      </div>
+
+      <!-- FOOTER INTERNO: IGUAL QUE EN LOGIN -->
+      <div class="have-account">
+        <span>¿Ya tienes una cuenta?</span>
+        <ion-button
+          fill="clear"
+          size="small"
+          (click)="irALogin()">
+          Inicia sesión
+        </ion-button>
+      </div>
+
+    </div>
+  </div>
 
 </ion-content>

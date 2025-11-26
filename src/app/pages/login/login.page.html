@@ -1,34 +1,52 @@
-<ion-content fullscreen class="login-page" force-overscroll="false" [class.kb-open]="tecladoVisible">
+<ion-content
+  fullscreen
+  class="login-page"
+  force-overscroll="false"
+  [class.kb-open]="tecladoVisible"
+>
   <div class="login-container">
     <div class="login-background"></div>
 
-    <!-- FORMULARIO -->
+    <!-- FORMULARIO / CARD A PANTALLA COMPLETA -->
     <div class="login-form-wrapper">
       <div [formGroup]="loginForm" class="login-form">
 
         <!-- Logo -->
         <div class="logo-wrap" [class.compact]="tecladoVisible">
-          <img src="assets/logo_verdeCDH.png" alt="Logo de Embassy" class="logo"/>
+          <img src="assets/logo_verdeCDH.png" alt="Logo de Embassy" class="logo" />
         </div>
 
         <!-- Títulos -->
-        <h2 class="form-title" *ngIf="correoAlmacenado === ''">Bienvenido</h2>
-        <h2 class="form-title" *ngIf="correoAlmacenado !== ''">Hola, {{nombreAlmacenado}}</h2>
+        <h2 class="form-title" *ngIf="telefonoAlmacenado === ''">Bienvenido</h2>
+        <h2 class="form-title" *ngIf="telefonoAlmacenado !== ''">Hola, {{ nombreAlmacenado }}</h2>
 
         <!-- MODO RECORDADO (sin inputs) -->
-        <ng-container *ngIf="correoAlmacenado !== ''; else modoNormal">
+        <ng-container *ngIf="telefonoAlmacenado !== ''; else modoNormal">
           <div class="signin-as">
-            <div class="signin-caption">Estás iniciando sesión como:</div>
-            <div class="signin-email">{{ correoAlmacenado }}</div>
+            <div class="signin-caption">Estás iniciando sesión con el número:</div>
+            <div class="signin-email">{{ telefonoAlmacenado }}</div>
           </div>
 
           <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>
-          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
+
+          <ion-button
+            *ngIf="!iniciandoSesion"
+            expand="block"
+            shape="round"
+            [disabled]="formEnviado"
+            (click)="onSubmit()"
+          >
             Ingresar
           </ion-button>
 
-          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" fill="outline" (click)="borrarDatosAlmacenados()">
-            Iniciar sesión con otra cuenta
+          <ion-button
+            *ngIf="!iniciandoSesion"
+            expand="block"
+            shape="round"
+            fill="outline"
+            (click)="borrarDatosAlmacenados()"
+          >
+            Iniciar sesión con otro número
           </ion-button>
         </ng-container>
 
@@ -39,52 +57,86 @@
           </p>
 
           @if (hasError) {
-            <div class="custom-alert warning">
-              <ion-text>{{ messageError }}</ion-text>
-            </div>
+          <div class="custom-alert warning">
+            <ion-text>{{ messageError }}</ion-text>
+          </div>
           }
 
+          <!-- SOLO TELÉFONO -->
           <ion-input
-            formControlName="user"
+            formControlName="telefono"
             label-placement="floating"
-            label="Correo electrónico"
-            type="text"
+            label="Número de teléfono"
+            type="tel"
+            inputmode="tel"
+            placeholder="+52 6561234567"
             class="embassy_input"
-            (ionBlur)="getControl('user')?.markAsTouched()">
+            (ionBlur)="getControl('telefono')?.markAsTouched()"
+          >
           </ion-input>
 
+          <!-- CONTRASEÑA -->
           <ion-input
             formControlName="password"
             label-placement="floating"
             label="Contraseña"
             type="password"
             class="embassy_input"
-            (ionBlur)="getControl('password')?.markAsTouched()">
-            <ion-input-password-toggle *ngIf="getControl('password')?.value" slot="end"></ion-input-password-toggle>
+            (ionBlur)="getControl('password')?.markAsTouched()"
+          >
+            <ion-input-password-toggle
+              *ngIf="getControl('password')?.value"
+              slot="end"
+            ></ion-input-password-toggle>
           </ion-input>
 
-          <ion-item lines="none" *ngIf="correoAlmacenado === ''">
+          <!-- RECORDAR DATOS -->
+          <ion-item lines="none">
             <ion-checkbox
               slot="start"
               [checked]="rememberFlag"
               [disabled]="iniciandoSesion"
-              (ionChange)="onRememberChange($event.detail.checked)">
+              (ionChange)="onRememberChange($event.detail.checked)"
+            >
             </ion-checkbox>
-            <ion-label (click)="toggleRemember()">Guardar datos de inicio de sesión</ion-label>
+            <ion-label (click)="toggleRemember()">
+              Guardar datos de inicio de sesión
+            </ion-label>
           </ion-item>
 
-
-          <hr class="spacer_embassy"/>
+          <hr class="spacer_embassy" />
           <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>
-          <ion-button *ngIf="!iniciandoSesion" expand="block" shape="round" [disabled]="formEnviado" (click)="onSubmit()">
+
+          <ion-button
+            *ngIf="!iniciandoSesion"
+            expand="block"
+            shape="round"
+            [disabled]="formEnviado"
+            (click)="onSubmit()"
+          >
             Ingresar
           </ion-button>
 
-          <hr class="spacer_embassy"/>
+          <!-- Si después quieres recovery por SMS, aquí va -->
+          <!--
+          <hr class="spacer_embassy" />
           <div class="form-links">
             <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
           </div>
+          -->
         </ng-template>
+
+        <!-- FOOTER -->
+        <div class="no-account">
+          <span>¿No tienes una cuenta?</span>
+          <ion-button
+            fill="clear"
+            size="small"
+            (click)="irARegistro()"
+          >
+            Crear cuenta nueva
+          </ion-button>
+        </div>
       </div>
     </div>
   </div>

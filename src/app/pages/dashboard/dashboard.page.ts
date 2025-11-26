@@ -49,7 +49,7 @@ export class DashboardPage implements OnInit {
 
   public appPages: PageItem[] = [
     { 
-      title: 'Network',
+      title: 'RED',
       tituloMovil: 'Network',
       url: '/dashboard/network',
       icon: 'network',

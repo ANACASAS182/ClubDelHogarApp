@@ -4,6 +4,7 @@ import { Observable, of } from 'rxjs';
 import { RespuestaEstatusMensaje, RespuestaEstatusPromocion } from 'src/app/models/DTOs/GenericResponseDTO';
 import { Promocion } from 'src/app/models/Promocion';
 import { environment } from 'src/environments/environment';
+import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 
 @Injectable({ providedIn: 'root' })
 export class PromocionesService {
@@ -72,6 +73,12 @@ export class PromocionesService {
     }
     const params = new HttpParams().set('empresaId', String(empresaId));
     return this.http.get<Promocion[]>(`${this.apiPromos}/GetVigentesByEmpresa`, { params });
+  }
+
+  GetPromosNetwork(): Observable<GenericResponseDTO<any[]>> {
+    return this.http.get<GenericResponseDTO<any[]>>(
+      `${environment.apiUrl}api/cdh/productos/promos-network`
+    );
   }
 }
 

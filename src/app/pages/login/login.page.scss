@@ -1,108 +1,154 @@
-/* Fuerza fondo claro como el original */
+/* Fondo claro */
 :host {
   background: #fff;
 }
+
 .login-page {
-  --background: #ffffff !important; /* evita tema oscuro heredado */
+  --background: #f2f3f7 !important;
 }
 
-/* Layout base */
+/* ===== LAYOUT BASE ===== */
+
 .login-container {
   display: flex;
-  min-height: 100dvh;   /* dinámico con teclado */
-  height: 100svh;       /* fallback moderno */
+  min-height: 100vh;
+  justify-content: center;
+  align-items: stretch;     /* el card ocupa todo el alto */
+  padding: 0;               /* sin márgenes alrededor */
+}
+
+/* cuando se abre el teclado, solo bajamos un poco el padding superior */
+.kb-open .login-container {
+  align-items: flex-start;
+  padding-top: 8px;
 }
 
 .login-background {
-  flex: 1;
-  background-image: url('/assets/tu-imagen.png'); /* si se usa en tablets */
-  background-size: cover;
-  background-position: center;
-  display: none;
+  display: none; /* si luego quieres fondo en desktop lo activamos */
 }
 
+/* Card que ocupa TODA la pantalla */
 .login-form-wrapper {
   flex: 1;
+  background-color: #ffffff;
+  border-radius: 0;                      /* sin bordes redondeados = pantalla completa */
+  box-shadow: none;                      /* sin sombra */
+  padding: 32px 22px 20px;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background-color: #ffffff;     /* blanco sólido */
-  min-height: 100dvh;            /* centrado estable con teclado */
 }
 
 .login-form {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 380px;
 }
 
-/* Logo compacto al abrir teclado */
+/* ===== LOGO ===== */
+
 .logo-wrap {
   height: 120px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  transition: height .25s ease, transform .25s ease, opacity .25s ease;
+  transition: height 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
   will-change: transform, height;
   margin-bottom: 24px;
 }
+
 .logo {
   display: block;
   max-height: 96px;
   width: auto;
-  transition: transform .25s ease, opacity .25s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease;
   transform-origin: top center;
 }
+
+/* Compacto cuando el teclado está visible */
 .kb-open .logo-wrap,
-.logo-wrap.compact { 
-  height: 56px; 
+.logo-wrap.compact {
+  height: 56px;
 }
+
 .kb-open .logo,
-.logo-wrap.compact .logo { 
-  transform: scale(.7) translateY(-6px); 
-  opacity: .9; 
+.logo-wrap.compact .logo {
+  transform: scale(0.7) translateY(-6px);
+  opacity: 0.9;
 }
 
-.kb-open .login-form { 
-  transform: translateY(-8px); 
-  transition: transform .25s ease; 
+/* ===== TEXTO / FORM ===== */
+
+.form-title {
+  margin: 8px 0 12px;
+  color: #111827;
 }
 
-/* Texto */
-.form-title { 
-  margin: 8px 0 12px; 
-  color: #111827; 
-}
-.subtitle small { 
-  color: #6b7280; 
+.subtitle small {
+  color: #6b7280;
 }
 
-/* Bloque simple del modo recordado */
-.signin-as { margin: 6px 0 18px; }
-.signin-caption { font-size: 12px; color: #6b7280; }
-.signin-email { font-size: 14px; font-weight: 700; color: #111827; word-break: break-word; }
-
-/* Responsive: fondo visual en pantallas grandes */
-@media screen and (min-width: 768px) {
-  .login-background { display: block; }
-  .login-form-wrapper { background-color: rgba(255, 255, 255, 0.95); }
+/* Bloque del modo “recordado” */
+.signin-as {
+  margin: 6px 0 18px;
 }
 
-/* Safe area iOS */
-:root { 
-  --ion-safe-area-bottom: 
-  env(safe-area-inset-bottom); 
+.signin-caption {
+  font-size: 12px;
+  color: #6b7280;
 }
 
-/* Utilidades */
-.invisible { 
-  display: none !important; 
+.signin-email {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+  word-break: break-word;
 }
 
-/* Más espacio entre botones */
+/* Botones */
 ion-button {
   margin-top: 12px;
   margin-bottom: 12px;
-  height: 52px;          
-  font-size: 16px;       
+  height: 52px;
+  font-size: 16px;
+}
+
+/* Enlaces inferiores (por si los usas después) */
+.form-links {
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+/* ===== FOOTER: ¿No tienes cuenta? ===== */
+
+.no-account {
+  margin-top: auto; /* se pega al fondo de la tarjeta */
+  padding-top: 14px;
+  border-top: 1px solid #ededed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #555;
+}
+
+.no-account ion-button {
+  --padding-start: 0;
+  --padding-end: 0;
+  --ripple-color: transparent;
+  --box-shadow: none;
+  text-transform: none;
+  font-size: 13px;
+  color: #1877f2;
+}
+
+/* Safe area iOS */
+:root {
+  --ion-safe-area-bottom: env(safe-area-inset-bottom);
+}
+
+.invisible {
+  display: none !important;
 }
