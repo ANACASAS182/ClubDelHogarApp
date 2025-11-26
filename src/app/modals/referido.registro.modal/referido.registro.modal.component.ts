@@ -28,6 +28,7 @@ export class ReferidoRegistroModalComponent implements OnInit {
   hideProducto = true;
 
   @Input() empresaID: number = 0;
+  @Input() productoID: number = 0;
   @Input() setFormDirtyStatus: ((dirty: boolean) => void) | undefined;
 
   constructor(
@@ -48,21 +49,27 @@ export class ReferidoRegistroModalComponent implements OnInit {
     });
   }
 
-  async ngOnInit() {
+   async ngOnInit() {
     const loading = await this.loadingCtrl.create({ message: 'Cargando datos...' });
     await loading.present();
 
     try {
-      // Cargar empresas
       const responseEmpresa = await firstValueFrom(this.empresaService.getAllEmpresas());
       this.empresas = responseEmpresa?.data || [];
 
-      // Cargar productos si viene empresaID
       if (this.empresaID > 0) {
         this.formulario.patchValue({ empresa: Number(this.empresaID) });
-        const responseProducto = await firstValueFrom(this.productoService.getAllProductosEmpresa(this.empresaID));
+
+        const responseProducto =
+          await firstValueFrom(this.productoService.getAllProductosEmpresa(this.empresaID));
+
         this.productos = responseProducto?.data || [];
         this.hideProducto = false;
+
+        // 👇 si ya viene un producto desde la CARD, lo seleccionamos
+        if (this.productoID > 0) {
+          this.formulario.patchValue({ producto: Number(this.productoID) });
+        }
       }
     } catch (error) {
       console.error('Error al cargar datos', error);

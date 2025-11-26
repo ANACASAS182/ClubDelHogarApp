@@ -1,165 +1,198 @@
+/* Fondo general del modal */
 .custom-content {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-  }
-  
-  .content-container {
-    max-width: 400px;
-    width: 100%;
-    margin: 0 auto;
-    text-align: center;
-  }
-  
-  .motivational-text {
-    font-size: 16px;
-    margin-bottom: 20px;
-    color: #333;
-    font-weight: 500;
-  }
-  
-  .form-title {
-    font-size: 20px;
-    margin-bottom: 16px;
-    font-weight: 600;
-  }
-  
-  .input {
-    margin-bottom: 10px;
-    --padding-start: 12px;
-    --padding-end: 12px;
-  }
-  
-  ion-text {
-    display: block;
-    margin-bottom: 10px;
-    font-size: 14px;
-  }
-  
-  .customButton {
-    margin-top: 20px;
-    --background: #3880ff;
-    --color: white;
-  }
-  
+  --background: #f2f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
 
-/*invitaciones css*/
-
-  .invitacion-exitosa {
-    text-align: center;
-    margin-top: 30px;
-  }
-  
-  .mensaje-titulo {
-    font-size: 22px;
-    margin-top: 10px;
-    color: #2dd36f;
-  }
-  
-  .mensaje-detalle{
-    font-size: 16px;
-    margin-top: 10px;
-    color: #333;
-  }
-  
-  .invitacion-fallida {
-    text-align: center;
-    margin-top: 30px;
-  }
-  
-  .invitacion-fallida .mensaje-titulo {
-    font-size: 22px;
-    margin-top: 10px;
-    color: #eb445a; /* rojo */
-  }
-  
-  .invitacion-fallida .mensaje-detalle {
-    font-size: 16px;
-    margin-top: 10px;
-    color: #333;
-  }
-  
-
-
-
-  /* generado por chat gpt vista del cupon   */
-
-  /* Estilos solo aplicados al div con #captureDiv */
-.coupon-capture {
-  background-color: #2c3e50; /* Fondo azul desaturado oscuro */
-  color: white;
+/* Contenedor centrado */
+.promo-modal-shell {
   width: 100%;
-  max-width: 350px;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  position: relative;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 16px 16px 24px;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+/* Tarjeta principal */
+.promo-card {
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+  padding: 16px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* HERO: imagen + info */
+.promo-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Imagen de la promo */
+.promo-hero-img {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  max-height: 200px;
+}
+
+.promo-hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Info de la promo */
+.promo-hero-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Empresa */
+.promo-company {
+  display: flex;
   align-items: center;
-  margin: 0 auto;
+  gap: 10px;
 }
 
-/* Nombre de la promoción */
-.coupon-name {
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 10px;
+.promo-company-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f3f3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Nombre de la empresa */
-.coupon-company {
-  font-size: 16px;
-  margin-top: 5px;
-  font-weight: normal;
+.promo-company-logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
-/* Descripción de la promoción */
-.coupon-description {
+.promo-company-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.promo-company-text .label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888;
+}
+
+.promo-company-text .name {
   font-size: 14px;
-  margin-top: 10px;
+  font-weight: 600;
+  color: #222;
 }
 
-/* Título QR */
-.coupon-qr-title {
+/* Título y descripción */
+.promo-title {
   font-size: 16px;
-  margin-top: 20px;
+  font-weight: 700;
+  margin: 0;
+  color: #121212;
 }
 
-/* Espaciado y estilo de la imagen QR */
-.coupon-qr {
-  margin: 15px 0;
+.promo-description {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+  color: #555;
 }
 
-.qr-img {
-  width: 80%;
-  max-width: 180px;
-  margin-left: auto;
-  margin-right: auto;
-  border: 2px solid #fff;
+/* BLOQUE QR */
+.promo-qr-block {
+  margin-top: 4px;
+  padding: 14px 12px 16px;
+  border-radius: 18px;
+  background: radial-gradient(circle at top left, #1947e5 0%, #1b2433 45%, #11141c 100%);
+  color: #f7f7ff;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.promo-qr-title {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.promo-qr-wrapper {
+  margin: 4px auto 4px;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 16px;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Uso del cupón */
-.coupon-usage {
-  font-size: 14px;
-  margin-top: 15px;
-  font-weight: normal;
+.promo-qr-wrapper img {
+  width: 180px;
+  max-width: 55vw;
+  height: auto;
+  display: block;
 }
 
-/* Fecha de expiración */
-.coupon-expiry {
-  font-size: 14px;
-  margin-top: 10px;
-  font-weight: bold;
+.promo-qr-note {
+  font-size: 11px;
+  margin: 0;
+  opacity: 0.9;
 }
 
-/* Logo del cupón */
-.coupon-logo {
-  max-width: 100px;
-  margin-top: 20px;
-  opacity: 0.8;
+.promo-qr-valid {
+  font-size: 12px;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Estado cargando QR */
+.promo-qr-loading {
+  margin-top: 8px;
+  padding: 18px 12px 12px;
+  border-radius: 18px;
+  background: #f5f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #555;
+}
+
+/* Botón de cerrar */
+.btn-close {
+  --border-radius: 999px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+  margin-top: 4px;
+}
+
+/* Responsivo */
+@media (min-width: 480px) {
+  .promo-card {
+    padding: 20px 18px 22px;
+  }
+
+  .promo-qr-wrapper img {
+    width: 200px;
+  }
 }

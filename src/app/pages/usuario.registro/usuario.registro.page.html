@@ -1,106 +1,181 @@
-<ion-content class="page" fullscreen>
-  
-    <div [formGroup]="formularioRegistro">
-      <ion-grid>
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <div style ="text-align: center;margin-top: 48px;margin-bottom: 16px;">
-              <img style="width: 128px;" src="https://www.embassyen.com/assets/logo_transparente.png" />
-              <h3>¡Te damos la bienvenida!</h3>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>Registro</ion-title>
+  </ion-toolbar>
+</ion-header>
 
+<ion-content class="registro-content">
+  <div class="registro-wrapper">
+    <div class="registro-card">
+
+      <!-- PASOS (franja superior, igual que ahora) -->
+      <div class="steps">
+        <div [class.active]="step === 1">
+          1<br />
+          <small>Contacto</small>
+        </div>
+        <div [class.active]="step === 2">
+          2<br />
+          <small>Código</small>
+        </div>
+        <div [class.active]="step === 3">
+          3<br />
+          <small>Contraseña</small>
+        </div>
+      </div>
+
+      <!-- CUERPO DE LA TARJETA (logo + formulario + texto) -->
+      <div class="card-body">
+
+        <!-- LOGO CENTRADO TIPO MOCKUP -->
+        <div class="hero">
+          <div class="logo-box">
+            <img src="assets/logo_verdeCDH.png" alt="Club del Hogar" />
+          </div>
+          <p class="hero-text">
+            Completa los pasos para empezar a usar la app.
+          </p>
+        </div>
+
+        <!-- FORMULARIO -->
+        <form [formGroup]="form" class="registro-form">
+
+          <!-- ===== PASO 1: TELÉFONO / CORREO ===== -->
+          <ng-container *ngIf="step === 1">
+
+            <ion-label class="campo-titulo">Número de contacto</ion-label>
+
+            <!-- TELÉFONO (solo si NO usa correo) -->
+            <ion-item *ngIf="!usarCorreo">
+              <ion-input
+                placeholder="Ej. 6561234567"
+                formControlName="telefono"
+                inputmode="tel">
+              </ion-input>
+            </ion-item>
+
+            <!-- Mensaje WhatsApp -->
+            <p class="mensaje-whatsapp"
+               *ngIf="form.get('telefono')?.valid && !usarCorreo">
+              Te enviaremos un código para validar tu número.
+            </p>
+
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                color="primary"
+                [disabled]="loading || !puedeContinuarPaso1"
+                (click)="continuarPaso1()">
+                {{ loading ? 'Enviando código...' : 'Continuar' }}
+              </ion-button>
             </div>
-          </ion-col>
-        </ion-row>
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <div class="codigo-cupon" *ngIf="codigo != ''">
-              <p class="invitador-texto">Fuiste invitado a unirte por <br/><strong>{{ nombreInvitador }}</strong></p>
+
+          </ng-container>
+
+          <!-- ===== PASO 2: VALIDAR CÓDIGO ===== -->
+          <ng-container *ngIf="step === 2">
+
+            <p class="titulo">Ingresa el código que enviamos a:</p>
+            <p class="dato"><strong>{{ telefonoORcorreo }}</strong></p>
+
+            <ion-item>
+              <ion-input
+                placeholder="Ej. 25188"
+                formControlName="codigo"
+                inputmode="numeric">
+              </ion-input>
+            </ion-item>
+
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                color="primary"
+                [disabled]="loading || !puedeContinuarPaso2"
+                (click)="validarCodigo()">
+                {{ loading ? 'Validando...' : 'Validar código' }}
+              </ion-button>
             </div>
-      
-          </ion-col>
-        </ion-row>
-        
-      </ion-grid>
-      
 
-     
-      
-      <ng-container *ngIf="cuentaCreadaCorrectamente == 0">
-      <ion-grid>
+            <p class="mensaje">¿Ingresaste el número o correo equivocado?</p>
 
-        <ion-row>
-          <ion-col size="12" size-md="12">
-            <p>Ingresa tus datos para crear tu cuenta</p>
-          </ion-col>
-        </ion-row>
+            <ion-button
+              expand="block"
+              color="light"
+              (click)="volverPaso1()">
+              Regresar
+            </ion-button>
 
-        
-        <ion-row>
+            <ion-button
+              expand="block"
+              color="secondary"
+              [disabled]="loading"
+              (click)="reenviarCodigo()">
+              Reenviar código
+            </ion-button>
 
-          <ion-col size="12" size-md="12">
-            <ion-input class="input" [class.invalid]="getControl('email')?.invalid && getControl('email')?.touched"
-              formControlName="email" label-placement="floating" label="Correo electrónico" type="text"
-              (ionBlur)="getControl('email')?.markAsTouched()"  [readonly]="codigo != ''">
-            </ion-input>
-            <ion-text color="danger" *ngIf="getControl('email')?.invalid && getControl('email')?.touched">
-              Es obligatorio ingresar tu correo electrónico
-            </ion-text>
-          </ion-col>
+          </ng-container>
 
+          <!-- ===== PASO 3: CREAR CONTRASEÑA ===== -->
+          <ng-container *ngIf="step === 3">
 
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('password')?.invalid && getControl('password')?.touched"
-              formControlName="password" placeholder="Crear tu contraseña" type="password"
-              (ionBlur)="getControl('password')?.markAsTouched()" (ionInput)="checkStrength()">
-              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-            </ion-input>
-            <ion-progress-bar [value]="passwordStrengthValue" [color]="passwordStrengthColor"></ion-progress-bar>
-            <ion-text color="{{ passwordStrengthColor }}">
-              {{ passwordStrengthText }}
-            </ion-text>
-            <ion-text color="danger" *ngIf="getControl('password')?.hasError('required') && getControl('password')?.touched">
-              Es obligatorio ingresar tu contraseña
-            </ion-text>
-            <ion-text color="danger" *ngIf="getControl('password')?.hasError('minlength') && getControl('password')?.touched">
-              La contraseña debe tener al menos 6 caracteres.
-            </ion-text>
-          </ion-col>
+            <p class="titulo">Crea tu contraseña</p>
 
-          <ion-col size="12" size-md="6">
-            <ion-input class="input"
-              [class.invalid]="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched"
-              formControlName="confirmPassword" placeholder="Confirmar contraseña" type="password"
-              (ionBlur)="getControl('confirmPassword')?.markAsTouched()">
-              <ion-input-password-toggle slot="end"></ion-input-password-toggle>
-            </ion-input>
-            <ion-text color="danger"
-              *ngIf="getControl('confirmPassword')?.invalid && getControl('confirmPassword')?.touched">
-              Es obligatorio confirmar tu contraseña
-            </ion-text>
-            <ion-text color="danger"
-              *ngIf="getControl('confirmPassword')?.errors?.['mustMatch'] && getControl('confirmPassword')?.touched">
-              <br/>La contraseña no coincide
-            </ion-text>
-          </ion-col>
+            <ion-item>
+              <ion-label position="floating">Contraseña</ion-label>
+              <ion-input
+                type="password"
+                formControlName="password">
+              </ion-input>
+            </ion-item>
 
-        </ion-row>
-      </ion-grid>
+            <ion-item>
+              <ion-label position="floating">Repetir contraseña</ion-label>
+              <ion-input
+                type="password"
+                formControlName="password2">
+              </ion-input>
+            </ion-item>
 
-      <ion-button class="customButton" shape="round" expand="block" type="submit" [disabled]="formEnviado" (click)="enviarFormulario()">
-        CREAR CUENTA
-      </ion-button>
+            <div class="btn-wrapper">
+              <ion-button
+                expand="block"
+                class="ion-margin-top"
+                color="primary"
+                [disabled]="loading || !puedeGuardarPassword"
+                (click)="guardarPassword()">
+                {{ loading ? 'Guardando...' : 'Guardar' }}
+              </ion-button>
+            </div>
 
-    </ng-container>
+            <ion-button
+              expand="block"
+              color="light"
+              (click)="volverPaso2()">
+              Regresar
+            </ion-button>
 
-    <div *ngIf="cuentaCreadaCorrectamente" class="mensaje-confirmacion">
-      <p class="mensaje-texto">
-        Tu cuenta ha sido creada correctamente. Inicia sesión en la aplicación de Embassy y comienza a generar ingresos.
-      </p>
-      <a href="https://www.embassyen.com/login" class="btn-iniciar-sesion">Iniciar Sesión</a>
-    </div>
-    
+          </ng-container>
+
+        </form>
+
+        <!-- TEXTO INFORMATIVO AL PIE DEL FORM EN PASO 1 -->
+        <p class="registro-benefit" *ngIf="step === 1">
+          Al completar el registro podrás hacer uso de las promociones que desees.
+        </p>
+      </div>
+
+      <!-- FOOTER INTERNO: IGUAL QUE EN LOGIN -->
+      <div class="have-account">
+        <span>¿Ya tienes una cuenta?</span>
+        <ion-button
+          fill="clear"
+          size="small"
+          (click)="irALogin()">
+          Inicia sesión
+        </ion-button>
+      </div>
 
     </div>
+  </div>
 
 </ion-content>

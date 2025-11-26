@@ -10,7 +10,6 @@ import { Usuario } from 'src/app/models/Usuario';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 
-// ✅ Servicio basado en Ionic Storage (SQLite/IndexedDB) para persistencia robusta en iOS
 import { PrefsStorage } from 'src/app/core/utils/prefs.storage';
 
 @Component({
@@ -24,10 +23,10 @@ export class LoginPage implements OnInit, OnDestroy {
 
   hasError = false;
   messageError = '';
-  rememberFlag = false; // estado real del checkbox (no dependemos del FormControl)
+  rememberFlag = false;
 
   nombreAlmacenado = '';
-  correoAlmacenado = '';
+  telefonoAlmacenado = '';
   passwordAlmacenado = '';
 
   formEnviado = false;
@@ -45,52 +44,60 @@ export class LoginPage implements OnInit, OnDestroy {
     private router: Router,
     private usuarioService: UsuarioService,
     private tokenService: TokenService,
-    private prefs: PrefsStorage,          // ⬅️ persistencia
+    private prefs: PrefsStorage
   ) {
     this.loginForm = this.fb.group({
-      user: ['', [Validators.required, Validators.email]],
+      telefono: [
+        '+52 ',
+        [
+          Validators.required,
+          // +52 y 10 dígitos (ej. +52 6561234567)
+          Validators.pattern(/^\+52\s?\d{10}$/),
+        ],
+      ],
       password: ['', Validators.required],
-      almacenarDatos: [false], // solo para layout; la decisión la toma rememberFlag
+      almacenarDatos: [false],
     });
   }
 
   private parseLoginError(err: any): string {
     const backendMsg =
       (typeof err?.error === 'string' ? err.error : err?.error?.message) ||
-      err?.message || '';
-    if (err?.status === 401) return 'Correo o contraseña incorrectos';
-    if (err?.status === 400) return backendMsg || 'Correo o contraseña incorrectos';
+      err?.message ||
+      '';
+    if (err?.status === 401) return 'Teléfono o contraseña incorrectos';
+    if (err?.status === 400) return backendMsg || 'Teléfono o contraseña incorrectos';
     if (err?.status === 403) return 'No tienes permisos para acceder.';
-    if (err?.status === 0)   return 'No hay conexión con el servidor. Verifica tu red.';
+    if (err?.status === 0) return 'No hay conexión con el servidor. Verifica tu red.';
     return backendMsg || 'Error al iniciar sesión. Intenta de nuevo.';
   }
 
   // ---------- Persistencia ----------
   private async loadPrefs() {
-    const c = await this.prefs.get('correoAlmacenado');
+    const tel = await this.prefs.get('telefonoAlmacenado');
     const p = await this.prefs.get('passwordAlmacenado');
     const n = await this.prefs.get('nombreAlmacenado');
 
-    this.correoAlmacenado   = c;
+    this.telefonoAlmacenado = tel;
     this.passwordAlmacenado = p;
-    this.nombreAlmacenado   = n;
+    this.nombreAlmacenado = n;
 
-    if (c) {
-      this.loginForm.patchValue({ user: c || '', password: p || '' });
-      this.rememberFlag = true; // si hay datos, activamos recordar
+    if (tel) {
+      this.loginForm.patchValue({ telefono: tel || '+52 ', password: p || '' });
+      this.rememberFlag = true;
     } else {
       this.rememberFlag = false;
     }
   }
 
-  private async savePrefs(email: string, password: string, nombre: string) {
-    await this.prefs.set('correoAlmacenado',   email);
+  private async savePrefs(telefono: string, password: string, nombre: string) {
+    await this.prefs.set('telefonoAlmacenado', telefono);
     await this.prefs.set('passwordAlmacenado', password);
-    await this.prefs.set('nombreAlmacenado',   nombre);
+    await this.prefs.set('nombreAlmacenado', nombre);
   }
 
   private async clearPrefs() {
-    await this.prefs.remove('correoAlmacenado');
+    await this.prefs.remove('telefonoAlmacenado');
     await this.prefs.remove('passwordAlmacenado');
     await this.prefs.remove('nombreAlmacenado');
   }
@@ -100,19 +107,19 @@ export class LoginPage implements OnInit, OnDestroy {
     await this.loadPrefs();
 
     // Guarda en caliente si la casilla está activa
-    this.valueSub = this.loginForm.valueChanges.subscribe(async v => {
+    this.valueSub = this.loginForm.valueChanges.subscribe(async (v) => {
       if (this.rememberFlag) {
-        await this.prefs.set('correoAlmacenado',   v.user ?? '');
+        await this.prefs.set('telefonoAlmacenado', v.telefono ?? '+52 ');
         await this.prefs.set('passwordAlmacenado', v.password ?? '');
       }
     });
 
     // Listeners teclado (solo nativo)
     if (Capacitor.isNativePlatform()) {
-      this.kbShowWill = await Keyboard.addListener('keyboardWillShow', () => this.tecladoVisible = true);
-      this.kbShowDid  = await Keyboard.addListener('keyboardDidShow',  () => this.tecladoVisible = true);
-      this.kbHideWill = await Keyboard.addListener('keyboardWillHide', () => this.tecladoVisible = false);
-      this.kbHideDid  = await Keyboard.addListener('keyboardDidHide',  () => this.tecladoVisible = false);
+      this.kbShowWill = await Keyboard.addListener('keyboardWillShow', () => (this.tecladoVisible = true));
+      this.kbShowDid = await Keyboard.addListener('keyboardDidShow', () => (this.tecladoVisible = true));
+      this.kbHideWill = await Keyboard.addListener('keyboardWillHide', () => (this.tecladoVisible = false));
+      this.kbHideDid = await Keyboard.addListener('keyboardDidHide', () => (this.tecladoVisible = false));
     }
   }
 
@@ -127,7 +134,7 @@ export class LoginPage implements OnInit, OnDestroy {
   async onSubmit() {
     if (this.formEnviado) return;
 
-    const recordar = this.rememberFlag; // usamos bandera fiable (iOS a veces retrasa el ionChange)
+    const recordar = this.rememberFlag;
 
     this.formEnviado = true;
     this.iniciandoSesion = true;
@@ -138,62 +145,79 @@ export class LoginPage implements OnInit, OnDestroy {
         throw new Error('Completa los campos requeridos.');
       }
 
+      const telefono = (this.loginForm.controls['telefono'].value || '').trim();
+      const password = this.loginForm.controls['password'].value;
+
       const credenciales = {
-        email: this.loginForm.controls['user'].value,
-        password: this.loginForm.controls['password'].value,
+        telefono, // 👈 el back lo ajustaremos a esto
+        password,
       };
 
       // 1) Login
-      const loginResp = await firstValueFrom(this.usuarioService.login(credenciales, true));
-      if (!loginResp?.success || !loginResp?.data) throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
+      const loginResp = await firstValueFrom(
+        this.usuarioService.login(credenciales, true)
+      );
+      if (!loginResp?.success || !loginResp?.data) {
+        throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
+      }
       await this.tokenService.saveToken(loginResp.data);
 
       // 2) Perfil
-let nombre = '';
-let needsOnboarding = false;
-try {
-  const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
-  if (pr?.success && pr?.data) {
-    const u = pr.data as Usuario;
+      let nombre = '';
+      let needsOnboarding = false;
+      try {
+        const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
+        if (pr?.success && pr?.data) {
+          const u = pr.data as Usuario;
 
-    // bloquea Admin en este panel (lo mantengo)
-    if ((u as any).rolesID === 1) {
-      this.hasError = true;
-      this.messageError = 'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
-      await this.tokenService.removeToken();
-      localStorage.removeItem('usuario-actual');
-      return;
-    }
+          // si rolesID === 1 lo sigues bloqueando, igual que antes
+          if ((u as any).rolesID === 1) {
+            this.hasError = true;
+            this.messageError =
+              'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
+            await this.tokenService.removeToken();
+            localStorage.removeItem('usuario-actual');
+            return;
+          }
 
-    nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
-    // 👇 clave: usar bandera del back
-    needsOnboarding = !!(u as any)?.mostrarOnboarding;
-    }
-  } catch { /* ignora fallo de perfil, deja needsOnboarding en false */ }
-
-  // 3) Guardar/limpiar recuerdame (igual que tienes)
-  if (recordar) await this.savePrefs(credenciales.email, credenciales.password, nombre);
-  else          await this.clearPrefs();
-
-  // 4) Navegar según estado
-  await this.router.navigate([needsOnboarding ? '/onboarding' : '/dashboard'], { replaceUrl: true });
-        this.hasError = false;
-        this.messageError = '';
-      } catch (err: any) {
-        this.hasError = true;
-        this.messageError = this.parseLoginError(err);
-      } finally {
-        this.formEnviado = false;
-        this.iniciandoSesion = false;
+          nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+          needsOnboarding = !!(u as any)?.mostrarOnboarding;
+        }
+      } catch {
+        // ignoramos fallo de perfil
       }
+
+      // 3) Guardar / limpiar recuerdame
+      if (recordar) {
+        await this.savePrefs(telefono, password, nombre);
+      } else {
+        await this.clearPrefs();
+      }
+
+      // 4) Navegar según estado
+      await this.router.navigate([needsOnboarding ? '/onboarding' : '/dashboard'], {
+        replaceUrl: true,
+      });
+
+      this.hasError = false;
+      this.messageError = '';
+    } catch (err: any) {
+      this.hasError = true;
+      this.messageError = this.parseLoginError(err);
+    } finally {
+      this.formEnviado = false;
+      this.iniciandoSesion = false;
     }
+  }
 
   // UI helpers
-  toggleRemember() { this.rememberFlag = !this.rememberFlag; }
+  toggleRemember() {
+    this.rememberFlag = !this.rememberFlag;
+  }
 
   get inicialesNombre(): string {
     const n = (this.nombreAlmacenado || '').trim();
-    if (!n) return (this.correoAlmacenado || '?').slice(0, 2).toUpperCase();
+    if (!n) return (this.telefonoAlmacenado || '+52').replace(/\D/g, '').slice(-2);
     const parts = n.split(/\s+/).filter(Boolean);
     const a = parts[0]?.[0] ?? '';
     const b = parts.length > 1 ? parts[parts.length - 1][0] : '';
@@ -202,23 +226,33 @@ try {
 
   async borrarDatosAlmacenados() {
     this.nombreAlmacenado = '';
-    this.correoAlmacenado = '';
+    this.telefonoAlmacenado = '';
     this.passwordAlmacenado = '';
     await this.clearPrefs();
-    this.loginForm.reset({ user: '', password: '', almacenarDatos: false });
+    this.loginForm.reset({
+      telefono: '+52 ',
+      password: '',
+      almacenarDatos: false,
+    });
     this.rememberFlag = false;
   }
 
-  getControl(campo: string) { return this.loginForm.get(campo); }
+  getControl(campo: string) {
+    return this.loginForm.get(campo);
+  }
 
   async onRememberChange(checked: boolean) {
     this.rememberFlag = checked;
     if (checked) {
-      const email = this.loginForm.get('user')?.value || '';
+      const telefono = this.loginForm.get('telefono')?.value || '+52 ';
       const password = this.loginForm.get('password')?.value || '';
-      await this.savePrefs(email, password, this.nombreAlmacenado || '');
+      await this.savePrefs(telefono, password, this.nombreAlmacenado || '');
     } else {
       await this.clearPrefs();
     }
+  }
+
+  irARegistro() {
+    this.router.navigate(['/registro']);
   }
 }

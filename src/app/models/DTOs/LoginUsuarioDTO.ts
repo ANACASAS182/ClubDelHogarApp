@@ -1,4 +1,4 @@
-export interface LoginUsuarioDTO{
-    email : string;
-    password: string;
+export interface LoginUsuarioDTO {
+  telefono: string;
+  password: string;
 }

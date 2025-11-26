@@ -302,7 +302,12 @@ ion-select.embassy_input {
 }
 
 
-ion-header{
+/*ion-header{
+  padding-top: 48px !important;
+  background-color: #333740;
+}*/
+
+ion-header.app-main-header {
   padding-top: 48px !important;
   background-color: #333740;
 }

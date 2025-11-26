@@ -1,82 +1,164 @@
 <ion-header>
-  <ion-toolbar class="headerColor">
+  <ion-toolbar class="headerColor network-header">
+    <!-- Menú lateral (aunque no haya dashboard, lo puedes seguir usando) -->
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
 
+    <!-- Marca CDH -->
     <ion-title>
-      <span class="title-wrap">
-        <img class="title-icon" src="assets/icons/network.png" alt="Icono Network" />
-        <span>Mi Network</span>
-      </span>
+      <div class="brand-wrap">
+        <img
+          src="assets/logo_blancoCDH.png"
+          alt="Club del Hogar"
+          class="brand-logo"
+        />
+        <div class="brand-text">
+          <span class="brand-title">Club del Hogar</span>
+          <span class="brand-subtitle">Promociones para ti</span>
+        </div>
+      </div>
     </ion-title>
+
+    <!-- Menú de usuario (solo circulito + flecha) -->
+    <ion-buttons slot="end">
+      <button
+        class="user-chip"
+        id="user-menu-trigger"
+        type="button"
+      >
+        <div class="user-avatar">
+          {{ inicialesUsuario }}
+        </div>
+        <ion-icon name="chevron-down-outline"></ion-icon>
+      </button>
+    </ion-buttons>
   </ion-toolbar>
+
+  <!-- Popover con acciones de usuario -->
+  <ion-popover
+    trigger="user-menu-trigger"
+    triggerAction="click"
+    [dismissOnSelect]="true"
+  >
+    <ng-template>
+      <ion-list>
+        <ion-item lines="none">
+          <ion-label>
+            <h3>{{ nombreUsuario || 'Mi cuenta' }}</h3>
+            <p *ngIf="correoUsuario">{{ correoUsuario }}</p>
+          </ion-label>
+        </ion-item>
+
+        <ion-item button detail="false" (click)="irConfiguracion()">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          <ion-label>Configuración</ion-label>
+        </ion-item>
+
+        <ion-item button detail="false" (click)="cerrarSesion()">
+          <ion-icon slot="start" name="log-out-outline" color="danger"></ion-icon>
+          <ion-label color="danger">Cerrar sesión</ion-label>
+        </ion-item>
+      </ion-list>
+    </ng-template>
+  </ion-popover>
 </ion-header>
 
+
 <ion-content class="contentCustom">
-    <app-resumen
-    [MostrarIngresos]="true"
+  <app-resumen
+    *ngIf="false"
+    [MostrarIngresos]="false"
     [MostrarInvitados]="false"
     [MostrarAceptados]="false">
   </app-resumen>
 
-  <!-- Empresas -->
-  <ion-grid>
+  <!-- 🔥 SOLO PROMOCIONES / PRODUCTOS -->
+  <ion-grid class="promos-grid">
     <ion-row>
-      <ion-col>
-        <p><strong>Empresas en tu Network</strong></p>
-        <p><small>Promocionas los productos y servicios de las siguientes empresas</small></p>
-        <app-loader *ngIf="cargandoEmpresas"></app-loader>
-      </ion-col>
-    </ion-row>
-
-    <!-- EMPRESAS -->
-    <ion-row>
-      <ion-col
-        size="4" size-sm="3" size-md="3" size-lg="3" size-xl="2"
-        *ngFor="let item of empresas">
-        <ion-card
-          class="ion-card-embassy"
-          [class.activa]="item.id === empresaActualId"
-          (click)="seleccionarEmpresa(item)">
-          <div class="img-box">
-            <img [src]="ensureDataUrl(item.logotipoBase64) || item.logotipoPath || 'assets/img/no-logo.svg'" alt="Logo" />
+      <ion-col size="12">
+        <div class="promos-header">
+          <div>
+            <p>
+              <small>
+                ¡Mantente al día con las promociones más recientes!
+              </small>
+            </p>
           </div>
-        </ion-card>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
 
-  <!-- Promociones / Productos -->
-  <ion-grid>
-    <ion-row>
-      <ion-col>
-        <p><strong>Productos y promociones vigentes</strong></p>
-        <p><small>¡Mantente al día con las promociones más recientes y obtén las mejores comisiones!</small></p>
+          <!-- Filtro de categorías -->
+          <div class="promo-filters">
+            <ion-item lines="none">
+              <ion-label position="stacked">Categorías</ion-label>
+              <ion-select
+                [(ngModel)]="categoriaSeleccionada"
+                interface="popover"
+                placeholder="Todas">
+                <ion-select-option [value]="null">Todas</ion-select-option>
+                <ion-select-option
+                  *ngFor="let cat of categorias"
+                  [value]="cat.id">
+                  {{ cat.nombre }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+          </div>
+        </div>
+
         <app-loader *ngIf="cargandoPromociones"></app-loader>
       </ion-col>
     </ion-row>
 
-    <ion-row *ngIf="!cargandoPromociones && promociones?.length === 0">
+    <!-- vacío -->
+    <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length === 0">
       <ion-col size="12" class="ion-text-center">
-        <small>No hay productos/promociones vigentes para esta empresa.</small>
+        <small>No hay productos/promociones vigentes para tu Network.</small>
       </ion-col>
     </ion-row>
 
-    <!-- PROMOCIONES / PRODUCTOS -->
-      <ion-row>
-        <ion-col
-          size="12" size-sm="6" size-md="4" size-lg="4" size-xl="4"
-          *ngFor="let promocion of promociones">
-          <ion-card class="ion-card-embassy">
-            <app-producto
-              [promocion]="promocion"
-              [mostrarAcciones]="!esSocio"
-              (addClicked)="abrirModalAgregar(promocion)"
-              (qrClicked)="abrirModalPromocion(promocion)">
-            </app-producto>
-          </ion-card>
-        </ion-col>
-      </ion-row>
+    <!-- LISTA DE PROMOS -->
+    <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length > 0">
+      <ion-col size="12" *ngFor="let promo of promocionesFiltradas">
+        <ion-card class="promo-card" (click)="abrirModalPromocion(promo)">
+          <div class="promo-card-content">
+            <!-- 👉 Imagen del producto a la izquierda -->
+            <div class="producto-img-wrapper" [class.no-image]="!tieneProductoImg(promo)">
+              <ng-container *ngIf="tieneProductoImg(promo); else cuadradoGris">
+                <img
+                  [src]="getProductoImg(promo)"
+                  alt="Imagen producto" />
+              </ng-container>
+
+              <ng-template #cuadradoGris>
+                <div class="producto-placeholder"></div>
+              </ng-template>
+            </div>
+
+            <!-- 👉 Info + logo empresa arriba a la derecha -->
+            <div class="promo-info">
+              <div class="promo-header">
+                <h3 class="empresa-nombre">
+                  {{ getEmpresaNombre(promo) }}
+                </h3>
+
+                <div class="empresa-logo-mini">
+                  <img
+                    [src]="getEmpresaLogo(promo)"
+                    alt="Logo empresa" />
+                </div>
+              </div>
+
+              <h4 class="promo-nombre">
+                {{ $any(promo).nombrePromocion || $any(promo).nombre || $any(promo).titulo }}
+              </h4>
+
+              <p class="promo-desc">
+                {{ $any(promo).descripcion || $any(promo).detalle || 'Se aplican en...' }}
+              </p>
+            </div>
+          </div>
+        </ion-card>
+      </ion-col>
+    </ion-row>
   </ion-grid>
 </ion-content>

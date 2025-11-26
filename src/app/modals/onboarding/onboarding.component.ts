@@ -50,22 +50,21 @@ export class OnboardingComponent implements OnInit {
       next: (r) => (this.estados = r.data || []),
     });
 
-    // ⚠️ Obtener el usuario logueado para traer su ID y precargar datos
+    // obtener usuario
     try {
-      const resp = await firstValueFrom(this.usuarioService.getUsuarioLogeado(true));
+      const resp = await firstValueFrom(this.usuarioService.getUsuario(true));
       const u: any = resp?.data;
 
-      // setea id y valores actuales (si hay)
-      this.usuarioOnboarding.id = u?.id ?? u?.ID ?? u?.usuarioID; // por si cambia el casing
-      this.usuarioOnboarding.nombres = u?.nombres ?? '';
-      this.usuarioOnboarding.apellidos = u?.apellidos ?? '';
-      this.usuarioOnboarding.celular = u?.celular ?? '';
-      this.usuarioOnboarding.catalogoPaisID = u?.catalogoPaisID ?? undefined;
+      this.usuarioOnboarding.id            = u?.id ?? u?.ID ?? u?.usuarioID;
+      this.usuarioOnboarding.nombres       = u?.nombres ?? '';
+      this.usuarioOnboarding.apellidos     = u?.apellidos ?? '';
+      this.usuarioOnboarding.celular       = u?.celular ?? '';
+      this.usuarioOnboarding.catalogoPaisID   = u?.catalogoPaisID ?? undefined;
       this.usuarioOnboarding.catalogoEstadoID = u?.catalogoEstadoID ?? undefined;
-      this.usuarioOnboarding.ciudad = u?.ciudad ?? '';
-      this.usuarioOnboarding.estadoTexto = u?.estadoTexto ?? '';
+      this.usuarioOnboarding.ciudad        = u?.ciudad ?? '';
+      this.usuarioOnboarding.estadoTexto   = u?.estadoTexto ?? '';
     } catch {
-      // si falla, deja al usuario llenar; pero sin ID no habrá update
+      // si truena, que el usuario lo llene a mano
     }
   }
 

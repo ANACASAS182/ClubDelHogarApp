@@ -1,55 +1,305 @@
-/* Título compacto y estable en cualquier ancho */
+/* ===== Header / título viejo (por si algo lo usa) ===== */
 .title-wrap {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
 }
+
 .title-icon {
   width: 20px;
   height: 20px;
-  display: block; /* evita espacio baseline en iOS */
+  display: block; // evita espacio raro en iOS
 }
 
-/* Tarjeta “clickeable” neutra */
-.ion-card-embassy{
-  user-select: none;
-  border: 1px solid #ffffff00;
-  border-radius: 14px;
-  transition: border-color .15s ease;
-}
-.ion-card-embassy:hover{
-  border: 1px solid #111822b4;
+/* ===== Ion-content (quita espacio muerto debajo del header) ===== */
+.contentCustom {
+  --background: #f2f2f2;
+  --padding-top: 4px;
+  --padding-start: 0;
+  --padding-end: 0;
 }
 
-/* Caja de logo responsiva con aspecto fijo (cuadrado).
-   Si prefieres rectangular, cambia a aspect-ratio: 16/9; */
-.img-box{
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  padding: 10px;
+/* ===== Grid general de promos ===== */
+.promos-grid {
+  /* menos padding general para que todo suba */
+  padding: 2px 8px 12px;
+}
+
+/* quitamos el padding default de los cols para compactar */
+.promos-grid ion-row {
+  margin: 0;
+}
+
+.promos-grid ion-col {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.promos-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px; /* antes 12px */
+}
+
+.promos-header p {
+  margin: 0;
+}
+
+.promo-filters {
+  min-width: 200px; /* un poco más compacto */
+}
+
+.promo-filters ion-item {
+  --background: transparent;
+  --padding-start: 0;
+}
+
+/* ===== Tarjeta de promoción ===== */
+.promo-card {
+  border-radius: 14px; /* menos curva */
+  box-shadow: 0 1px 5px rgba(0,0,0,0.07);
+  margin: 0 0 6px 0;   /* antes 10px */
+}
+
+/* quitamos padding interno fuerte y reducimos gap */
+.promo-card-content {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 8px;                /* antes 10px */
+  padding: 8px 10px;       /* antes 10px 12px */
+}
+
+/* === Imagen del producto (izquierda) === */
+.producto-img-wrapper {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  background: #fff;
-  /* opcional: sombra suave para “card” consistente */
 }
 
-/* Imagen completamente fluida, sin ancho fijo (adiós 256px) */
-.img-box img{
-  display: block;         /* quita el gap de línea en Safari iOS */
+.producto-img-wrapper img {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.producto-img-wrapper.no-image {
+  background: transparent;
+}
+
+.producto-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  background: #d3d3d3; // gris
+}
+
+/* === Columna de textos + logo empresa mini === */
+.promo-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px; /* antes 4px */
+}
+
+/* fila de arriba: nombre empresa + logo mini */
+.promo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+/* logo mini MUY compacto */
+.empresa-logo-mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empresa-logo-mini img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain;    /* no distorsiona logos */
-  transition: transform .25s ease;
-}
-.img-box:hover img{
-  transform: scale(1.02);
+  object-fit: contain;
+  display: block;
 }
 
-/* Micro-ajustes responsive */
-@media (max-width: 420px){
-  ion-grid { padding-inline: 10px; }
-  .ion-card-embassy { border-radius: 12px; }
+/* textos */
+.empresa-nombre {
+  font-size: 12px;   /* antes 13px */
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.promo-nombre {
+  font-size: 12px;   /* antes 13px */
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+  /* dos líneas máximo */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.promo-desc {
+  font-size: 11px;   /* antes 12px */
+  margin: 0;
+  color: #555;
+  line-height: 1.2;
+  /* también la recortamos a 2 líneas */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .promos-header {
+    align-items: flex-start;
+  }
+
+  .promo-card-content {
+    align-items: flex-start;
+  }
+
+  .promo-filters {
+    width: 100%;
+  }
+}
+
+/* Móviles muy chicos */
+@media (max-width: 420px) {
+  .promos-grid {
+    padding-inline: 6px;
+  }
+
+  .promo-card {
+    border-radius: 12px;
+  }
+
+  .producto-img-wrapper {
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* =====================================================
+   HEADER CDH + USUARIO (PRINCIPAL DE LA PANTALLA)
+   ===================================================== */
+
+.network-header {
+  --padding-start: 8px;
+  --padding-end: 8px;
+  --min-height: 52px; // un poquito más compacto
+}
+
+/* truco para que no quede tanto “aire” entre menú, logo y chip */
+.network-header .toolbar-container {
+  padding-inline-start: 4px;
+  padding-inline-end: 4px;
+}
+
+.network-header ion-title {
+  text-align: left;
+}
+
+/* Marca CDH */
+.brand-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.brand-subtitle {
+  font-size: 11px;
+  color: #e5e7eb;
+}
+
+/* Chip de usuario lado derecho (solo circulito + chevron) */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(17, 24, 39, 0.55);
+  padding: 4px 8px;
+  color: #ffffff;
+  cursor: pointer;
+  outline: none;
+}
+
+.user-chip:active {
+  transform: scale(0.97);
+}
+
+.user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Ajustes popover */
+ion-popover {
+  --width: 220px;
+}
+
+ion-popover ion-list {
+  padding: 4px 0;
+}
+
+ion-popover ion-item h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+ion-popover ion-item p {
+  font-size: 12px;
+  color: #6b7280;
 }
