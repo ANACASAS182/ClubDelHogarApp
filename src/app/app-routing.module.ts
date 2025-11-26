@@ -10,7 +10,7 @@ import { OnboardingGuard } from './guards/onboarding.guard';
 import { OnboardingComponent } from './modals/onboarding/onboarding.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
   {
     path: 'login',
@@ -46,7 +46,7 @@ const routes: Routes = [
   {
     path: 'onboarding',
     component: OnboardingComponent,
-    canActivate: [AuthGuard],
+    canActivate: [NoAuthGuard],
     // si tienes pasos, puedes anidar children (ej. bienvenida, datos, ubicación)
   },
 
@@ -54,13 +54,13 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
-    canActivate: [AuthGuard, OnboardingGuard],
+    canActivate: [NoAuthGuard],
     runGuardsAndResolvers: 'always'
   },
   {
     path: 'activaciones',
     loadChildren: () => import('./pages/activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
-    canActivate: [AuthGuard, OnboardingGuard],
+    canActivate: [NoAuthGuard],
     runGuardsAndResolvers: 'always'
   },
   { path: 'dashboard/referencias-app', 

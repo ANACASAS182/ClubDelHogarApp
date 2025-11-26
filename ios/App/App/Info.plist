@@ -3,7 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Esta app requiere acceso a la cámara para escanear códigos QR relacionados con los productos de la misma aplicación</string>
+	<string>Se necesita acceso a la cámara para escanear códigos o tomar fotos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Se necesita acceso a las fotos para adjuntar o compartir imágenes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Se necesita acceso al micrófono para funciones de audio o reconocimiento de voz.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -47,5 +51,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

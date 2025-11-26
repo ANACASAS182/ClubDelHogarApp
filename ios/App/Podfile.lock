@@ -68,17 +68,17 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: 106e7a4205f4618d582b886a975657c61179138d
-  CapacitorApp: d63334c052278caf5d81585d80b21905c6f93f39
-  CapacitorBarcodeScanner: 3c32ee7c4f7088cefb1abf1b83c10a11202190a8
+  Capacitor: 03bc7cbdde6a629a8b910a9d7d78c3cc7ed09ea7
+  CapacitorApp: febecbb9582cb353aed037e18ec765141f880fe9
+  CapacitorBarcodeScanner: 29c88bf098adb0830975d4f14c107a6bb7722e3d
   CapacitorCordova: 5967b9ba03915ef1d585469d6e31f31dc49be96f
-  CapacitorFilesystem: ac0a386949ed6c295a3dffa129ecd26b881ae5be
-  CapacitorHaptics: 70e47470fa1a6bd6338cd102552e3846b7f9a1b3
-  CapacitorKeyboard: 056bbe3711830ccb782f1705a8ad183b27b6c51e
-  CapacitorPreferences: b583b5deb74e564c35968189d25d32c0fd41200d
-  CapacitorPushNotifications: 729ade0d2791ec1969feaf931a15e28d929a6d70
-  CapacitorShare: 051c3ceee0ddf3bb54574851a622bbb317eed5bd
-  CapacitorStatusBar: 275cbf2f4dfc00388f519ef80c7ec22edda342c9
+  CapacitorFilesystem: f9bd850c41e048180e5dc0cbb90f2033ede9d2cc
+  CapacitorHaptics: 1f1e17041f435d8ead9ff2a34edd592c6aa6a8d6
+  CapacitorKeyboard: a86aa9e4741b6444a802df26440a92ae041b34a6
+  CapacitorPreferences: 65107ed7437d96ee72583df5763985e3c0ff2bc2
+  CapacitorPushNotifications: bdd621fbd562be34a41f4a7b1750efa000447d5a
+  CapacitorShare: be166411fa995ead2d39b104aa0aae56d8615c66
+  CapacitorStatusBar: 6e7af040d8fc4dd655999819625cae9c2d74c36f
   IONFilesystemLib: 89258b8e3e85465da93127d25d7ce37f977e8a6f
   OSBarcodeLib: f2e981270a64faf476cb790864262b29ab8cd68a
 
