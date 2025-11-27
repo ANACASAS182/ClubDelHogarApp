@@ -1,18 +1,17 @@
-.promo-screen {
+ion-content.promo-screen {
   --background: #f6f7f9;
-  --padding-top: max(env(safe-area-inset-top), 8px);
-  --padding-bottom: max(env(safe-area-inset-bottom), 12px);
-  --padding-start: 12px;
-  --padding-end: 12px;
+  padding: 0;               /* sin padding extra */
+  display: flex;
+  flex-direction: column;
 }
 
+/* Contenedor que centra la tarjeta en el modal */
 .promo-shell {
-  min-height: 100dvh;
-  min-height: 100vh;
+  flex: 1;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 0;
+  align-items: center;      /* centra vertical */
+  justify-content: center;  /* centra horizontal */
+  padding: 16px 12px 24px;
   box-sizing: border-box;
 }
 
