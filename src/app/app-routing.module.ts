@@ -8,95 +8,111 @@ import { OnboardingGuard } from './guards/onboarding.guard';
 import { OnboardingComponent } from './modals/onboarding/onboarding.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-
-  // App arranca en network
+  // Arranque: directo al network
   { path: '', redirectTo: 'dashboard/network', pathMatch: 'full' },
 
-  // LOGIN (por si luego lo quieres usar manualmente)
+  // LOGIN
   {
     path: 'login',
-    loadChildren: () => import('./pages/login/login.module').then(m => m.LoginPageModule),
+    loadChildren: () =>
+      import('./pages/login/login.module').then(m => m.LoginPageModule),
+    canActivate: [NoAuthGuard],   // <– solo entra si NO está logueado
   },
 
-  // REGISTRO (flujo de referencias)
+  // REGISTRO
   {
     path: 'registro',
-    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module')
-      .then(m => m.UsuarioRegistroPageModule),
-    resolve: { resolverData: UsuarioRegistroResolver }
+    loadChildren: () =>
+      import('./pages/usuario.registro/usuario.registro.module')
+        .then(m => m.UsuarioRegistroPageModule),
+    resolve: { resolverData: UsuarioRegistroResolver },
+    canActivate: [NoAuthGuard],
   },
   {
     path: 'registro/:codigo',
-    loadChildren: () => import('./pages/usuario.registro/usuario.registro.module')
-      .then(m => m.UsuarioRegistroPageModule),
-    resolve: { resolverData: UsuarioRegistroResolver }
+    loadChildren: () =>
+      import('./pages/usuario.registro/usuario.registro.module')
+        .then(m => m.UsuarioRegistroPageModule),
+    resolve: { resolverData: UsuarioRegistroResolver },
+    canActivate: [NoAuthGuard],
   },
 
-  // PASSWORD
+  // PASSWORD (normalmente también sin sesión)
   {
     path: 'password/recovery',
-    loadChildren: () => import('./pages/usuario.password.recovery/usuario.password.recovery.module')
-      .then(m => m.UsuarioPasswordRecoveryPageModule)
+    loadChildren: () =>
+      import('./pages/usuario.password.recovery/usuario.password.recovery.module')
+        .then(m => m.UsuarioPasswordRecoveryPageModule),
+    canActivate: [NoAuthGuard],
   },
   {
     path: 'password/reset',
-    loadChildren: () => import('./pages/usuario.password.reset/usuario.password.reset.module')
-      .then(m => m.UsuarioPasswordResetPageModule)
+    loadChildren: () =>
+      import('./pages/usuario.password.reset/usuario.password.reset.module')
+        .then(m => m.UsuarioPasswordResetPageModule),
+    canActivate: [NoAuthGuard],
   },
 
-  // ONBOARDING
+  // ONBOARDING (aquí ya decide tu lógica, pero normalmente con sesión)
   {
     path: 'onboarding',
     component: OnboardingComponent,
-    canActivate: [NoAuthGuard],
-    // si tienes pasos, puedes anidar children (ej. bienvenida, datos, ubicación)
+    canActivate: [AuthGuard, OnboardingGuard],
   },
 
-  // DASHBOARD
+  // DASHBOARD (⚠️ SIN GUARDS)
   {
     path: 'dashboard',
-    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
-    canActivate: [NoAuthGuard],
-    runGuardsAndResolvers: 'always'
-  },
-  {
-    path: 'activaciones',
-    loadChildren: () => import('./pages/activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
-    canActivate: [NoAuthGuard],
-    runGuardsAndResolvers: 'always'
-  },
-  { path: 'dashboard/referencias-app', 
-    loadChildren: () => import('./pages/referencias-app/referencias-app.module').then(m => m.ReferenciasAppModule) 
+    loadChildren: () =>
+      import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
+    // ❌ quita esto:
+    // canActivate: [NoAuthGuard],
+    // runGuardsAndResolvers: 'always'
   },
 
-  // VALIDAR CÓDIGO
+  // ACTIVACIONES (igual, requiere sesión)
+  {
+    path: 'activaciones',
+    loadChildren: () =>
+      import('./pages/activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
+    canActivate: [AuthGuard],
+    runGuardsAndResolvers: 'always',
+  },
+
+  // Otras rutas
+  {
+    path: 'dashboard/referencias-app',
+    loadChildren: () =>
+      import('./pages/referencias-app/referencias-app.module').then(m => m.ReferenciasAppModule),
+    canActivate: [AuthGuard],
+  },
+
   {
     path: 'validar-codigo',
     loadChildren: () =>
       import('./pages/usuario.codigo.validar/usuario.codigo.validar.module')
-        .then(m => m.UsuarioCodigoValidarPageModule)
+        .then(m => m.UsuarioCodigoValidarPageModule),
   },
 
-  // CREAR PASSWORD
   {
     path: 'usuario-crear-password',
     loadChildren: () =>
       import('./pages/usuario-crear-password/usuario-crear-password.module')
-        .then(m => m.UsuarioCrearPasswordPageModule)
+        .then(m => m.UsuarioCrearPasswordPageModule),
   },
 
   {
     path: 'vende',
     loadChildren: () =>
       import('./pages/vende-network/vende-network.module')
-        .then(m => m.VendeNetworkPageModule)
+        .then(m => m.VendeNetworkPageModule),
+    canActivate: [AuthGuard],
   },
-
 
   // Fallback
   { path: '**', redirectTo: 'dashboard/network' },
 ];
+
 
 
 @NgModule({

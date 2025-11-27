@@ -154,90 +154,95 @@ export class LoginPage implements OnInit, OnDestroy {
 
 
   async onSubmit() {
-    if (this.formEnviado) return;
+  if (this.formEnviado) { return; }
 
-    const recordar = this.rememberFlag;
+  this.formEnviado = true;
+  this.iniciandoSesion = true;
+  this.hasError = false;
+  this.messageError = '';
 
-    this.formEnviado = true;
-    this.iniciandoSesion = true;
-
-    try {
-      if (!this.loginForm.valid) {
-        this.loginForm.markAllAsTouched();
-        throw new Error('Completa los campos requeridos.');
-      }
-
-      const telefono = (this.loginForm.controls['telefono'].value || '').trim();
-      const password = this.loginForm.controls['password'].value;
-
-      const credenciales = {
-        telefono,
-        password,
-      };
-
-      // 1) Login
-      const loginResp = await firstValueFrom(
-        this.usuarioService.login(credenciales, true)
-      );
-
-      if (!loginResp?.success || !loginResp?.data) {
-        throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
-      }
-
-      // guarda token
-      await this.tokenService.saveToken(loginResp.data);
-
-      // 2) Perfil (opcional, lo dejas como ya lo tenías)
-      let nombre = '';
-      let needsOnboarding = false;
-      try {
-        const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
-        if (pr?.success && pr?.data) {
-          const u = pr.data as Usuario;
-
-          if ((u as any).rolesID === 1) {
-            this.hasError = true;
-            this.messageError =
-              'Este panel es solo para embajadores y socios. Visita el panel de administrador.';
-            await this.tokenService.removeToken();
-            localStorage.removeItem('usuario-actual');
-            return;
-          }
-
-          nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
-          needsOnboarding = !!(u as any)?.mostrarOnboarding;
-        }
-      } catch {
-        // ignoras fallo de perfil
-      }
-
-      // 3) Guardar / limpiar recuerdame
-      if (recordar) {
-        await this.savePrefs(telefono, password, nombre);
-      } else {
-        await this.clearPrefs();
-      }
-
-      // 4) Navegar y forzar refresh para que CDH lea bien el token
-      const target = needsOnboarding ? '/onboarding' : '/dashboard/network';
-
-      await this.router.navigate([target], { replaceUrl: true });
-
-      // 🔥 recarga dura para que EmpresasNetworkPage vuelva a pedir el usuario
-      setTimeout(() => {
-        window.location.reload();
-      }, 50);
-
-      this.hasError = false;
-      this.messageError = '';
-    } catch (err: any) {
-      this.hasError = true;
-      this.messageError = this.parseLoginError(err);
-    } finally {
-      this.formEnviado = false;
-      this.iniciandoSesion = false;
+  try {
+    // 1) Validar formulario
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      throw new Error('Completa los campos requeridos.');
     }
+
+    const telefono  = (this.loginForm.controls['telefono'].value || '').trim();
+    const password  = this.loginForm.controls['password'].value;
+    const recordar  = this.rememberFlag;
+
+    const credenciales = { telefono, password };
+
+    // 2) Login
+    const loginResp = await firstValueFrom(
+      this.usuarioService.login(credenciales, true)
+    );
+
+    console.log('[Login] resp =', loginResp);
+
+    if (!loginResp?.success || !loginResp?.data) {
+      throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
+    }
+
+    // 3) Guardar token
+    await this.tokenService.saveToken(loginResp.data);
+
+    // 4) Cargar perfil DESPUÉS, en segundo plano (no bloquea la navegación)
+    this.cargarPerfilPostLogin(telefono, password, recordar);
+
+    // 5) Navegar SIEMPRE al dashboard network
+    const target = '/dashboard/network';
+    console.log('[Login] navegando a', target);
+
+    const ok = await this.router.navigateByUrl(target, { replaceUrl: true });
+    console.log('[Login] navigateByUrl result =', ok);
+
+  } catch (err: any) {
+    console.error('[Login] error', err);
+    this.hasError = true;
+    this.messageError = this.parseLoginError(err);
+  } finally {
+    this.formEnviado = false;
+    this.iniciandoSesion = false;
   }
+}
+
+  private async cargarPerfilPostLogin(
+  telefono: string,
+  password: string,
+  recordar: boolean
+) {
+  try {
+    const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
+    console.log('[Login] getUsuario resp =', pr);
+
+    if (!pr?.success || !pr?.data) return;
+
+    const u = pr.data as Usuario;
+
+    // Si quieres seguir bloqueando admins, hazlo SOLO PARA MOSTRAR ERROR,
+    // pero ya no interrumpimos la navegación del login.
+    if ((u as any).rolesID === 1) {
+      console.warn('[Login] usuario con rol 1 (admin), muestra mensaje si quieres.');
+      // Aquí ya NO hacemos return en el onSubmit, solo podrías, por ejemplo,
+      // limpiar token si lo consideras.
+    }
+
+    const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+
+    if (recordar) {
+      await this.savePrefs(telefono, password, nombre);
+    } else {
+      await this.clearPrefs();
+    }
+
+  } catch (e) {
+    console.error('[Login] error cargando perfil post-login', e);
+  }
+}
+
+
 
 
   // UI helpers
