@@ -8,6 +8,7 @@ import { OnboardingGuard } from './guards/onboarding.guard';
 import { OnboardingComponent } from './modals/onboarding/onboarding.component';
 
 const routes: Routes = [
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
   // App arranca en network
   { path: '', redirectTo: 'dashboard/network', pathMatch: 'full' },
@@ -48,15 +49,25 @@ const routes: Routes = [
   {
     path: 'onboarding',
     component: OnboardingComponent,
+    canActivate: [NoAuthGuard],
+    // si tienes pasos, puedes anidar children (ej. bienvenida, datos, ubicación)
   },
 
   // DASHBOARD
   {
     path: 'dashboard',
-    // 🚫 SIN AuthGuard
-    canActivate: [OnboardingGuard],   // solo revisa si debe mostrar onboarding
-    loadChildren: () =>
-      import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
+    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardPageModule),
+    canActivate: [NoAuthGuard],
+    runGuardsAndResolvers: 'always'
+  },
+  {
+    path: 'activaciones',
+    loadChildren: () => import('./pages/activaciones/activaciones.module').then(m => m.ActivacionesPageModule),
+    canActivate: [NoAuthGuard],
+    runGuardsAndResolvers: 'always'
+  },
+  { path: 'dashboard/referencias-app', 
+    loadChildren: () => import('./pages/referencias-app/referencias-app.module').then(m => m.ReferenciasAppModule) 
   },
 
   // VALIDAR CÓDIGO

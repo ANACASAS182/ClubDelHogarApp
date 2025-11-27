@@ -1,0 +1,18 @@
+current directory: /Users/sistemasperseo/Documents/GitHub/ClubDelHogarApp/ios/App/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+/Users/sistemasperseo/.rbenv/versions/3.3.0/bin/ruby extconf.rb
+creating Makefile
+
+current directory: /Users/sistemasperseo/Documents/GitHub/ClubDelHogarApp/ios/App/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20251105-26162-oz8o91 sitelibdir\=./.gem.20251105-26162-oz8o91 clean
+
+current directory: /Users/sistemasperseo/Documents/GitHub/ClubDelHogarApp/ios/App/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20251105-26162-oz8o91 sitelibdir\=./.gem.20251105-26162-oz8o91
+compiling nkf.c
+linking shared-object nkf.bundle
+
+current directory: /Users/sistemasperseo/Documents/GitHub/ClubDelHogarApp/ios/App/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20251105-26162-oz8o91 sitelibdir\=./.gem.20251105-26162-oz8o91 install
+/usr/bin/install -c -m 0755 nkf.bundle ./.gem.20251105-26162-oz8o91
+
+current directory: /Users/sistemasperseo/Documents/GitHub/ClubDelHogarApp/ios/App/vendor/bundle/ruby/3.3.0/gems/nkf-0.2.0/ext/nkf
+make DESTDIR\= sitearchdir\=./.gem.20251105-26162-oz8o91 sitelibdir\=./.gem.20251105-26162-oz8o91 clean

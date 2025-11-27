@@ -1,0 +1,9 @@
+source 'https://rubygems.org'
+
+# Usa HEAD (master) con soporte para Xcode 16 (objectVersion 70)
+gem 'cocoapods', git: 'https://github.com/CocoaPods/CocoaPods', branch: 'master'
+gem 'xcodeproj', git: 'https://github.com/CocoaPods/Xcodeproj', branch: 'master'
+
+# Dependencias auxiliares (evitan fallas de nativas)
+gem 'rexml', '>= 3.2'
+gem 'ffi',   '>= 1.17'
