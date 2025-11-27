@@ -5,8 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { LoaderComponent } from '../../loader/loader.component';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
-import { CatalogoEstado } from 'src/app/models/CatalogoEstado';
-import { CatalogosService } from 'src/app/services/api.back.services/catalogos.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -17,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
   styleUrls: ['./onboarding.component.scss'],
 })
 export class OnboardingComponent implements OnInit {
-  estados: CatalogoEstado[] = [];
+
   usuarioOnboarding: UsuarioDTO = {
     id: undefined,
     nombres: '',
@@ -36,40 +34,32 @@ export class OnboardingComponent implements OnInit {
     rolesId: 3,
   };
 
+  // solo manejamos A (0 = editable, 1 = guardando, 2 = terminado)
   estatusDatosA = 0;
-  estatusDatosB = 0;
 
   constructor(
-    private usuarioService: UsuarioService,
-    private catalogosService: CatalogosService
+    private usuarioService: UsuarioService
   ) {}
 
   async ngOnInit() {
-    // catálogos
-    this.catalogosService.getCatalogoEstados().subscribe({
-      next: (r) => (this.estados = r.data || []),
-    });
-
-    // obtener usuario
     try {
       const resp = await firstValueFrom(this.usuarioService.getUsuario(true));
       const u: any = resp?.data;
 
-      this.usuarioOnboarding.id            = u?.id ?? u?.ID ?? u?.usuarioID;
-      this.usuarioOnboarding.nombres       = u?.nombres ?? '';
-      this.usuarioOnboarding.apellidos     = u?.apellidos ?? '';
-      this.usuarioOnboarding.celular       = u?.celular ?? '';
-      this.usuarioOnboarding.catalogoPaisID   = u?.catalogoPaisID ?? undefined;
-      this.usuarioOnboarding.catalogoEstadoID = u?.catalogoEstadoID ?? undefined;
-      this.usuarioOnboarding.ciudad        = u?.ciudad ?? '';
-      this.usuarioOnboarding.estadoTexto   = u?.estadoTexto ?? '';
+      this.usuarioOnboarding.id              = u?.id ?? u?.ID ?? u?.usuarioID;
+      this.usuarioOnboarding.nombres         = u?.nombres ?? '';
+      this.usuarioOnboarding.apellidos       = u?.apellidos ?? '';
+      this.usuarioOnboarding.celular         = u?.celular ?? '';
+      this.usuarioOnboarding.catalogoPaisID  = u?.catalogoPaisID ?? undefined;
+      this.usuarioOnboarding.catalogoEstadoID= u?.catalogoEstadoID ?? undefined;
+      this.usuarioOnboarding.ciudad          = u?.ciudad ?? '';
+      this.usuarioOnboarding.estadoTexto     = u?.estadoTexto ?? '';
     } catch {
-      // si truena, que el usuario lo llene a mano
+      // si falla, que el usuario lo llene a mano (menos celular, que va bloqueado)
     }
   }
 
   close() {
-    // mejor navegar al dashboard; recargar es tosco
     window.location.href = '/dashboard';
   }
 
@@ -78,22 +68,16 @@ export class OnboardingComponent implements OnInit {
       this.estatusDatosA = 0;
       return;
     }
+
     this.estatusDatosA = 1;
+
+    // si quieres forzar estado / ciudad fijos, puedes setearlos aquí:
+    // this.usuarioOnboarding.catalogoEstadoID = 999;
+    // this.usuarioOnboarding.ciudad = 'Ciudad fija';
+
     this.usuarioService.postOnboardingA(this.usuarioOnboarding).subscribe({
       next: () => (this.estatusDatosA = 2),
       error: () => (this.estatusDatosA = 0),
-    });
-  }
-
-  GuardarDatosB() {
-    if (!this.usuarioOnboarding.id) {
-      this.estatusDatosB = 0;
-      return;
-    }
-    this.estatusDatosB = 1;
-    this.usuarioService.postOnboardingB(this.usuarioOnboarding).subscribe({
-      next: () => (this.estatusDatosB = 2),
-      error: () => (this.estatusDatosB = 0),
     });
   }
 }

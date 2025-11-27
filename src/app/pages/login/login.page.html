@@ -48,6 +48,17 @@
           >
             Iniciar sesión con otro número
           </ion-button>
+
+          <!-- 👉 INVITADO -->
+          <ion-button
+            *ngIf="!iniciandoSesion"
+            expand="block"
+            fill="clear"
+            class="btn-invitado"
+            (click)="continuarSinSesion()"
+          >
+            Continuar sin iniciar sesión
+          </ion-button>
         </ng-container>
 
         <!-- MODO NORMAL (con inputs) -->
@@ -117,13 +128,16 @@
             Ingresar
           </ion-button>
 
-          <!-- Si después quieres recovery por SMS, aquí va -->
-          <!--
-          <hr class="spacer_embassy" />
-          <div class="form-links">
-            <a [routerLink]="'/password/recovery'">¿Olvidaste tu contraseña?</a>
-          </div>
-          -->
+          <!-- 👉 INVITADO -->
+          <ion-button
+            *ngIf="!iniciandoSesion"
+            expand="block"
+            fill="clear"
+            class="btn-invitado"
+            (click)="continuarSinSesion()"
+          >
+            Continuar sin iniciar sesión
+          </ion-button>
         </ng-template>
 
         <!-- FOOTER -->

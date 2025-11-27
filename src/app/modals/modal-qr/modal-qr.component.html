@@ -1,4 +1,22 @@
 <ion-content class="promo-screen" [fullscreen]="true">
+
+  <!-- 🟢 VISTA 1: ESCÁNER (cuando aún no hay código) -->
+  <div class="scan-shell" *ngIf="!codigoPromocion">
+    <h2 class="scan-title">Escanea un código QR</h2>
+    <p class="scan-sub">
+      Apunta la cámara hacia el código QR del cliente.
+    </p>
+
+    <div id="qr-reader" class="qr-reader-box"></div>
+
+    <div class="scan-actions">
+      <ion-button fill="outline" size="small" (click)="close()">
+        Cerrar
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- 🟣 VISTA 2: RESULTADO DEL CÓDIGO (cuando ya hay codigoPromocion) -->
   <div *ngIf="codigoPromocion" class="promo-shell">
     <div
       class="promo-card"
@@ -28,8 +46,12 @@
           </h3>
 
           <p class="head-sub" *ngIf="EstatusObtenerInformacionDelCodigo === 1">Por favor, espera…</p>
-          <p class="head-sub" *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1">El código es válido y está activo.</p>
-          <p class="head-sub" *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1">Este código no está activo.</p>
+          <p class="head-sub" *ngIf="EstatusDelCodigo === 1 && EstatusObtenerInformacionDelCodigo !== 1">
+            El código es válido y está activo.
+          </p>
+          <p class="head-sub" *ngIf="EstatusDelCodigo === -1 && EstatusObtenerInformacionDelCodigo !== 1">
+            Este código no está activo.
+          </p>
         </div>
       </div>
 
@@ -42,7 +64,11 @@
       </div>
 
       <!-- Progreso -->
-      <ion-progress-bar *ngIf="EstatusObtenerInformacionDelCodigo === 1" type="indeterminate" class="bar"></ion-progress-bar>
+      <ion-progress-bar
+        *ngIf="EstatusObtenerInformacionDelCodigo === 1"
+        type="indeterminate"
+        class="bar">
+      </ion-progress-bar>
 
       <!-- Detalles VÁLIDO -->
       <ng-container *ngIf="EstatusDelCodigo === 1">

@@ -1,55 +1,43 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
-import { Empresa } from 'src/app/models/Empresa';
-import { Promocion } from 'src/app/models/Promocion';
 import { Usuario } from 'src/app/models/Usuario';
+import { Promocion } from 'src/app/models/Promocion';
 import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 
-import { EmpresaService } from 'src/app/services/api.back.services/empresa.service';
 import { PromocionesService } from 'src/app/services/api.back.services/promociones.service';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
-
-import { PromocionComponent } from 'src/app/modals/promocion/promocion.component';
-import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro.modal/referido.registro.modal.component';
-
 import { CategoriasService, Categoria } from 'src/app/services/api.back.services.cdh/categorias.service';
+
 import { PrefsStorage } from 'src/app/core/utils/prefs.storage';
 import { TokenService } from 'src/app/services/token.service';
+import { PromocionComponent } from 'src/app/modals/promocion/promocion.component';
+import { ModalQRComponent } from 'src/app/modals/modal-qr/modal-qr.component';
 
 @Component({
-  selector: 'app-empresas.network',
-  templateUrl: './empresas.network.page.html',
-  styleUrls: ['./empresas.network.page.scss'],
+  selector: 'app-vende-network',
+  templateUrl: './vende-network.page.html',
+  styleUrls: ['./vende-network.page.scss'],
   standalone: false,
 })
-export class EmpresasNetworkPage implements OnInit {
+export class VendeNetworkPage implements OnInit {
 
   UsuarioID = 0;
   esSocio = false;
 
-  empresas: Empresa[] = [];
   promociones: any[] = [];
-
   cargandoPromociones = true;
-  cargandoEmpresas = true;
-
-  empresaActualId: number | null = null;
 
   categorias: Categoria[] = [];
   categoriaSeleccionada: any = null;
 
   nombreUsuario = '';
   correoUsuario = '';
-
-  // 👇 flag explícito para el header
   esInvitado = true;
 
   constructor(
     private router: Router,
-    private activeRoute: ActivatedRoute,
-    private empresaService: EmpresaService,
     private promocionesService: PromocionesService,
     private usuarioService: UsuarioService,
     private categoriasService: CategoriasService,
@@ -60,28 +48,24 @@ export class EmpresasNetworkPage implements OnInit {
 
   async ngOnInit() {
     this.cargandoPromociones = true;
-    this.cargandoEmpresas = true;
 
-    // 0) Nombre rápido desde prefs (por si ya inició sesión antes)
     const nombrePref = await this.prefs.get('nombreAlmacenado');
     if (nombrePref) {
       this.nombreUsuario = nombrePref;
-      this.esInvitado = false; // hay nombre guardado => asumimos logueado
+      this.esInvitado = false;
     }
 
-    // 1) Categorías
+    // Categorías
     this.categoriasService.getCategorias().subscribe({
       next: (resp) => {
         this.categorias = resp.data || [];
-        console.log('[Categorias]', this.categorias);
       },
-      error: (err) => {
-        console.error('Error cargando categorías', err);
+      error: () => {
         this.categorias = [];
       }
     });
 
-    // 2) Promos Network
+    // Promos
     this.promocionesService.GetPromosNetwork().subscribe({
       next: (resp) => {
         this.promociones = (resp.data || []).map((x: any) => ({
@@ -105,40 +89,31 @@ export class EmpresasNetworkPage implements OnInit {
       }
     });
 
-    // 3) Usuario logueado (si hay token)
+    // Usuario
     this.usuarioService.getUsuario().subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
-        console.log('[EmpresasNetwork] getUsuario resp:', response);
         const user = response.data;
-
         if (!user) {
           this.marcarInvitado();
           return;
         }
 
-        // ID robusto
         this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
 
         this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
         this.correoUsuario = (user.email ?? '').trim();
 
-        // rol
+        // 👉 mismo cálculo de rol que en EmpresasNetwork
         const rolId = Number(
           (user as any)?.rolesID ?? (user as any)?.RolesID ??
           (user as any)?.rolID   ?? (user as any)?.rolId   ??
           (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
         );
 
-        this.esSocio = (rolId === 2);
-        console.log('[EmpresasNetwork] UsuarioID =', this.UsuarioID, 'rolId =', rolId);
-
-        // 👉 AQUÍ CLAVE: ya NO es invitado
-        this.esInvitado = !this.UsuarioID; // false si hay ID > 0
-
-        this.cargandoEmpresas = false;
+        this.esSocio = (rolId === 2);     // 👈 solo socio ve el footer
+        this.esInvitado = !this.UsuarioID;
       },
-      error: (err) => {
-        console.error('[EmpresasNetwork] getUsuario error:', err);
+      error: () => {
         this.marcarInvitado();
       }
     });
@@ -149,7 +124,6 @@ export class EmpresasNetworkPage implements OnInit {
     this.nombreUsuario = '';
     this.correoUsuario = '';
     this.esInvitado = true;
-    this.cargandoEmpresas = false;
   }
 
   get inicialesUsuario(): string {
@@ -180,53 +154,42 @@ export class EmpresasNetworkPage implements OnInit {
     localStorage.removeItem('usuario-actual');
     localStorage.removeItem('cdh_tel');
 
-    this.marcarInvitado();           // por si en algún momento no rediriges
+    this.marcarInvitado();
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   ensureDataUrl(b64?: string): string {
     if (!b64) return '';
-    const clean = (b64 || '').trim().replace(/\s+/g, ''); // quita CR/LF/espacios
+    const clean = (b64 || '').trim().replace(/\s+/g, '');
     if (clean.startsWith('data:')) return clean;
     return `data:image/png;base64,${clean}`;
   }
 
-  // Lo dejo recibiendo any por si algún día abres este modal desde aquí
-    async abrirModalPromocion(promo: any) {
-     // 🚫 Usuario invitado / sin registro
-      if (!this.UsuarioID) {
-        console.log('[EmpresasNetwork] Usuario invitado, redirigiendo a registro');
-        this.router.navigate(['/registro']);
-        return;
-      }
+  async abrirModalPromocion(promo: any) {
+    if (!this.UsuarioID) {
+      this.router.navigate(['/registro']);
+      return;
+    }
+
     let formDirty = false;
 
-    // Adaptamos el objeto que viene de GetPromosNetwork
     const promocionAdaptada: Promocion = {
       ...(promo as any),
-
-      // ID que usa el backend para generar el QR
       iD:
         promo.iD ??
         promo.ID ??
         promo.productoID ??
         promo.ProductoID ??
         0,
-
-      // nombre de la promo
       nombre:
         promo.nombre ??
         promo.nombrePromocion ??
         promo.titulo ??
         '',
-
-      // descripción
       descripcion:
         promo.descripcion ??
         promo.detalle ??
         '',
-
-      // nombre de la empresa
       empresaNombre:
         promo.empresaNombre ??
         promo.empresa?.nombreComercial ??
@@ -250,7 +213,6 @@ export class EmpresasNetworkPage implements OnInit {
     await modal.onDidDismiss();
   }
 
-  // 👇 Aquí también cambiamos el tipo de retorno a any[]
   get promocionesFiltradas(): any[] {
     if (!this.categoriaSeleccionada) {
       return this.promociones || [];
@@ -300,7 +262,6 @@ export class EmpresasNetworkPage implements OnInit {
       promo.productoImagenPath ||
       promo.producto?.imagenPath;
 
-    // si no hay nada, regresa string vacío
     return this.ensureDataUrl(b64) || path || '';
   }
 
@@ -318,15 +279,37 @@ export class EmpresasNetworkPage implements OnInit {
     return !!(b64 || path);
   }
 
+  // 🔍 Aquí engancharás tu lector de QR real (modal, capacitor, etc.)
+  async abrirScanQr() {
+    // Si no hay usuario logueado, mándalo a registro como en el modal de promo
+    if (!this.UsuarioID) {
+      this.router.navigate(['/registro']);
+      return;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: ModalQRComponent,
+      cssClass: 'modal-redondeado',
+      componentProps: {
+        // si quieres pasarle algo de entrada al modal:
+        codigoParametro: '',        // aquí podrías mandar un código escaneado directo si lo tienes
+        // usuarioId: this.UsuarioID  // si luego lo usas dentro del modal
+      },
+      breakpoints: [0, 0.9],
+      initialBreakpoint: 0.9,
+    });
+
+    await modal.present();
+    await modal.onDidDismiss();
+  }
+
   irACompra() {
-    // TODO: ajusta la ruta a donde debe ir la parte de “Compra”
-    this.router.navigate(['/compra']);
-    // o console.log('Ir a compra');
+    // ruta de la pantalla "Compra" (empresas.network)
+    this.router.navigate(['/dashboard/network']);
   }
 
   irAVende() {
-    // TODO: ajusta la ruta a donde debe ir la parte de “Vende”
+    // ya estás en vende, pero por si acaso
     this.router.navigate(['/vende']);
-    // o console.log('Ir a vende');
   }
 }

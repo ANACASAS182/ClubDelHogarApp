@@ -75,6 +75,14 @@ const routes: Routes = [
         .then(m => m.UsuarioCrearPasswordPageModule)
   },
 
+  {
+    path: 'vende',
+    loadChildren: () =>
+      import('./pages/vende-network/vende-network.module')
+        .then(m => m.VendeNetworkPageModule)
+  },
+
+
   // Fallback
   { path: '**', redirectTo: 'dashboard/network' },
 ];

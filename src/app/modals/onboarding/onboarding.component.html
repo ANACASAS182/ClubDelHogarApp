@@ -5,97 +5,86 @@
 </ion-header>
 
 <ion-content class="ion-padding custom-content">
-  <ion-grid *ngIf="estatusDatosA == 0 || estatusDatosA == 1" >
-<ion-row>
-  <ion-col>
-    Bienvenido a Embassy, antes de iniciar, por favor compártenos más información sobre tí.
 
-  </ion-col>
-</ion-row>
-<ion-row>
-  <ion-col>
-    <ion-input class="embassy_input" [readonly]="estatusDatosA != 0"
-    labelPlacement="floating" label="Ingresa aquí tu nombre (sin apellidos)" 
-    [(ngModel)]="usuarioOnboarding!.nombres!" ></ion-input>
-  </ion-col>
-</ion-row>
-<ion-row>
-  <ion-col>
-    <ion-input class="embassy_input" [readonly]="estatusDatosA != 0"
-    labelPlacement="floating" label="Ingresa aquí tus apellidos" 
-    [(ngModel)]="usuarioOnboarding!.apellidos!" ></ion-input>
-  </ion-col>
-</ion-row>
-<ion-row>
-  <ion-col>
-    <ion-input class="embassy_input" [readonly]="estatusDatosA != 0"
-    labelPlacement="floating" label="Ingresa aquí tu número de celular" 
-    [(ngModel)]="usuarioOnboarding!.celular!" ></ion-input>
-  </ion-col>
-</ion-row>
-<ion-row>
-  <ion-col>
-    <app-loader *ngIf="estatusDatosA == 1"></app-loader>
-
-  </ion-col>
-</ion-row>
-<ion-row>
-  <ion-col>
-    <ion-button *ngIf="estatusDatosA == 0" expand="block" shape="round" (click)="GuardarDatosA()">Continuar</ion-button>
-
-  </ion-col>
-</ion-row>
-
-  </ion-grid>
-
-  <ion-grid *ngIf="estatusDatosA == 2 && (estatusDatosB == 0 || estatusDatosB == 1)">
+  <!-- 🔹 PASO 1: Nombre / Apellidos / Celular (celular siempre readonly) -->
+  <ion-grid *ngIf="estatusDatosA === 0 || estatusDatosA === 1">
     <ion-row>
       <ion-col>
-        Gracias, {{usuarioOnboarding!.nombres}}, ahora comparte con nosotros la siguiente información
+        Bienvenido a Embassy, antes de iniciar, por favor compártenos más información sobre tí.
       </ion-col>
     </ion-row>
+
     <ion-row>
       <ion-col>
-       
-          <ion-select  class="embassy_input" [interfaceOptions]="{ header: 'Estado'}" okText="Ok" cancelText="Cancelar" label-placement="floating" label="Estado"
-            placeholder="Estado" [(ngModel)]="usuarioOnboarding!.catalogoEstadoID!" >
-            <ion-select-option *ngFor="let estad of estados" [value]="estad.id">
-              {{ estad.nombre }}
-            </ion-select-option>
-          </ion-select>
-          
-           </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-input class="embassy_input" [readonly]="estatusDatosB != 0"
-        labelPlacement="floating" label="Ciudad" 
-        [(ngModel)]="usuarioOnboarding!.ciudad!" ></ion-input>
+        <ion-input
+          class="embassy_input"
+          [readonly]="estatusDatosA !== 0"
+          labelPlacement="floating"
+          label="Ingresa aquí tu nombre (sin apellidos)"
+          [(ngModel)]="usuarioOnboarding!.nombres">
+        </ion-input>
       </ion-col>
     </ion-row>
+
     <ion-row>
       <ion-col>
-        <app-loader *ngIf="estatusDatosB == 1"></app-loader>
+        <ion-input
+          class="embassy_input"
+          [readonly]="estatusDatosA !== 0"
+          labelPlacement="floating"
+          label="Ingresa aquí tus apellidos"
+          [(ngModel)]="usuarioOnboarding!.apellidos">
+        </ion-input>
       </ion-col>
     </ion-row>
+
     <ion-row>
       <ion-col>
-        <ion-button *ngIf="estatusDatosB == 0" expand="block" shape="round" (click)="GuardarDatosB()">Continuar</ion-button>
+        <!-- 👇 SIEMPRE BLOQUEADO -->
+        <ion-input
+          class="embassy_input"
+          [readonly]="true"
+          labelPlacement="floating"
+          label="Ingresa aquí tu número de celular"
+          [(ngModel)]="usuarioOnboarding!.celular">
+        </ion-input>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <app-loader *ngIf="estatusDatosA === 1"></app-loader>
+      </ion-col>
+    </ion-row>
+
+    <ion-row>
+      <ion-col>
+        <ion-button
+          *ngIf="estatusDatosA === 0"
+          expand="block"
+          shape="round"
+          (click)="GuardarDatosA()">
+          Continuar
+        </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
 
-  <ion-grid *ngIf="estatusDatosB == 2" >
+  <!-- 🔹 PASO 2: Mensaje final -->
+  <ion-grid *ngIf="estatusDatosA === 2">
     <ion-row>
       <ion-col>
-        {{usuarioOnboarding!.nombres}}, tus datos han sido actualizados, ahora puedes comenzar a generar referencias.
+        {{ usuarioOnboarding!.nombres }}, tus datos han sido actualizados,
+        ahora puedes comenzar a generar referencias.
       </ion-col>
     </ion-row>
     <ion-row>
       <ion-col>
-        <ion-button expand="block" shape="round" (click)="close()">Ok</ion-button>
+        <ion-button expand="block" shape="round" (click)="close()">
+          OK
+        </ion-button>
       </ion-col>
     </ion-row>
   </ion-grid>
-  
+
 </ion-content>

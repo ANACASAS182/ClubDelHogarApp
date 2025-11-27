@@ -1,7 +1,5 @@
 <ion-header>
   <ion-toolbar class="headerColor network-header">
-    <!-- SIN menú lateral mientras el dashboard está apagado -->
-
     <ion-title>
       <div class="brand-wrap">
         <img
@@ -11,7 +9,7 @@
         />
         <div class="brand-text">
           <span class="brand-title">Club del Hogar</span>
-          <span class="brand-subtitle">Promociones para ti</span>
+          <span class="brand-subtitle">Promociones para tus clientes</span>
         </div>
       </div>
     </ion-title>
@@ -26,8 +24,7 @@
       </button>
     </ion-buttons>
 
-
-    <!-- 🔹 Si es invitado: botón INICIAR SESIÓN -->
+    <!-- Invitado -->
     <ng-template #btnInvitado>
       <ion-buttons slot="end">
         <ion-button
@@ -42,7 +39,7 @@
     </ng-template>
   </ion-toolbar>
 
-  <!-- Popover SOLO cuando hay usuario -->
+  <!-- Popover usuario -->
   <ion-popover
     *ngIf="!esInvitado"
     trigger="user-menu-trigger"
@@ -72,16 +69,8 @@
   </ion-popover>
 </ion-header>
 
-
 <ion-content class="contentCustom">
-  <app-resumen
-    *ngIf="false"
-    [MostrarIngresos]="false"
-    [MostrarInvitados]="false"
-    [MostrarAceptados]="false">
-  </app-resumen>
-
-  <!-- 🔥 SOLO PROMOCIONES / PRODUCTOS -->
+  <!-- Puedes cambiar este texto si quieres otro mensaje -->
   <ion-grid class="promos-grid">
     <ion-row>
       <ion-col size="12">
@@ -89,12 +78,12 @@
           <div>
             <p>
               <small>
-                ¡Mantente al día con las promociones más recientes!
+                Escanea los códigos de tus clientes y gestiona sus promociones.
               </small>
             </p>
           </div>
 
-          <!-- Filtro de categorías -->
+          <!-- Filtro de categorías (misma lógica que la otra página) -->
           <div class="promo-filters">
             <ion-item lines="none">
               <ion-label position="stacked">Categorías</ion-label>
@@ -113,7 +102,10 @@
           </div>
         </div>
 
-        <app-loader *ngIf="cargandoPromociones"></app-loader>
+        <ion-spinner
+          *ngIf="cargandoPromociones"
+          name="crescent">
+        </ion-spinner>
       </ion-col>
     </ion-row>
 
@@ -124,12 +116,11 @@
       </ion-col>
     </ion-row>
 
-    <!-- LISTA DE PROMOS -->
+    <!-- LISTA DE PROMOS IGUAL QUE EN COMPRA -->
     <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length > 0">
       <ion-col size="12" *ngFor="let promo of promocionesFiltradas">
         <ion-card class="promo-card" (click)="abrirModalPromocion(promo)">
           <div class="promo-card-content">
-            <!-- 👉 Imagen del producto a la izquierda -->
             <div class="producto-img-wrapper" [class.no-image]="!tieneProductoImg(promo)">
               <ng-container *ngIf="tieneProductoImg(promo); else cuadradoGris">
                 <img
@@ -142,7 +133,6 @@
               </ng-template>
             </div>
 
-            <!-- 👉 Info + logo empresa arriba a la derecha -->
             <div class="promo-info">
               <div class="promo-header">
                 <h3 class="empresa-nombre">
@@ -169,18 +159,31 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- 🟢 BURBUJA FLOTANTE PARA ESCANEAR QR -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="abrirScanQr()">
+      <ion-icon name="qr-code-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>
 
 <ion-footer *ngIf="esSocio">
   <ion-toolbar class="network-footer">
     <div class="footer-actions">
-      <button type="button" class="footer-btn compra" (click)="irACompra()">
+      <button
+        type="button"
+        class="footer-btn compra"
+        (click)="irACompra()">
         <ion-icon name="cart-outline"></ion-icon>
         <span>Compra</span>
       </button>
 
-      <button type="button" class="footer-btn vende" (click)="irAVende()">
-        <ion-icon name="cash-outline"></ion-icon>
+      <button
+        type="button"
+        class="footer-btn vende"
+        (click)="irAVende()">
+        <ion-icon name="qr-code-outline"></ion-icon>
         <span>Vende</span>
       </button>
     </div>

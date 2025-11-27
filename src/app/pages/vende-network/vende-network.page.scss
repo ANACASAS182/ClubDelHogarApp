@@ -84,6 +84,7 @@
   background: #ffffff;
   font-size: 14px;
 }
+
 /* ===== Tarjeta de promoción ===== */
 .promo-card {
   border-radius: 14px;
@@ -341,6 +342,7 @@ ion-popover ion-item p {
   margin: 0;           /* sin margen extra */
 }
 
+// FOOTER
 .network-footer {
   --background: #ffffff;
   --border-color: #e5e7eb;
@@ -351,6 +353,7 @@ ion-popover ion-item p {
 .footer-actions {
   display: flex;
   gap: 8px;
+  width: 100%;
 }
 
 .footer-btn {

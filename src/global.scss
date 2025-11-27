@@ -422,3 +422,43 @@ hr.spacer_embassy{
   word-break: break-word;      /* por si vienen números larguísimos */
 }
   
+/* ===== Estilo global para el popover de ion-select ===== */
+/* Lista interna del select */
+ion-select-popover ion-list {
+  padding: 4px 0;
+}
+
+/* Cada opción: fila simple */
+ion-select-popover ion-item.select-interface-option {
+  margin: 0;
+  border-radius: 0;
+  --background: #ffffff;
+  --min-height: 34px;
+
+  --padding-start: 14px;
+  --inner-padding-end: 14px;
+  --inner-padding-top: 6px;
+  --inner-padding-bottom: 6px;
+
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 14px;
+}
+
+/* Quitar la línea al último */
+ion-select-popover ion-item.select-interface-option:last-child {
+  border-bottom: none;
+}
+
+/* Opción seleccionada: gris suave */
+ion-select-popover ion-item.select-interface-option[aria-selected="true"] {
+  --background: #f5f5f5;
+  font-weight: 600;
+}
+
+ion-popover.select-popover::part(content) {
+  width: 100%;
+  max-width: 60%;
+  max-height: 600px;      /* ~8–9 opciones visibles */
+  overflow-y: auto;       /* resto con scroll */
+  border-radius: 20px;
+}

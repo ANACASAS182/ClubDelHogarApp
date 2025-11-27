@@ -131,6 +131,28 @@ export class LoginPage implements OnInit, OnDestroy {
     this.kbHideDid?.remove();
   }
 
+    async continuarSinSesion() {
+    // limpiamos cualquier estado de error
+    this.hasError = false;
+    this.messageError = '';
+
+    // invitado = sin token y sin datos recordados
+    await this.tokenService.removeToken();
+    await this.clearPrefs();
+
+    this.nombreAlmacenado = '';
+    this.telefonoAlmacenado = '';
+    this.passwordAlmacenado = '';
+
+    // por si los usas en otras partes
+    localStorage.removeItem('usuario-actual');
+    localStorage.removeItem('cdh_tel');
+
+    // navega directo al dashboard (modo invitado)
+    this.router.navigate(['/dashboard'], { replaceUrl: true });
+  }
+
+
   async onSubmit() {
     if (this.formEnviado) return;
 
@@ -149,7 +171,7 @@ export class LoginPage implements OnInit, OnDestroy {
       const password = this.loginForm.controls['password'].value;
 
       const credenciales = {
-        telefono, // 👈 el back lo ajustaremos a esto
+        telefono,
         password,
       };
 
@@ -157,12 +179,15 @@ export class LoginPage implements OnInit, OnDestroy {
       const loginResp = await firstValueFrom(
         this.usuarioService.login(credenciales, true)
       );
+
       if (!loginResp?.success || !loginResp?.data) {
         throw new Error(loginResp?.message || 'No se pudo iniciar sesión.');
       }
+
+      // guarda token
       await this.tokenService.saveToken(loginResp.data);
 
-      // 2) Perfil
+      // 2) Perfil (opcional, lo dejas como ya lo tenías)
       let nombre = '';
       let needsOnboarding = false;
       try {
@@ -170,7 +195,6 @@ export class LoginPage implements OnInit, OnDestroy {
         if (pr?.success && pr?.data) {
           const u = pr.data as Usuario;
 
-          // si rolesID === 1 lo sigues bloqueando, igual que antes
           if ((u as any).rolesID === 1) {
             this.hasError = true;
             this.messageError =
@@ -184,7 +208,7 @@ export class LoginPage implements OnInit, OnDestroy {
           needsOnboarding = !!(u as any)?.mostrarOnboarding;
         }
       } catch {
-        // ignoramos fallo de perfil
+        // ignoras fallo de perfil
       }
 
       // 3) Guardar / limpiar recuerdame
@@ -194,10 +218,15 @@ export class LoginPage implements OnInit, OnDestroy {
         await this.clearPrefs();
       }
 
-      // 4) Navegar según estado
-      await this.router.navigate([needsOnboarding ? '/onboarding' : '/dashboard'], {
-        replaceUrl: true,
-      });
+      // 4) Navegar y forzar refresh para que CDH lea bien el token
+      const target = needsOnboarding ? '/onboarding' : '/dashboard/network';
+
+      await this.router.navigate([target], { replaceUrl: true });
+
+      // 🔥 recarga dura para que EmpresasNetworkPage vuelva a pedir el usuario
+      setTimeout(() => {
+        window.location.reload();
+      }, 50);
 
       this.hasError = false;
       this.messageError = '';
@@ -209,6 +238,7 @@ export class LoginPage implements OnInit, OnDestroy {
       this.iniciandoSesion = false;
     }
   }
+
 
   // UI helpers
   toggleRemember() {
