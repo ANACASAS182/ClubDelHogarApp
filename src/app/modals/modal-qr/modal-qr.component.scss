@@ -342,3 +342,48 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ========== VISTA DE ESCÁNER (STEP 1) ========== */
+
+.scan-card {
+  /* no necesitamos reservar tanto espacio para botones porque usamos .promo-actions */
+  padding-bottom: 18px;
+}
+
+.scan-body {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.qr-reader-box {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 320px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #000; /* se verá la cámara encima */
+  border: 2px solid #e5e7eb;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.3);
+}
+
+.scan-tips {
+  margin: 0;
+  padding-left: 18px;
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.45;
+
+  li + li {
+    margin-top: 2px;
+  }
+}
+
+/* En móviles muy pequeños, que todo respire un poco más */
+@media (max-width: 420px) {
+  .qr-reader-box {
+    max-width: 260px;
+  }
+}
