@@ -387,3 +387,22 @@ ion-popover ion-item p {
 .footer-btn:active {
   transform: scale(0.97);
 }
+
+ion-content.promo-screen {
+  --background: #f6f7f9;
+  height: 100%;
+  padding: 0 12px;   // margen lateral
+}
+
+
+.promo-shell {
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: 24px 0 120px; // espacio arriba + para la barra de botones
+  box-sizing: border-box;
+  /* ❌ NADA de min-height aquí */
+}

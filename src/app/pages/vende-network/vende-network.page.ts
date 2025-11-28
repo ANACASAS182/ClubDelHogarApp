@@ -281,7 +281,7 @@ export class VendeNetworkPage implements OnInit {
 
   // 🔍 Aquí engancharás tu lector de QR real (modal, capacitor, etc.)
   async abrirScanQr() {
-    // Si no hay usuario logueado, mándalo a registro como en el modal de promo
+    // Si no hay usuario logueado, mándalo a registro
     if (!this.UsuarioID) {
       this.router.navigate(['/registro']);
       return;
@@ -289,14 +289,14 @@ export class VendeNetworkPage implements OnInit {
 
     const modal = await this.modalCtrl.create({
       component: ModalQRComponent,
-      cssClass: 'modal-redondeado',
+      // 👇 CAMBIO 1: Usamos una clase nueva para pantalla completa
+      cssClass: 'modal-fullscreen', 
       componentProps: {
-        // si quieres pasarle algo de entrada al modal:
-        codigoParametro: '',        // aquí podrías mandar un código escaneado directo si lo tienes
-        // usuarioId: this.UsuarioID  // si luego lo usas dentro del modal
+        codigoParametro: '', 
       },
-      breakpoints: [0, 0.9],
-      initialBreakpoint: 0.9,
+      // 👇 CAMBIO 2: ELIMINAMOS los breakpoints para que use el 100% natural
+      // breakpoints: [0, 0.9],   <-- BORRAR
+      // initialBreakpoint: 0.9,  <-- BORRAR
     });
 
     await modal.present();

@@ -1,46 +1,49 @@
 ion-content.promo-screen {
   --background: #f6f7f9;
-  padding: 0;               /* sin padding extra */
-  display: flex;
-  flex-direction: column;
+  height: 100%;
+  /* 👇 CAMBIO 1: Elimina el padding del contenedor principal para que llegue a los bordes */
+  --padding-start: 0;
+  --padding-end: 0;
+  padding: 0; 
 }
 
-/* Contenedor que centra la tarjeta en el modal */
+/* Contenedor que usa TODO el alto */
 .promo-shell {
-  flex: 1;
+  height: 100%;
+  max-width: 100%; /* 👇 CAMBIO 2: Permite que ocupe todo el ancho si es móvil */
+  margin: 0 auto;
+
   display: flex;
-  align-items: center;      /* centra vertical */
-  justify-content: center;  /* centra horizontal */
-  padding: 16px 12px 24px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+
+  /* 👇 CAMBIO 3: Elimina el padding vertical (antes 24px 0) */
+  padding: 0; 
   box-sizing: border-box;
 }
 
+/* La tarjeta se estira dentro del shell */
 .promo-card {
   --accent: #2563eb;
   width: 100%;
-  max-width: 560px;
-  max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 32px);
-  max-height: calc(100vh - 32px);
+  flex: 1; /* Se estira para llenar el alto */
+
+  padding: 18px 18px 24px;
+  background: #fff;
+  
+  /* 👇 CAMBIO 4: Ajustes visuales para modo "Full Height" */
+  border-radius: 0;       /* Quita las esquinas redondeadas */
+  border: none;           /* Quita el borde gris */
+  box-shadow: none;       /* (Opcional) Quita la sombra si ocupa toda la pantalla */
+
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  padding: 18px;
-  /* espacio para la barra fija de acciones */
-  padding-bottom: clamp(88px, env(safe-area-inset-bottom) + 96px, 128px);
   animation: fadeInUp 0.25s ease-out;
 
-  &.is-valid {
-    --accent: #16a34a;
-  }
-  &.is-invalid {
-    --accent: #dc2626;
-  }
-  &.is-loading {
-    --accent: #0ea5e9;
-  }
+  &.is-valid   { --accent: #16a34a; }
+  &.is-invalid { --accent: #dc2626; }
+  &.is-loading { --accent: #0ea5e9; }
 }
 
 .card-head {

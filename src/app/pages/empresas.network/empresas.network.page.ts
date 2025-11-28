@@ -236,14 +236,13 @@ export class EmpresasNetworkPage implements OnInit {
 
     const modal = await this.modalCtrl.create({
       component: PromocionComponent,
-      cssClass: 'modal-redondeado',
+      cssClass: 'modal-redondeado promo-modal-full',
       componentProps: {
         promoSeleccionada: promocionAdaptada,
         UsuarioID: this.UsuarioID,
         setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
-      },
-      breakpoints: [0, 0.9],
-      initialBreakpoint: 0.9,
+      }
+      // 👈 sin breakpoints ni initialBreakpoint
     });
 
     await modal.present();

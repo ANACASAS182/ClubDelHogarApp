@@ -193,7 +193,7 @@ ion-modal.modal-redondeado::part(content) {
   ion-modal.modal-redondeado {
     --width: 480px;
     --height: auto;
-    --max-height: 90vh;
+    /*--max-height: 90vh;*/
     --border-radius: 20px;
   }
 
@@ -493,4 +493,31 @@ ion-popover.select-popover::part(content) {
   max-height: 600px;      /* ~8–9 opciones visibles */
   overflow-y: auto;       /* resto con scroll */
   border-radius: 20px;
+}
+
+ion-modal.promo-modal-full {
+  --width: 100vw;
+  --height: 100vh;
+  --max-width: 100vw;
+  --max-height: 100vh;
+  --border-radius: 0;
+}
+
+ion-modal.promo-modal-full::part(content) {
+  inset: 0;                 /* pega el modal a todos los bordes */
+  border-radius: 0 !important;
+}
+
+.modal-fullscreen {
+  --height: 100%;
+  --width: 100%;
+  --border-radius: 0px;
+  --box-shadow: none;
+  --backdrop-opacity: 0;
+  
+  /* Esto asegura que el contenido interno tampoco tenga bordes */
+  &::part(content) {
+    border-radius: 0px;
+    margin: 0;
+  }
 }

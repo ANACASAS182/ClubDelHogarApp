@@ -1,21 +1,28 @@
 /* Fondo general del modal */
-.custom-content {
+ion-content.custom-content {
   --background: #f2f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: stretch;
+  height: 100%;   /* 👈 ocupa todo el alto del modal */
+  padding: 0;
 }
+
 
 /* Contenedor centrado */
 .promo-modal-shell {
   width: 100%;
   max-width: 420px;
   margin: 0 auto;
-  padding: 16px 16px 24px;
+
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  justify-content: flex-start;   /* arriba */
+  align-items: stretch;
+
+  padding: 16px 16px 24px;
+  box-sizing: border-box;
 }
+
+
 
 /* Tarjeta principal */
 .promo-card {
@@ -23,10 +30,23 @@
   border-radius: 24px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
   padding: 16px 16px 20px;
+
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  /* 👇 alto solo según contenido */
+  flex: 0 0 auto;
+  overflow: visible;   // si quieres, o auto si esperas scroll
 }
+
+/* Botón cerrar separado de la tarjeta pero abajo */
+.btn-close {
+  --border-radius: 999px;
+  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
+  margin-top: 12px;
+}
+
 
 /* HERO: imagen + info */
 .promo-hero {
@@ -196,3 +216,4 @@
     width: 200px;
   }
 }
+
