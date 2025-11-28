@@ -107,6 +107,8 @@ export class EmpresasNetworkPage implements OnInit {
     console.log('[EmpresasNetwork] cargarUsuario()');
     this.cargandoEmpresas = true;
 
+    let teniaCache = false;
+
     // 1) Leer usuario cacheado si existe
     const cacheRaw = localStorage.getItem('usuario-actual');
     if (cacheRaw) {
@@ -114,6 +116,7 @@ export class EmpresasNetworkPage implements OnInit {
         const u = JSON.parse(cacheRaw) as Usuario;
         console.log('[EmpresasNetwork] usuario desde cache:', u);
         this.aplicarUsuario(u);
+        teniaCache = true;
       } catch (e) {
         console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
       }
@@ -127,24 +130,42 @@ export class EmpresasNetworkPage implements OnInit {
       }
     }
 
-    // 2) Refrescar usuario desde backend
+    // 2) Checar si hay token; si no hay, no pegues al back
+    const token = await this.tokenService.getToken();
+    console.log('[EmpresasNetwork] token presente?', !!token);
+
+    if (!token) {
+      if (!teniaCache) {
+        // Sin token y sin cache → invitado real
+        this.marcarInvitado();
+      } else {
+        // Sin token pero con cache → dejamos lo que hay
+        this.cargandoEmpresas = false;
+        this.cdr.detectChanges();
+      }
+      return;
+    }
+
+    // 3) Refrescar usuario desde backend
     this.usuarioService.getUsuario(true).subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         console.log('[EmpresasNetwork] getUsuario resp:', response);
 
         if (!response?.data) {
-          // si el back no manda usuario, tratar como invitado
+          // el back no manda usuario aunque haya token → invitado
           this.marcarInvitado();
           return;
         }
 
         this.aplicarUsuario(response.data);
       },
-      error: (err) => {
+      error: async (err) => {
         console.error('[EmpresasNetwork] getUsuario error:', err);
 
-        // Si el token es inválido → invitado
         if (err?.status === 401 || err?.status === 403) {
+          // Token inválido: limpiamos todo y tratamos como invitado
+          await this.tokenService.removeToken();
+          localStorage.removeItem('usuario-actual');
           this.marcarInvitado();
         } else {
           // Otro error (red, etc.): respetamos lo que tengamos en cache
@@ -172,20 +193,41 @@ export class EmpresasNetworkPage implements OnInit {
       return;
     }
 
-    this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
-    this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
-    this.correoUsuario = (user.email ?? '').trim();
+    const u: any = user;
 
+    // ID del usuario en todas sus variantes posibles
+    this.UsuarioID =
+      u.id ??
+      u.ID ??
+      u.usuarioID ??
+      u.UsuarioID ??
+      u.usuarioId ??
+      0;
+
+    // Nombres / apellidos con distintas mayúsculas
+    const nombres   = u.nombres   ?? u.Nombres   ?? '';
+    const apellidos = u.apellidos ?? u.Apellidos ?? '';
+
+    this.nombreUsuario = `${nombres} ${apellidos}`.trim();
+    this.correoUsuario = (u.email ?? u.Email ?? '').trim();
+
+    // Rol con distintas variantes
     const rolId = Number(
-      (user as any)?.rolesID ?? (user as any)?.RolesID ??
-      (user as any)?.rolID   ?? (user as any)?.rolId   ??
-      (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
+      u.rolesID ??
+      u.RolesID ??
+      u.rolID   ??
+      u.rolId   ??
+      u.RolID   ??
+      u.rol?.id ??
+      u.rol     ??
+      0
     );
 
     this.esSocio = (rolId === 2);
     this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
 
-    console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'esInvitado =', this.esInvitado);
+    console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'rolId =', rolId, 'esInvitado =', this.esInvitado);
+    console.log('[EmpresasNetwork] usuario bruto =', u);
 
     // cache para la siguiente vez
     localStorage.setItem('usuario-actual', JSON.stringify(user));
