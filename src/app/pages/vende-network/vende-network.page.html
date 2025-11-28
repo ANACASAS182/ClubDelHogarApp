@@ -14,7 +14,7 @@
       </div>
     </ion-title>
 
-    <!-- Si está logueado -->
+    <!-- Usuario logueado -->
     <ion-buttons slot="end" *ngIf="!esInvitado; else btnInvitado">
       <button class="user-chip" id="user-menu-trigger" type="button">
         <div class="user-avatar">
@@ -70,97 +70,149 @@
 </ion-header>
 
 <ion-content class="contentCustom">
-  <!-- Puedes cambiar este texto si quieres otro mensaje -->
-  <ion-grid class="promos-grid">
+  <ion-grid class="vende-grid">
     <ion-row>
       <ion-col size="12">
-        <div class="promos-header">
-          <div>
+        <p class="intro-text">
+          Gestiona las promociones que has generado y las que tus clientes ya
+          canjearon.
+        </p>
+      </ion-col>
+    </ion-row>
+
+    <!-- Invitado: mensaje simple -->
+    <ion-row *ngIf="esInvitado">
+      <ion-col size="12">
+        <ion-card class="info-card">
+          <ion-card-header>
+            <ion-card-title>Inicia sesión para ver tus promociones</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
             <p>
-              <small>
-                Escanea los códigos de tus clientes y gestiona sus promociones.
-              </small>
+              Aquí podrás ver el resumen de cupones generados y canjeados por tus
+              clientes.
             </p>
-          </div>
-
-          <!-- Filtro de categorías (misma lógica que la otra página) -->
-          <div class="promo-filters">
-            <ion-item lines="none">
-              <ion-label position="stacked">Categorías</ion-label>
-              <ion-select
-                [(ngModel)]="categoriaSeleccionada"
-                interface="popover"
-                placeholder="Todas">
-                <ion-select-option [value]="null">Todas</ion-select-option>
-                <ion-select-option
-                  *ngFor="let cat of categorias"
-                  [value]="cat.id">
-                  {{ cat.nombre }}
-                </ion-select-option>
-              </ion-select>
-            </ion-item>
-          </div>
-        </div>
-
-        <ion-spinner
-          *ngIf="cargandoPromociones"
-          name="crescent">
-        </ion-spinner>
-      </ion-col>
-    </ion-row>
-
-    <!-- vacío -->
-    <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length === 0">
-      <ion-col size="12" class="ion-text-center">
-        <small>No hay productos/promociones vigentes para tu Network.</small>
-      </ion-col>
-    </ion-row>
-
-    <!-- LISTA DE PROMOS IGUAL QUE EN COMPRA -->
-    <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length > 0">
-      <ion-col size="12" *ngFor="let promo of promocionesFiltradas">
-        <ion-card class="promo-card" (click)="abrirModalPromocion(promo)">
-          <div class="promo-card-content">
-            <div class="producto-img-wrapper" [class.no-image]="!tieneProductoImg(promo)">
-              <ng-container *ngIf="tieneProductoImg(promo); else cuadradoGris">
-                <img
-                  [src]="getProductoImg(promo)"
-                  alt="Imagen producto" />
-              </ng-container>
-
-              <ng-template #cuadradoGris>
-                <div class="producto-placeholder"></div>
-              </ng-template>
-            </div>
-
-            <div class="promo-info">
-              <div class="promo-header">
-                <h3 class="empresa-nombre">
-                  {{ getEmpresaNombre(promo) }}
-                </h3>
-
-                <div class="empresa-logo-mini">
-                  <img
-                    [src]="getEmpresaLogo(promo)"
-                    alt="Logo empresa" />
-                </div>
-              </div>
-
-              <h4 class="promo-nombre">
-                {{ $any(promo).nombrePromocion || $any(promo).nombre || $any(promo).titulo }}
-              </h4>
-
-              <p class="promo-desc">
-                {{ $any(promo).descripcion || $any(promo).detalle || 'Se aplican en...' }}
-              </p>
-            </div>
-          </div>
+            <ion-button expand="block" shape="round" (click)="irALogin()">
+              Iniciar sesión
+            </ion-button>
+          </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
+
+    <!-- Logueado -->
+    <ng-container *ngIf="!esInvitado">
+      <!-- Resumen -->
+      <ion-row>
+        <ion-col size="6" sizeMd="3">
+          <div class="resumen-card generados">
+            <div class="resumen-label">Por canjear</div>
+            <div class="resumen-value">
+              {{ resumen?.totalGenerados || 0 }}
+            </div>
+          </div>
+        </ion-col>
+
+        <ion-col size="6" sizeMd="3">
+          <div class="resumen-card canjeados">
+            <div class="resumen-label">Canjeadas</div>
+            <div class="resumen-value">
+              {{ resumen?.totalCanjeados || 0 }}
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+
+      <!-- Loading / error -->
+      <ion-row *ngIf="cargando">
+        <ion-col size="12" class="ion-text-center">
+          <ion-spinner name="crescent"></ion-spinner>
+        </ion-col>
+      </ion-row>
+
+      <ion-row *ngIf="!cargando && errorMsg">
+        <ion-col size="12" class="ion-text-center">
+          <small class="error-text">{{ errorMsg }}</small>
+        </ion-col>
+      </ion-row>
+
+      <!-- Segment -->
+      <ion-row *ngIf="!cargando">
+        <ion-col size="12">
+          <ion-segment [(ngModel)]="segmento">
+            <ion-segment-button value="pendientes">
+              <ion-label>Por canjear</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="canjeadas">
+              <ion-label>Canjeadas</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </ion-col>
+      </ion-row>
+
+      <!-- Lista: por canjear -->
+      <ion-row *ngIf="!cargando && segmento === 'pendientes'">
+        <ion-col size="12">
+          <ion-list *ngIf="cuponesPendientes.length > 0; else sinPendientes">
+            <ion-item *ngFor="let c of cuponesPendientes">
+              <ion-label>
+                <h3>{{ c.productoNombre }}</h3>
+                <p class="empresa-line">{{ c.empresaNombre }}</p>
+                <p class="codigo-line">Código: {{ c.codigo }}</p>
+                <p class="fecha-line">
+                  Generado:
+                  {{ c.fechaCreacion | date: 'dd/MM/yyyy HH:mm' }}
+                </p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+
+          <ng-template #sinPendientes>
+            <div class="empty-state">
+              <small>No tienes promociones pendientes por canjear.</small>
+            </div>
+          </ng-template>
+        </ion-col>
+      </ion-row>
+
+      <!-- Lista: canjeadas -->
+      <ion-row *ngIf="!cargando && segmento === 'canjeadas'">
+        <ion-col size="12">
+          <ion-list *ngIf="cuponesCanjeados.length > 0; else sinCanjeadas">
+            <ion-item *ngFor="let c of cuponesCanjeados">
+              <ion-label>
+                <h3>{{ c.productoNombre }}</h3>
+                <p class="empresa-line">{{ c.empresaNombre }}</p>
+                <p class="codigo-line">Código: {{ c.codigo }}</p>
+                <p class="cliente-line" *ngIf="c.usuarioID">
+                  Cliente: {{ c.usuarioNombre || 'Sin nombre' }}
+                  <span *ngIf="c.usuarioTelefono">
+                    · {{ c.usuarioTelefono }}
+                  </span>
+                </p>
+                <p class="fecha-line">
+                  Canjeada:
+                  {{
+                    c.fechaHoraActivacion
+                      ? (c.fechaHoraActivacion | date: 'dd/MM/yyyy HH:mm')
+                      : 'Sin fecha'
+                  }}
+                </p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+
+          <ng-template #sinCanjeadas>
+            <div class="empty-state">
+              <small>Todavía no tienes promociones canjeadas.</small>
+            </div>
+          </ng-template>
+        </ion-col>
+      </ion-row>
+    </ng-container>
   </ion-grid>
 
-  <!-- 🟢 BURBUJA FLOTANTE PARA ESCANEAR QR -->
+  <!-- 🟢 Burbuja flotante para escanear QR -->
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="abrirScanQr()">
       <ion-icon name="qr-code-outline"></ion-icon>
