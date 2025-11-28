@@ -5,7 +5,6 @@ import { ModalController } from '@ionic/angular';
 import { Empresa } from 'src/app/models/Empresa';
 import { Promocion } from 'src/app/models/Promocion';
 import { Usuario } from 'src/app/models/Usuario';
-import { GenericResponseDTO } from 'src/app/models/DTOs/GenericResponseDTO';
 
 import { EmpresaService } from 'src/app/services/api.back.services/empresa.service';
 import { PromocionesService } from 'src/app/services/api.back.services/promociones.service';
@@ -100,84 +99,29 @@ export class EmpresasNetworkPage implements OnInit {
   // 🔁 Cada vez que entras a la pestaña
   async ionViewWillEnter() {
     console.log('[EmpresasNetwork] ionViewWillEnter');
-    await this.cargarUsuario();
+    this.cargarUsuarioDesdeCache();
   }
 
-  private async cargarUsuario() {
-    console.log('[EmpresasNetwork] cargarUsuario()');
+  // 👇 SOLO leemos de localStorage, nada de token ni getUsuario
+  private cargarUsuarioDesdeCache() {
+    console.log('[EmpresasNetwork] cargarUsuarioDesdeCache()');
     this.cargandoEmpresas = true;
 
-    let teniaCache = false;
-
-    // 1) Cache local
     const cacheRaw = localStorage.getItem('usuario-actual');
-    if (cacheRaw) {
-      try {
-        const u = JSON.parse(cacheRaw) as Usuario;
-        console.log('[EmpresasNetwork] usuario desde cache:', u);
-        this.aplicarUsuario(u);
-        teniaCache = true;
-      } catch (e) {
-        console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
-      }
-    }
-
-    // 1.1) Nombre desde prefs
-    if (!this.nombreUsuario) {
-      const nombrePref = await this.prefs.get('nombreAlmacenado');
-      if (nombrePref) {
-        this.nombreUsuario = nombrePref;
-      }
-    }
-
-    // 2) Token
-    const token = await this.tokenService.getToken();
-    console.log('[EmpresasNetwork] token presente?', !!token);
-
-    if (!token) {
-      if (!teniaCache) {
-        this.marcarInvitado(); // invitado real
-      } else {
-        // sin token pero con cache ⇒ dejamos lo que hay
-        this.cargandoEmpresas = false;
-        this.cdr.detectChanges();
-      }
+    if (!cacheRaw) {
+      console.log('[EmpresasNetwork] sin usuario-actual -> invitado');
+      this.marcarInvitado();
       return;
     }
 
-    // ⭐ Si hay token, mínimo NO es invitado (aunque falle el back)
-    this.esInvitado = false;
-    this.cdr.detectChanges();
-
-    // 3) Refrescar usuario desde backend
-    this.usuarioService.getUsuario(true).subscribe({
-      next: (response: GenericResponseDTO<Usuario>) => {
-        console.log('[EmpresasNetwork] getUsuario resp:', response);
-
-        if (!response?.data) {
-          // back no manda usuario aunque hay token → lo tratamos como logueado "mínimo"
-          this.cargandoEmpresas = false;
-          this.cdr.detectChanges();
-          return;
-        }
-
-        this.aplicarUsuario(response.data);
-      },
-      error: async (err) => {
-        console.error('[EmpresasNetwork] getUsuario error:', err);
-
-        if (err?.status === 401 || err?.status === 403) {
-          // Token inválido: limpiar todo y sí dejar invitado
-          await this.tokenService.removeToken();
-          localStorage.removeItem('usuario-actual');
-          this.marcarInvitado();
-        } else {
-          // Otro error (red, CORS, etc.): NO bajamos a invitado si hay token
-          this.cargandoEmpresas = false;
-          this.cdr.detectChanges();
-        }
-      }
-    });
+    try {
+      const u = JSON.parse(cacheRaw) as Usuario;
+      console.log('[EmpresasNetwork] usuario desde cache:', u);
+      this.aplicarUsuario(u);
+    } catch (e) {
+      console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
+      this.marcarInvitado();
+    }
   }
 
   private marcarInvitado() {
@@ -228,9 +172,6 @@ export class EmpresasNetworkPage implements OnInit {
     this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
 
     console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'rolId =', rolId, 'esInvitado =', this.esInvitado);
-    console.log('[EmpresasNetwork] usuario bruto =', u);
-
-    localStorage.setItem('usuario-actual', JSON.stringify(user));
 
     this.cargandoEmpresas = false;
     this.cdr.detectChanges();
@@ -278,10 +219,23 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   async abrirModalPromocion(promo: any) {
+    // 🔎 Nuevo: comprobamos también el cache por si por cualquier cosa UsuarioID siguiera en 0
     if (!this.UsuarioID) {
-      console.log('[EmpresasNetwork] Usuario invitado, redirigiendo a registro');
-      this.router.navigate(['/registro']);
-      return;
+      const cacheRaw = localStorage.getItem('usuario-actual');
+      if (!cacheRaw) {
+        console.log('[EmpresasNetwork] Usuario invitado real, redirigiendo a registro');
+        this.router.navigate(['/registro']);
+        return;
+      }
+
+      try {
+        const u = JSON.parse(cacheRaw) as Usuario;
+        this.aplicarUsuario(u);
+      } catch {
+        console.log('[EmpresasNetwork] cache inválido, redirigiendo a registro');
+        this.router.navigate(['/registro']);
+        return;
+      }
     }
 
     let formDirty = false;
