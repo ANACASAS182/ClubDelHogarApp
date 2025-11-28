@@ -97,7 +97,7 @@ export class EmpresasNetworkPage implements OnInit {
     });
   }
 
-  // 🔁 Cada vez que entras a la pestaña, refrescamos usuario
+  // 🔁 Cada vez que entras a la pestaña
   async ionViewWillEnter() {
     console.log('[EmpresasNetwork] ionViewWillEnter');
     await this.cargarUsuario();
@@ -109,7 +109,7 @@ export class EmpresasNetworkPage implements OnInit {
 
     let teniaCache = false;
 
-    // 1) Leer usuario cacheado si existe
+    // 1) Cache local
     const cacheRaw = localStorage.getItem('usuario-actual');
     if (cacheRaw) {
       try {
@@ -122,7 +122,7 @@ export class EmpresasNetworkPage implements OnInit {
       }
     }
 
-    // 1.1) Nombre rápido desde prefs si aún no tenemos
+    // 1.1) Nombre desde prefs
     if (!this.nombreUsuario) {
       const nombrePref = await this.prefs.get('nombreAlmacenado');
       if (nombrePref) {
@@ -130,21 +130,24 @@ export class EmpresasNetworkPage implements OnInit {
       }
     }
 
-    // 2) Checar si hay token; si no hay, no pegues al back
+    // 2) Token
     const token = await this.tokenService.getToken();
     console.log('[EmpresasNetwork] token presente?', !!token);
 
     if (!token) {
       if (!teniaCache) {
-        // Sin token y sin cache → invitado real
-        this.marcarInvitado();
+        this.marcarInvitado(); // invitado real
       } else {
-        // Sin token pero con cache → dejamos lo que hay
+        // sin token pero con cache ⇒ dejamos lo que hay
         this.cargandoEmpresas = false;
         this.cdr.detectChanges();
       }
       return;
     }
+
+    // ⭐ Si hay token, mínimo NO es invitado (aunque falle el back)
+    this.esInvitado = false;
+    this.cdr.detectChanges();
 
     // 3) Refrescar usuario desde backend
     this.usuarioService.getUsuario(true).subscribe({
@@ -152,8 +155,9 @@ export class EmpresasNetworkPage implements OnInit {
         console.log('[EmpresasNetwork] getUsuario resp:', response);
 
         if (!response?.data) {
-          // el back no manda usuario aunque haya token → invitado
-          this.marcarInvitado();
+          // back no manda usuario aunque hay token → lo tratamos como logueado "mínimo"
+          this.cargandoEmpresas = false;
+          this.cdr.detectChanges();
           return;
         }
 
@@ -163,12 +167,12 @@ export class EmpresasNetworkPage implements OnInit {
         console.error('[EmpresasNetwork] getUsuario error:', err);
 
         if (err?.status === 401 || err?.status === 403) {
-          // Token inválido: limpiamos todo y tratamos como invitado
+          // Token inválido: limpiar todo y sí dejar invitado
           await this.tokenService.removeToken();
           localStorage.removeItem('usuario-actual');
           this.marcarInvitado();
         } else {
-          // Otro error (red, etc.): respetamos lo que tengamos en cache
+          // Otro error (red, CORS, etc.): NO bajamos a invitado si hay token
           this.cargandoEmpresas = false;
           this.cdr.detectChanges();
         }
@@ -195,7 +199,6 @@ export class EmpresasNetworkPage implements OnInit {
 
     const u: any = user;
 
-    // ID del usuario en todas sus variantes posibles
     this.UsuarioID =
       u.id ??
       u.ID ??
@@ -204,14 +207,12 @@ export class EmpresasNetworkPage implements OnInit {
       u.usuarioId ??
       0;
 
-    // Nombres / apellidos con distintas mayúsculas
     const nombres   = u.nombres   ?? u.Nombres   ?? '';
     const apellidos = u.apellidos ?? u.Apellidos ?? '';
 
     this.nombreUsuario = `${nombres} ${apellidos}`.trim();
     this.correoUsuario = (u.email ?? u.Email ?? '').trim();
 
-    // Rol con distintas variantes
     const rolId = Number(
       u.rolesID ??
       u.RolesID ??
@@ -229,7 +230,6 @@ export class EmpresasNetworkPage implements OnInit {
     console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'rolId =', rolId, 'esInvitado =', this.esInvitado);
     console.log('[EmpresasNetwork] usuario bruto =', u);
 
-    // cache para la siguiente vez
     localStorage.setItem('usuario-actual', JSON.stringify(user));
 
     this.cargandoEmpresas = false;
