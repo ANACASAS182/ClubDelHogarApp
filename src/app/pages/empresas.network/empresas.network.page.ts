@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
@@ -44,7 +44,7 @@ export class EmpresasNetworkPage implements OnInit {
   correoUsuario = '';
 
   // 👇 flag explícito para el header
-  esInvitado = true;
+  esInvitado: boolean = true;
 
   constructor(
     private router: Router,
@@ -55,19 +55,13 @@ export class EmpresasNetworkPage implements OnInit {
     private categoriasService: CategoriasService,
     private modalCtrl: ModalController,
     private tokenService: TokenService,
-    private prefs: PrefsStorage
+    private prefs: PrefsStorage,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
     this.cargandoPromociones = true;
     this.cargandoEmpresas = true;
-
-    // 0) Nombre rápido desde prefs (por si ya inició sesión antes)
-    const nombrePref = await this.prefs.get('nombreAlmacenado');
-    if (nombrePref) {
-      this.nombreUsuario = nombrePref;
-      this.esInvitado = false; // hay nombre guardado => asumimos logueado
-    }
 
     // 1) Categorías
     this.categoriasService.getCategorias().subscribe({
@@ -89,13 +83,11 @@ export class EmpresasNetworkPage implements OnInit {
           nombre: x.ProductoNombre,
           descripcion: x.ProductoDescripcion,
           productoImgBase64: x.ProductoImagenBase64,
-
           empresaID: x.EmpresaID,
           empresaNombre: x.EmpresaNombre,
           empresaLogotipoBase64: x.EmpresaLogotipoBase64,
-
           categoriaID: x.CategoriaID,
-          categoriaNombre: x.CategoriaNombre
+          categoriaNombre: x.CategoriaNombre,
         }));
         this.cargandoPromociones = false;
       },
@@ -104,45 +96,55 @@ export class EmpresasNetworkPage implements OnInit {
         this.cargandoPromociones = false;
       }
     });
-
-    // 3) Usuario logueado (si hay token)
-    this.usuarioService.getUsuario().subscribe({
-      next: (response: GenericResponseDTO<Usuario>) => {
-        console.log('[EmpresasNetwork] getUsuario resp:', response);
-        const user = response.data;
-
-        if (!user) {
-          this.marcarInvitado();
-          return;
-        }
-
-        // ID robusto
-        this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
-
-        this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
-        this.correoUsuario = (user.email ?? '').trim();
-
-        // rol
-        const rolId = Number(
-          (user as any)?.rolesID ?? (user as any)?.RolesID ??
-          (user as any)?.rolID   ?? (user as any)?.rolId   ??
-          (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
-        );
-
-        this.esSocio = (rolId === 2);
-        console.log('[EmpresasNetwork] UsuarioID =', this.UsuarioID, 'rolId =', rolId);
-
-        // 👉 AQUÍ CLAVE: ya NO es invitado
-        this.esInvitado = !this.UsuarioID; // false si hay ID > 0
-
-        this.cargandoEmpresas = false;
-      },
-      error: (err) => {
-        console.error('[EmpresasNetwork] getUsuario error:', err);
-        this.marcarInvitado();
-      }
-    });
   }
+
+  async ionViewWillEnter() {
+  console.log('[EmpresasNetwork] ionViewWillEnter');
+
+  // 0) Leer usuario cacheado que guardó el login
+  const cacheRaw = localStorage.getItem('usuario-actual');
+  if (cacheRaw) {
+    try {
+      const u = JSON.parse(cacheRaw) as Usuario;
+      console.log('[EmpresasNetwork] usuario desde cache:', u);
+      this.aplicarUsuario(u);          // 👈 usa el método
+    } catch (e) {
+      console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
+      this.marcarInvitado();
+    }
+  } else {
+    this.marcarInvitado();
+  }
+
+  // 0.1) Nombre rápido desde prefs (solo si no se seteo antes)
+  if (!this.nombreUsuario) {
+    const nombrePref = await this.prefs.get('nombreAlmacenado');
+    if (nombrePref) {
+      this.nombreUsuario = nombrePref;
+      if (this.UsuarioID > 0) this.esInvitado = false;
+    }
+  }
+
+  // 1) Refrescar usuario desde el backend (en segundo plano)
+  this.cargandoEmpresas = true;
+  this.usuarioService.getUsuario(true).subscribe({
+    next: (response: GenericResponseDTO<Usuario>) => {
+      console.log('[EmpresasNetwork] getUsuario resp:', response);
+      this.aplicarUsuario(response.data ?? null);   // 👈 usa el método
+    },
+    error: (err) => {
+      console.error('[EmpresasNetwork] getUsuario error:', err);
+
+      if ((err?.status === 401 || err?.status === 403) && !this.UsuarioID) {
+        this.marcarInvitado();
+      } else {
+        this.cargandoEmpresas = false;
+      }
+      this.cdr.detectChanges();  // por si acaso
+    }
+  });
+}
+
 
   private marcarInvitado() {
     this.UsuarioID = 0;
@@ -328,4 +330,40 @@ export class EmpresasNetworkPage implements OnInit {
     this.router.navigate(['/vende']);
     // o console.log('Ir a vende');
   }
+
+  private aplicarUsuario(user: Usuario | null) {
+  if (!user) {
+    // si no hay usuario y no había cache → invitado
+    if (!this.UsuarioID) {
+      this.marcarInvitado();
+    }
+    this.cdr.detectChanges();
+    return;
+  }
+
+  this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
+
+  this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
+  this.correoUsuario = (user.email ?? '').trim();
+
+  const rolId = Number(
+    (user as any)?.rolesID ?? (user as any)?.RolesID ??
+    (user as any)?.rolID   ?? (user as any)?.rolId   ??
+    (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
+  );
+
+  this.esSocio = (rolId === 2);
+  this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
+
+  console.log('[EmpresasNetwork] aplicarUsuario -> esInvitado =', this.esInvitado);
+
+  // cache para la siguiente vez
+  localStorage.setItem('usuario-actual', JSON.stringify(user));
+
+  this.cargandoEmpresas = false;
+
+  // 👈 AQUI forzamos que Angular repinte la vista
+  this.cdr.detectChanges();
+}
+
 }
