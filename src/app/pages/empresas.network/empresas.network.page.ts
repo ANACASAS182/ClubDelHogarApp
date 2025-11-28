@@ -43,7 +43,6 @@ export class EmpresasNetworkPage implements OnInit {
   nombreUsuario = '';
   correoUsuario = '';
 
-  // 👇 flag explícito para el header
   esInvitado: boolean = true;
 
   constructor(
@@ -98,26 +97,17 @@ export class EmpresasNetworkPage implements OnInit {
     });
   }
 
- async ionViewDidEnter() {
-    console.log('[EmpresasNetwork] ionViewDidEnter');
+  // 🔁 Cada vez que entras a la pestaña, refrescamos usuario
+  async ionViewWillEnter() {
+    console.log('[EmpresasNetwork] ionViewWillEnter');
     await this.cargarUsuario();
   }
 
   private async cargarUsuario() {
     console.log('[EmpresasNetwork] cargarUsuario()');
-
     this.cargandoEmpresas = true;
 
-    // 0) Revisar si hay token
-    const token = await this.tokenService.getToken();
-    if (!token) {
-      console.log('[EmpresasNetwork] sin token -> invitado');
-      this.marcarInvitado();
-      this.cdr.detectChanges();
-      return;
-    }
-
-    // 1) Intentar leer usuario cacheado
+    // 1) Leer usuario cacheado si existe
     const cacheRaw = localStorage.getItem('usuario-actual');
     if (cacheRaw) {
       try {
@@ -127,11 +117,6 @@ export class EmpresasNetworkPage implements OnInit {
       } catch (e) {
         console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
       }
-    } else {
-      // Hay token pero no usuario cacheado → de entrada NO invitado
-      this.esInvitado = false;
-      console.log('[EmpresasNetwork] token presente pero sin cache -> esInvitado =', this.esInvitado);
-      this.cdr.detectChanges();
     }
 
     // 1.1) Nombre rápido desde prefs si aún no tenemos
@@ -142,37 +127,74 @@ export class EmpresasNetworkPage implements OnInit {
       }
     }
 
-    // 2) Refrescar usuario desde backend (si algo falla seguimos con cache)
+    // 2) Refrescar usuario desde backend
     this.usuarioService.getUsuario(true).subscribe({
       next: (response: GenericResponseDTO<Usuario>) => {
         console.log('[EmpresasNetwork] getUsuario resp:', response);
-        this.aplicarUsuario(response.data ?? null);
+
+        if (!response?.data) {
+          // si el back no manda usuario, tratar como invitado
+          this.marcarInvitado();
+          return;
+        }
+
+        this.aplicarUsuario(response.data);
       },
       error: (err) => {
         console.error('[EmpresasNetwork] getUsuario error:', err);
 
-        // si hay token pero error del back, al menos no lo tratamos como invitado
-        if (!this.UsuarioID) {
-          this.esInvitado = false;
+        // Si el token es inválido → invitado
+        if (err?.status === 401 || err?.status === 403) {
+          this.marcarInvitado();
+        } else {
+          // Otro error (red, etc.): respetamos lo que tengamos en cache
+          this.cargandoEmpresas = false;
+          this.cdr.detectChanges();
         }
-        this.cargandoEmpresas = false;
-        this.cdr.detectChanges();
       }
     });
   }
 
-
-
-
-   private marcarInvitado() {
+  private marcarInvitado() {
     this.UsuarioID = 0;
     this.nombreUsuario = '';
     this.correoUsuario = '';
     this.esInvitado = true;
+    this.esSocio = false;
     this.cargandoEmpresas = false;
     console.log('[EmpresasNetwork] marcarInvitado -> esInvitado =', this.esInvitado);
     this.cdr.detectChanges();
   }
+
+  private aplicarUsuario(user: Usuario | null) {
+    if (!user) {
+      this.marcarInvitado();
+      return;
+    }
+
+    this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
+    this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
+    this.correoUsuario = (user.email ?? '').trim();
+
+    const rolId = Number(
+      (user as any)?.rolesID ?? (user as any)?.RolesID ??
+      (user as any)?.rolID   ?? (user as any)?.rolId   ??
+      (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
+    );
+
+    this.esSocio = (rolId === 2);
+    this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
+
+    console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'esInvitado =', this.esInvitado);
+
+    // cache para la siguiente vez
+    localStorage.setItem('usuario-actual', JSON.stringify(user));
+
+    this.cargandoEmpresas = false;
+    this.cdr.detectChanges();
+  }
+
+  // ===== Helpers UI =====
 
   get inicialesUsuario(): string {
     const n = (this.nombreUsuario || this.correoUsuario || '').trim();
@@ -202,53 +224,31 @@ export class EmpresasNetworkPage implements OnInit {
     localStorage.removeItem('usuario-actual');
     localStorage.removeItem('cdh_tel');
 
-    this.marcarInvitado();           // por si en algún momento no rediriges
+    this.marcarInvitado();
     this.router.navigate(['/login'], { replaceUrl: true });
   }
 
   ensureDataUrl(b64?: string): string {
     if (!b64) return '';
-    const clean = (b64 || '').trim().replace(/\s+/g, ''); // quita CR/LF/espacios
+    const clean = (b64 || '').trim().replace(/\s+/g, '');
     if (clean.startsWith('data:')) return clean;
     return `data:image/png;base64,${clean}`;
   }
 
-  // Lo dejo recibiendo any por si algún día abres este modal desde aquí
-    async abrirModalPromocion(promo: any) {
-     // 🚫 Usuario invitado / sin registro
-      if (!this.UsuarioID) {
-        console.log('[EmpresasNetwork] Usuario invitado, redirigiendo a registro');
-        this.router.navigate(['/registro']);
-        return;
-      }
+  async abrirModalPromocion(promo: any) {
+    if (!this.UsuarioID) {
+      console.log('[EmpresasNetwork] Usuario invitado, redirigiendo a registro');
+      this.router.navigate(['/registro']);
+      return;
+    }
+
     let formDirty = false;
 
-    // Adaptamos el objeto que viene de GetPromosNetwork
     const promocionAdaptada: Promocion = {
       ...(promo as any),
-
-      // ID que usa el backend para generar el QR
-      iD:
-        promo.iD ??
-        promo.ID ??
-        promo.productoID ??
-        promo.ProductoID ??
-        0,
-
-      // nombre de la promo
-      nombre:
-        promo.nombre ??
-        promo.nombrePromocion ??
-        promo.titulo ??
-        '',
-
-      // descripción
-      descripcion:
-        promo.descripcion ??
-        promo.detalle ??
-        '',
-
-      // nombre de la empresa
+      iD: promo.iD ?? promo.ID ?? promo.productoID ?? promo.ProductoID ?? 0,
+      nombre: promo.nombre ?? promo.nombrePromocion ?? promo.titulo ?? '',
+      descripcion: promo.descripcion ?? promo.detalle ?? '',
       empresaNombre:
         promo.empresaNombre ??
         promo.empresa?.nombreComercial ??
@@ -264,14 +264,12 @@ export class EmpresasNetworkPage implements OnInit {
         UsuarioID: this.UsuarioID,
         setFormDirtyStatus: (dirty: boolean) => (formDirty = dirty),
       }
-      // 👈 sin breakpoints ni initialBreakpoint
     });
 
     await modal.present();
     await modal.onDidDismiss();
   }
 
-  // 👇 Aquí también cambiamos el tipo de retorno a any[]
   get promocionesFiltradas(): any[] {
     if (!this.categoriaSeleccionada) {
       return this.promociones || [];
@@ -321,7 +319,6 @@ export class EmpresasNetworkPage implements OnInit {
       promo.productoImagenPath ||
       promo.producto?.imagenPath;
 
-    // si no hay nada, regresa string vacío
     return this.ensureDataUrl(b64) || path || '';
   }
 
@@ -340,47 +337,10 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   irACompra() {
-    // TODO: ajusta la ruta a donde debe ir la parte de “Compra”
     this.router.navigate(['/compra']);
-    // o console.log('Ir a compra');
   }
 
   irAVende() {
-    // TODO: ajusta la ruta a donde debe ir la parte de “Vende”
     this.router.navigate(['/vende']);
-    // o console.log('Ir a vende');
   }
-
-  private aplicarUsuario(user: Usuario | null) {
-    if (!user) {
-      if (!this.UsuarioID) {
-        this.marcarInvitado();
-      }
-      this.cdr.detectChanges();
-      return;
-    }
-
-    this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
-
-    this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
-    this.correoUsuario = (user.email ?? '').trim();
-
-    const rolId = Number(
-      (user as any)?.rolesID ?? (user as any)?.RolesID ??
-      (user as any)?.rolID   ?? (user as any)?.rolId   ??
-      (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
-    );
-
-    this.esSocio = (rolId === 2);
-    this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
-
-    console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'esInvitado =', this.esInvitado);
-
-    // cache para la siguiente vez
-    localStorage.setItem('usuario-actual', JSON.stringify(user));
-
-    this.cargandoEmpresas = false;
-    this.cdr.detectChanges();
-  }
-
 }
