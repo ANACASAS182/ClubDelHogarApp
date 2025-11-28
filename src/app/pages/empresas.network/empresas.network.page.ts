@@ -98,60 +98,80 @@ export class EmpresasNetworkPage implements OnInit {
     });
   }
 
-  async ionViewWillEnter() {
-  console.log('[EmpresasNetwork] ionViewWillEnter');
+ async ionViewDidEnter() {
+    console.log('[EmpresasNetwork] ionViewDidEnter');
+    await this.cargarUsuario();
+  }
 
-  // 0) Leer usuario cacheado que guardó el login
-  const cacheRaw = localStorage.getItem('usuario-actual');
-  if (cacheRaw) {
-    try {
-      const u = JSON.parse(cacheRaw) as Usuario;
-      console.log('[EmpresasNetwork] usuario desde cache:', u);
-      this.aplicarUsuario(u);          // 👈 usa el método
-    } catch (e) {
-      console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
+  private async cargarUsuario() {
+    console.log('[EmpresasNetwork] cargarUsuario()');
+
+    this.cargandoEmpresas = true;
+
+    // 0) Revisar si hay token
+    const token = await this.tokenService.getToken();
+    if (!token) {
+      console.log('[EmpresasNetwork] sin token -> invitado');
       this.marcarInvitado();
+      this.cdr.detectChanges();
+      return;
     }
-  } else {
-    this.marcarInvitado();
-  }
 
-  // 0.1) Nombre rápido desde prefs (solo si no se seteo antes)
-  if (!this.nombreUsuario) {
-    const nombrePref = await this.prefs.get('nombreAlmacenado');
-    if (nombrePref) {
-      this.nombreUsuario = nombrePref;
-      if (this.UsuarioID > 0) this.esInvitado = false;
-    }
-  }
-
-  // 1) Refrescar usuario desde el backend (en segundo plano)
-  this.cargandoEmpresas = true;
-  this.usuarioService.getUsuario(true).subscribe({
-    next: (response: GenericResponseDTO<Usuario>) => {
-      console.log('[EmpresasNetwork] getUsuario resp:', response);
-      this.aplicarUsuario(response.data ?? null);   // 👈 usa el método
-    },
-    error: (err) => {
-      console.error('[EmpresasNetwork] getUsuario error:', err);
-
-      if ((err?.status === 401 || err?.status === 403) && !this.UsuarioID) {
-        this.marcarInvitado();
-      } else {
-        this.cargandoEmpresas = false;
+    // 1) Intentar leer usuario cacheado
+    const cacheRaw = localStorage.getItem('usuario-actual');
+    if (cacheRaw) {
+      try {
+        const u = JSON.parse(cacheRaw) as Usuario;
+        console.log('[EmpresasNetwork] usuario desde cache:', u);
+        this.aplicarUsuario(u);
+      } catch (e) {
+        console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
       }
-      this.cdr.detectChanges();  // por si acaso
+    } else {
+      // Hay token pero no usuario cacheado → de entrada NO invitado
+      this.esInvitado = false;
+      console.log('[EmpresasNetwork] token presente pero sin cache -> esInvitado =', this.esInvitado);
+      this.cdr.detectChanges();
     }
-  });
-}
+
+    // 1.1) Nombre rápido desde prefs si aún no tenemos
+    if (!this.nombreUsuario) {
+      const nombrePref = await this.prefs.get('nombreAlmacenado');
+      if (nombrePref) {
+        this.nombreUsuario = nombrePref;
+      }
+    }
+
+    // 2) Refrescar usuario desde backend (si algo falla seguimos con cache)
+    this.usuarioService.getUsuario(true).subscribe({
+      next: (response: GenericResponseDTO<Usuario>) => {
+        console.log('[EmpresasNetwork] getUsuario resp:', response);
+        this.aplicarUsuario(response.data ?? null);
+      },
+      error: (err) => {
+        console.error('[EmpresasNetwork] getUsuario error:', err);
+
+        // si hay token pero error del back, al menos no lo tratamos como invitado
+        if (!this.UsuarioID) {
+          this.esInvitado = false;
+        }
+        this.cargandoEmpresas = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
 
-  private marcarInvitado() {
+
+
+   private marcarInvitado() {
     this.UsuarioID = 0;
     this.nombreUsuario = '';
     this.correoUsuario = '';
     this.esInvitado = true;
     this.cargandoEmpresas = false;
+    console.log('[EmpresasNetwork] marcarInvitado -> esInvitado =', this.esInvitado);
+    this.cdr.detectChanges();
   }
 
   get inicialesUsuario(): string {
@@ -332,38 +352,35 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   private aplicarUsuario(user: Usuario | null) {
-  if (!user) {
-    // si no hay usuario y no había cache → invitado
-    if (!this.UsuarioID) {
-      this.marcarInvitado();
+    if (!user) {
+      if (!this.UsuarioID) {
+        this.marcarInvitado();
+      }
+      this.cdr.detectChanges();
+      return;
     }
+
+    this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
+
+    this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
+    this.correoUsuario = (user.email ?? '').trim();
+
+    const rolId = Number(
+      (user as any)?.rolesID ?? (user as any)?.RolesID ??
+      (user as any)?.rolID   ?? (user as any)?.rolId   ??
+      (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
+    );
+
+    this.esSocio = (rolId === 2);
+    this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
+
+    console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'esInvitado =', this.esInvitado);
+
+    // cache para la siguiente vez
+    localStorage.setItem('usuario-actual', JSON.stringify(user));
+
+    this.cargandoEmpresas = false;
     this.cdr.detectChanges();
-    return;
   }
-
-  this.UsuarioID = (user as any).id ?? (user as any).ID ?? 0;
-
-  this.nombreUsuario = `${user.nombres ?? ''} ${user.apellidos ?? ''}`.trim();
-  this.correoUsuario = (user.email ?? '').trim();
-
-  const rolId = Number(
-    (user as any)?.rolesID ?? (user as any)?.RolesID ??
-    (user as any)?.rolID   ?? (user as any)?.rolId   ??
-    (user as any)?.rol?.id ?? (user as any)?.rol     ?? 0
-  );
-
-  this.esSocio = (rolId === 2);
-  this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
-
-  console.log('[EmpresasNetwork] aplicarUsuario -> esInvitado =', this.esInvitado);
-
-  // cache para la siguiente vez
-  localStorage.setItem('usuario-actual', JSON.stringify(user));
-
-  this.cargandoEmpresas = false;
-
-  // 👈 AQUI forzamos que Angular repinte la vista
-  this.cdr.detectChanges();
-}
 
 }
