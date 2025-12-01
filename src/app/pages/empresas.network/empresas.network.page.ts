@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 
 import { Empresa } from 'src/app/models/Empresa';
@@ -16,6 +16,7 @@ import { ReferidoRegistroModalComponent } from 'src/app/modals/referido.registro
 import { CategoriasService, Categoria } from 'src/app/services/api.back.services.cdh/categorias.service';
 import { PrefsStorage } from 'src/app/core/utils/prefs.storage';
 import { TokenService } from 'src/app/services/token.service';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-empresas.network',
@@ -44,6 +45,9 @@ export class EmpresasNetworkPage implements OnInit {
 
   esInvitado: boolean = true;
 
+  // 🔒 para no disparar syncUsuario 20 veces a la vez
+  private syncingUsuario = false;
+
   constructor(
     private router: Router,
     private activeRoute: ActivatedRoute,
@@ -55,7 +59,21 @@ export class EmpresasNetworkPage implements OnInit {
     private tokenService: TokenService,
     private prefs: PrefsStorage,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+
+    // 🧷 PARCHE DURO:
+    // Cada vez que realmente se navega a /dashboard/network
+    // volvemos a sincronizar el usuario (ideal para Android / Capacitor)
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe((e: any) => {
+        const url = e.urlAfterRedirects || e.url || '';
+        if (url.startsWith('/dashboard/network')) {
+          console.log('[EmpresasNetwork] NavigationEnd -> syncUsuario()');
+          this.syncUsuario();
+        }
+      });
+  }
 
   async ngOnInit() {
     this.cargandoPromociones = true;
@@ -97,7 +115,7 @@ export class EmpresasNetworkPage implements OnInit {
     });
   }
 
-  // 🔁 Cada vez que entras a la pestaña
+  // 🔁 Cada vez que entras a la pestaña (Ionic lifecycle)
   async ionViewWillEnter() {
     console.log('[EmpresasNetwork] ionViewWillEnter');
     await this.syncUsuario();
@@ -105,62 +123,69 @@ export class EmpresasNetworkPage implements OnInit {
 
   // 🔹 Sincroniza usuario usando cache + backend si hay token
   private async syncUsuario() {
-    console.log('[EmpresasNetwork] syncUsuario()');
-    this.cargandoEmpresas = true;
-
-    // 1) Intentar cache primero
-    const cacheRaw = localStorage.getItem('usuario-actual');
-    if (cacheRaw) {
-      try {
-        const u = JSON.parse(cacheRaw) as Usuario;
-        console.log('[EmpresasNetwork] usuario desde cache:', u);
-        this.aplicarUsuario(u);
-      } catch (e) {
-        console.warn('[EmpresasNetwork] error parseando cache usuario-actual', e);
-        this.marcarInvitado();
-      }
-    } else {
-      console.log('[EmpresasNetwork] sin usuario-actual en cache');
-    }
-
-    // 2) Si hay token, refrescar desde backend para asegurarnos
-    const token = await this.tokenService.getToken?.();
-    console.log('[EmpresasNetwork] token =', token);
-
-    if (!token) {
-      // si no hay token y tampoco UsuarioID => invitado real
-      if (!this.UsuarioID) {
-        this.marcarInvitado();
-      } else {
-        this.cargandoEmpresas = false;
-      }
+    if (this.syncingUsuario) {
       return;
     }
+    this.syncingUsuario = true;
+    console.log('[EmpresasNetwork] syncUsuario() start');
 
-    this.usuarioService.getUsuario(true).subscribe({
-      next: (resp) => {
-        console.log('[EmpresasNetwork] getUsuario resp =', resp);
-        if (resp?.data) {
-          this.aplicarUsuario(resp.data);
-          // actualizamos cache por si cambió algo
-          localStorage.setItem('usuario-actual', JSON.stringify(resp.data));
-        } else if (!this.UsuarioID) {
+    this.cargandoEmpresas = true;
+
+    try {
+      // 1) Cache primero
+      const cacheRaw = localStorage.getItem('usuario-actual');
+      if (cacheRaw) {
+        try {
+          const u = JSON.parse(cacheRaw) as Usuario;
+          console.log('[EmpresasNetwork] usuario desde cache:', u);
+          this.aplicarUsuario(u);
+        } catch (e) {
+          console.warn('[EmpresasNetwork] error parseando cache usuario-actual', e);
           this.marcarInvitado();
-        } else {
-          this.cargandoEmpresas = false;
         }
-      },
-      error: (err) => {
-        console.error('[EmpresasNetwork] error getUsuario', err);
+      } else {
+        console.log('[EmpresasNetwork] sin usuario-actual en cache');
+      }
+
+      // 2) Refrescar back si hay token
+      const token = await this.tokenService.getToken?.();
+      console.log('[EmpresasNetwork] token =', token);
+
+      if (!token) {
         if (!this.UsuarioID) {
           this.marcarInvitado();
         } else {
           this.cargandoEmpresas = false;
         }
+        return;
       }
-    });
-  }
 
+      this.usuarioService.getUsuario(true).subscribe({
+        next: (resp) => {
+          console.log('[EmpresasNetwork] getUsuario resp =', resp);
+          if (resp?.data) {
+            this.aplicarUsuario(resp.data);
+            localStorage.setItem('usuario-actual', JSON.stringify(resp.data));
+          } else if (!this.UsuarioID) {
+            this.marcarInvitado();
+          } else {
+            this.cargandoEmpresas = false;
+          }
+        },
+        error: (err) => {
+          console.error('[EmpresasNetwork] error getUsuario', err);
+          if (!this.UsuarioID) {
+            this.marcarInvitado();
+          } else {
+            this.cargandoEmpresas = false;
+            this.cdr.detectChanges();
+          }
+        }
+      });
+    } finally {
+      this.syncingUsuario = false;
+    }
+  }
 
   private marcarInvitado() {
     this.UsuarioID = 0;
@@ -207,7 +232,7 @@ export class EmpresasNetworkPage implements OnInit {
     );
 
     this.esSocio = (rolId === 2);
-    this.esInvitado = !this.UsuarioID;   // si hay ID > 0 ⇒ NO invitado
+    this.esInvitado = !this.UsuarioID;
 
     console.log('[EmpresasNetwork] aplicarUsuario -> UsuarioID =', this.UsuarioID, 'rolId =', rolId, 'esInvitado =', this.esInvitado);
 
@@ -257,7 +282,7 @@ export class EmpresasNetworkPage implements OnInit {
   }
 
   async abrirModalPromocion(promo: any) {
-    // 🔎 Nuevo: comprobamos también el cache por si por cualquier cosa UsuarioID siguiera en 0
+    // 🔎 sigue el mismo seguro por si acaso
     if (!this.UsuarioID) {
       const cacheRaw = localStorage.getItem('usuario-actual');
       if (!cacheRaw) {
@@ -383,7 +408,6 @@ export class EmpresasNetworkPage implements OnInit {
       return;
     }
 
-    // Barajamos las promociones (Fisher–Yates)
     const arr = [...this.promociones];
     for (let i = arr.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
