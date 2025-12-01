@@ -97,5 +97,14 @@
     <ion-button expand="block" shape="round" class="btn-close" (click)="close()">
       Cerrar
     </ion-button>
+
+    <ion-button
+      *ngIf="tieneUbicacionValida"
+      expand="block"
+      shape="round"
+      class="btn-location"
+      (click)="abrirUbicacion()">
+      Ver ubicación
+    </ion-button>
   </div>
 </ion-content>

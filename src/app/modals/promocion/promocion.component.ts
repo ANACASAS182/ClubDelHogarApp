@@ -154,13 +154,49 @@ export class PromocionComponent implements OnInit {
     const p: any = this.promocion || {};
 
     const raw =
-      p.empresaUbicacion ||   // desde GetPromosNetwork
-      p.ubicacion ||          // por si en otro lado viene así
-      p.empresa?.ubicacion || // por si viene anidada
+      p.empresaUbicacion ||     // del mapeo de la lista
+      p.EmpresaUbicacion ||     // por si viene directo del backend
+      p.ubicacion ||
+      p.Ubicacion ||
+      p.empresa?.ubicacion ||
+      p.empresa?.Ubicacion ||
       '';
 
     const clean = String(raw || '').trim();
     return clean || 'N/A';
+  }
+
+  // ================== UBICACIÓN / GOOGLE MAPS ==================
+
+  /** Dirección "cruda" ya normalizada por el getter empresaUbicacion */
+  get direccionEmpresa(): string {
+    return this.empresaUbicacion;  // reutiliza tu getter actual
+  }
+
+  /** true si hay una ubicación real (no vacía ni N/A) */
+  get tieneUbicacionValida(): boolean {
+    const dir = this.direccionEmpresa;
+    return !!dir && dir !== 'N/A';
+  }
+
+  /** URL completa a Google Maps para esa dirección */
+  get mapsUrl(): string | null {
+    if (!this.tieneUbicacionValida) {
+      return null;
+    }
+    const encoded = encodeURIComponent(this.direccionEmpresa);
+    return `https://www.google.com/maps/search/?api=1&query=${encoded}`;
+    // Si quisieras .com.mx:
+    // return `https://www.google.com.mx/maps/search/?api=1&query=${encoded}`;
+  }
+
+  /** Abre Google Maps (o el navegador) con la ubicación */
+  abrirUbicacion(): void {
+    const url = this.mapsUrl;
+    if (!url) { return; }
+
+    // En web + app (Capacitor) esto abre el navegador / Maps
+    window.open(url, '_blank');
   }
 
 }

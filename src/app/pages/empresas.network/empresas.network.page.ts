@@ -94,18 +94,29 @@ export class EmpresasNetworkPage implements OnInit {
     // 2) Promos Network
     this.promocionesService.GetPromosNetwork().subscribe({
       next: (resp) => {
-        this.promociones = (resp.data || []).map((x: any) => ({
-          productoID: x.ProductoID,
-          nombre: x.ProductoNombre,
-          descripcion: x.ProductoDescripcion,
-          productoImgBase64: x.ProductoImagenBase64,
-          empresaID: x.EmpresaID,
-          empresaNombre: x.EmpresaNombre,
-          empresaLogotipoBase64: x.EmpresaLogotipoBase64,
-          empresaUbicacion: x.EmpresaUbicacion,
-          categoriaID: x.CategoriaID,
-          categoriaNombre: x.CategoriaNombre,
-        }));
+        this.promociones = (resp.data || []).map((x: any) => {
+          const empresaUbicacion =
+            x.empresaUbicacion ??   // 👈 nombre real que manda el backend
+            x.EmpresaUbicacion ??   // por si en algún otro endpoint viene así
+            x.ubicacion ??
+            x.Ubicacion ??
+            '';
+
+          return {
+            productoID: x.ProductoID,
+            nombre: x.ProductoNombre,
+            descripcion: x.ProductoDescripcion,
+            productoImgBase64: x.ProductoImagenBase64,
+            empresaID: x.EmpresaID,
+            empresaNombre: x.EmpresaNombre,
+            empresaLogotipoBase64: x.EmpresaLogotipoBase64,
+            empresaUbicacion,       // 👈 ahora sí llega al modal
+            categoriaID: x.CategoriaID,
+            categoriaNombre: x.CategoriaNombre,
+          };
+        });
+
+
         this.cargandoPromociones = false;
       },
       error: () => {

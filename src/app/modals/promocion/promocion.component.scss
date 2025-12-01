@@ -71,6 +71,21 @@ ion-content.custom-content {
   letter-spacing: 0.03em;
 }
 
+.btn-location {
+  --background: #ffffff;
+  --background-activated: #f3f4f6;
+  --color: #00b894;                /* verde CDH */
+  --border-radius: 999px;
+  --border-color: #00b894;
+  --border-width: 1px;
+  --border-style: solid;
+  --box-shadow: none;
+
+  margin-top: 8px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
 
 
 /* HERO: imagen + info */
