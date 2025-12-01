@@ -34,9 +34,11 @@ export class VendeNetworkPage implements OnInit {
   cargando = true;
   errorMsg = '';
   resumen: CuponesResumenEmbajadorDTO | null = null;
+  popoverAbierto = false;
 
   // Segment para tabs (por canjear / canjeadas)
-  segmento: 'pendientes' | 'canjeadas' = 'pendientes';
+  segmento: 'pendientes' | 'canjeadas' = 'canjeadas';
+
 
   constructor(
     private router: Router,
@@ -113,6 +115,14 @@ export class VendeNetworkPage implements OnInit {
       generados: [],
       canjeados: [],
     };
+  }
+
+  togglePopover() {
+    this.popoverAbierto = !this.popoverAbierto;
+  }
+
+  cerrarPopover() {
+    this.popoverAbierto = false;
   }
 
   private cargarCupones() {

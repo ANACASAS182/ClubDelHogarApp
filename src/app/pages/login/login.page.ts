@@ -74,21 +74,38 @@ export class LoginPage implements OnInit, OnDestroy {
 
   // ---------- Persistencia ----------
   private async loadPrefs() {
-    const tel = await this.prefs.get('telefonoAlmacenado');
-    const p = await this.prefs.get('passwordAlmacenado');
-    const n = await this.prefs.get('nombreAlmacenado');
+    const tel = (await this.prefs.get('telefonoAlmacenado')) || '';
+    const p   = (await this.prefs.get('passwordAlmacenado')) || '';
+    const n   = (await this.prefs.get('nombreAlmacenado')) || '';
 
-    this.telefonoAlmacenado = tel;
-    this.passwordAlmacenado = p;
-    this.nombreAlmacenado = n;
+    // 🔹 Solo entramos a modo recordado si hay TEL y PASS
+    if (tel && p) {
+      this.telefonoAlmacenado = tel;
+      this.passwordAlmacenado = p;
+      this.nombreAlmacenado   = n;
 
-    if (tel) {
-      this.loginForm.patchValue({ telefono: tel || '+52 ', password: p || '' });
+      this.loginForm.patchValue({
+        telefono: tel,
+        password: p,
+      });
+
       this.rememberFlag = true;
     } else {
+      // 🔹 Si falta cualquiera de los dos, NO hay modo recordado
+      this.telefonoAlmacenado = '';
+      this.passwordAlmacenado = '';
+      this.nombreAlmacenado   = '';
+
+      this.loginForm.patchValue({
+        telefono: '+52 ',
+        password: '',
+      });
+
       this.rememberFlag = false;
     }
   }
+
+
 
   private async savePrefs(telefono: string, password: string, nombre: string) {
     await this.prefs.set('telefonoAlmacenado', telefono);
@@ -108,9 +125,14 @@ export class LoginPage implements OnInit, OnDestroy {
 
     // Guarda en caliente si la casilla está activa
     this.valueSub = this.loginForm.valueChanges.subscribe(async (v) => {
-      if (this.rememberFlag) {
-        await this.prefs.set('telefonoAlmacenado', v.telefono ?? '+52 ');
-        await this.prefs.set('passwordAlmacenado', v.password ?? '');
+      if (!this.rememberFlag) return;
+
+      const telVal = v.telefono ?? '+52 ';
+      await this.prefs.set('telefonoAlmacenado', telVal);
+
+      // ✅ Solo guardamos password cuando hay algo escrito
+      if (v.password && v.password.trim().length > 0) {
+        await this.prefs.set('passwordAlmacenado', v.password);
       }
     });
 
@@ -162,19 +184,40 @@ export class LoginPage implements OnInit, OnDestroy {
     this.messageError = '';
 
     try {
-      // 1) Validar formulario
-      if (this.loginForm.invalid) {
-        this.loginForm.markAllAsTouched();
-        throw new Error('Completa los campos requeridos.');
-      }
+      let telefono: string;
+      let password: string;
+      const recordar = this.rememberFlag;
 
-      const telefono  = (this.loginForm.controls['telefono'].value || '').trim();
-      const password  = this.loginForm.controls['password'].value;
-      const recordar  = this.rememberFlag;
+      const tieneRecordado = !!this.telefonoAlmacenado;
+
+      // 🔹 CASO 1: Hay teléfono y password guardados → usamos eso
+      if (tieneRecordado && this.passwordAlmacenado) {
+        telefono = (this.telefonoAlmacenado || '').trim();
+        password = this.passwordAlmacenado;
+      }
+      // 🔹 CASO 2: Teléfono guardado pero SIN password → regresamos a modo normal
+      else {
+        if (tieneRecordado && !this.passwordAlmacenado) {
+          // quitamos cabecera “Hola, nombre” y volvemos a formulario normal
+          this.telefonoAlmacenado = '';
+          this.nombreAlmacenado = '';
+          this.rememberFlag = false;
+          // OJO: el form ya trae el teléfono parchado desde loadPrefs(), solo falta que escribas contraseña
+        }
+
+        // Validación normal del formulario
+        if (this.loginForm.invalid) {
+          this.loginForm.markAllAsTouched();
+          throw new Error('Completa los campos requeridos.');
+        }
+
+        telefono = (this.loginForm.controls['telefono'].value || '').trim();
+        password = this.loginForm.controls['password'].value;
+      }
 
       const credenciales = { telefono, password };
 
-      // 2) Login
+      // 2) Login al backend
       const loginResp = await firstValueFrom(
         this.usuarioService.login(credenciales, true)
       );
@@ -188,13 +231,12 @@ export class LoginPage implements OnInit, OnDestroy {
       // 3) Guardar token
       await this.tokenService.saveToken(loginResp.data);
 
-      // 🔹 4) AHORA SÍ: ESPERAR A QUE SE CARGUE Y GUARDE EL PERFIL
+      // 4) Cargar perfil y guardar prefs si aplica
       await this.cargarPerfilPostLogin(telefono, password, recordar);
 
-      // 5) Navegar al dashboard cuando YA está el usuario en localStorage
+      // 5) Navegar al dashboard
       const target = '/dashboard/network';
       console.log('[Login] navegando a', target);
-
       const ok = await this.router.navigateByUrl(target, { replaceUrl: true });
       console.log('[Login] navigateByUrl result =', ok);
 
@@ -207,6 +249,8 @@ export class LoginPage implements OnInit, OnDestroy {
       this.iniciandoSesion = false;
     }
   }
+
+
 
 
   private async cargarPerfilPostLogin(
@@ -279,14 +323,22 @@ export class LoginPage implements OnInit, OnDestroy {
 
   async onRememberChange(checked: boolean) {
     this.rememberFlag = checked;
+
     if (checked) {
       const telefono = this.loginForm.get('telefono')?.value || '+52 ';
       const password = this.loginForm.get('password')?.value || '';
+
+      this.telefonoAlmacenado = telefono;
+      this.passwordAlmacenado = password;
+
       await this.savePrefs(telefono, password, this.nombreAlmacenado || '');
     } else {
       await this.clearPrefs();
+      this.telefonoAlmacenado = '';
+      this.passwordAlmacenado = '';
     }
   }
+
 
   irARegistro() {
     this.router.navigate(['/registro']);

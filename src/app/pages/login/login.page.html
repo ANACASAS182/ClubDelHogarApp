@@ -21,7 +21,7 @@
         <h2 class="form-title" *ngIf="telefonoAlmacenado !== ''">Hola, {{ nombreAlmacenado }}</h2>
 
         <!-- MODO RECORDADO (sin inputs) -->
-        <ng-container *ngIf="telefonoAlmacenado !== ''; else modoNormal">
+        <ng-container *ngIf="telefonoAlmacenado && passwordAlmacenado; else modoNormal">
           <div class="signin-as">
             <div class="signin-caption">Estás iniciando sesión con el número:</div>
             <div class="signin-email">{{ telefonoAlmacenado }}</div>
@@ -33,6 +33,7 @@
             *ngIf="!iniciandoSesion"
             expand="block"
             shape="round"
+            class="btn-login"       
             [disabled]="formEnviado"
             (click)="onSubmit()"
           >
@@ -44,6 +45,7 @@
             expand="block"
             shape="round"
             fill="outline"
+            class="btn-alt"     
             (click)="borrarDatosAlmacenados()"
           >
             Iniciar sesión con otro número
@@ -101,7 +103,7 @@
             ></ion-input-password-toggle>
           </ion-input>
 
-          <!-- RECORDAR DATOS -->
+          <!-- RECORDAR DATOS 
           <ion-item lines="none">
             <ion-checkbox
               slot="start"
@@ -113,7 +115,7 @@
             <ion-label (click)="toggleRemember()">
               Guardar datos de inicio de sesión
             </ion-label>
-          </ion-item>
+          </ion-item> -->
 
           <hr class="spacer_embassy" />
           <ion-progress-bar *ngIf="iniciandoSesion" type="indeterminate"></ion-progress-bar>
@@ -123,6 +125,7 @@
             expand="block"
             shape="round"
             [disabled]="formEnviado"
+            class="btn-login"
             (click)="onSubmit()"
           >
             Ingresar

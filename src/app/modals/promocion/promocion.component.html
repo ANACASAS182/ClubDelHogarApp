@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="promo-modal-header">
     <ion-title class="ion-text-center promo-header-title">
       {{ getTituloCorto() }}
     </ion-title>
@@ -43,8 +43,20 @@
         </div>
       </div>
 
-      <!-- BLOQUE QR -->
-      <div class="promo-qr-block" *ngIf="codigoQrBase64">
+
+      <!-- ============================
+           MENSAJE SI YA FUE CANJEADO
+      ==============================-->
+      <div class="promo-qr-warning" *ngIf="yaCanjeado">
+        <ion-icon name="information-circle-outline"></ion-icon>
+        <p>{{ mensajeEstado }}</p>
+      </div>
+
+
+      <!-- ============================
+           QR SOLO SI NO ESTÁ CANJEADO
+      ==============================-->
+      <div class="promo-qr-block" *ngIf="!yaCanjeado && codigoQrBase64">
         <p class="promo-qr-title">
           Presenta este código en el establecimiento
         </p>
@@ -60,16 +72,26 @@
           Cupón de <strong>un solo uso</strong>, personal e intransferible.
         </p>
 
+        <p class="promo-qr-location">
+          Ubicación: <strong>{{ empresaUbicacion }}</strong>
+        </p>
+
         <p class="promo-qr-valid" *ngIf="promocion?.vigencia">
           Vigente hasta <strong>{{ promocion?.vigencia }}</strong>
         </p>
       </div>
 
-      <!-- LOADER POR SI TARDA EL QR -->
-      <div class="promo-qr-loading" *ngIf="!codigoQrBase64">
+
+
+
+      <!-- ============================
+           LOADER SOLO SI NO CANJEADO
+      ==============================-->
+      <div class="promo-qr-loading" *ngIf="!yaCanjeado && !codigoQrBase64 && cargandoQr">
         <ion-spinner name="crescent"></ion-spinner>
         <span>Generando tu código…</span>
       </div>
+
     </div>
 
     <ion-button expand="block" shape="round" class="btn-close" (click)="close()">

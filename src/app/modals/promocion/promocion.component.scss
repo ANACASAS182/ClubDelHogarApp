@@ -1,7 +1,7 @@
 /* Fondo general del modal */
 ion-content.custom-content {
-  --background: #f2f2f5;
-  height: 100%;   /* 👈 ocupa todo el alto del modal */
+  --background: #f2f2f2;
+  height: 100%;
   padding: 0;
 }
 
@@ -22,6 +22,24 @@ ion-content.custom-content {
   box-sizing: border-box;
 }
 
+/* HEADER del modal QR */
+.promo-modal-header {
+  --background: #ffffff;
+  --border-width: 0 0 2px 0;
+  --border-style: solid;
+  --border-color: #009b9b;           /* acento CDH */
+  --min-height: 52px;
+  color: #111827;
+}
+
+.promo-modal-header ion-title.promo-header-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.promo-modal-header ion-button {
+  --color: #111827;
+}
 
 
 /* Tarjeta principal */
@@ -42,10 +60,17 @@ ion-content.custom-content {
 
 /* Botón cerrar separado de la tarjeta pero abajo */
 .btn-close {
+  --background: #00b894;              /* verde CDH */
+  --background-activated: #00a37f;
+  --background-hover: #00a37f;
+  --color: #ffffff;
   --border-radius: 999px;
   --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
   margin-top: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
+
 
 
 /* HERO: imagen + info */
@@ -136,12 +161,17 @@ ion-content.custom-content {
   color: #555;
 }
 
-/* BLOQUE QR */
+/* BLOQUE QR en colores CDH */
 .promo-qr-block {
   margin-top: 4px;
   padding: 14px 12px 16px;
   border-radius: 18px;
-  background: radial-gradient(circle at top left, #1947e5 0%, #1b2433 45%, #11141c 100%);
+  background: radial-gradient(
+    circle at top left,
+    #00c4a3 0%,
+    #009b9b 40%,
+    #063b3e 100%
+  );
   color: #f7f7ff;
   text-align: center;
   display: flex;
@@ -178,32 +208,11 @@ ion-content.custom-content {
   opacity: 0.9;
 }
 
+.promo-qr-location,
 .promo-qr-valid {
   font-size: 12px;
   margin: 0;
-  font-weight: 500;
-}
-
-/* Estado cargando QR */
-.promo-qr-loading {
-  margin-top: 8px;
-  padding: 18px 12px 12px;
-  border-radius: 18px;
-  background: #f5f5f9;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  color: #555;
-}
-
-/* Botón de cerrar */
-.btn-close {
-  --border-radius: 999px;
-  --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14);
-  margin-top: 4px;
+  opacity: 0.95;
 }
 
 /* Responsivo */
@@ -215,5 +224,32 @@ ion-content.custom-content {
   .promo-qr-wrapper img {
     width: 200px;
   }
+}
+
+.promo-qr-warning {
+  margin-top: 8px;
+  padding: 16px 12px;
+  border-radius: 18px;
+  background: #fff7e6;
+  color: #7a4c00;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+
+  ion-icon {
+    font-size: 20px;
+    margin-top: 2px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+.promo-qr-location {
+  font-size: 12px;
+  margin: 0;
+  opacity: 0.95;
 }
 

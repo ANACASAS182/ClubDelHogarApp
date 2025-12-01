@@ -36,54 +36,58 @@
   padding-right: 0;
 }
 
+/* ===== Header de texto + filtro ===== */
 .promos-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 8px;
+  padding: 6px 4px 10px;
 }
 
+/* Texto “¡Mantente al día…” */
 .promos-header p {
   margin: 0;
+  font-size: 13px;
+  color: #4b5563;
 }
 
-/* ===== Filtro de categorías ===== */
+/* ===== Filtro de categorías: full width tipo barra de búsqueda ===== */
 .promo-filters {
   width: 100%;
-  max-width: 230px;         // un poquito más compacto
+  max-width: 100%;
 }
 
 .promo-filters ion-item {
-  --background: transparent;
-  --padding-start: 0;
-  --inner-padding-end: 0;
-  --inner-padding-top: 0;
-  --inner-padding-bottom: 0;
-  box-shadow: none;
-  border: none;
+  --background: #ffffff;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  --inner-padding-top: 4px;
+  --inner-padding-bottom: 4px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
 }
 
-/* Label "Categorías" un poco más protagonista */
+/* Label arriba, chiquito */
 .promo-filters ion-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
-  color: #4b5563;
-  margin-bottom: 4px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
 }
 
-/* El select, tipo pastilla pero menos alto */
+/* Select ocupa todo el ancho, estilo pastilla */
 .promo-filters ion-select {
   width: 100%;
   max-width: 100%;
-  --min-height: 32px;
-  --padding-start: 12px;
-  --padding-end: 12px;
-  border-radius: 999px;
-  border: 1px solid #d4d4d4;
-  background: #ffffff;
+  --min-height: 36px;
+  --padding-start: 0;
+  --padding-end: 0;
   font-size: 14px;
 }
+
 /* ===== Tarjeta de promoción ===== */
 .promo-card {
   border-radius: 14px;
@@ -136,13 +140,6 @@
   display: flex;
   flex-direction: column;
   gap: 3px;
-}
-
-.promo-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
 }
 
 .empresa-logo-mini {
@@ -224,87 +221,103 @@
 }
 
 /* =====================================================
-   HEADER CDH + USUARIO (PRINCIPAL DE LA PANTALLA)
+   HEADER CDH + USUARIO (BLANCO CON LOGO)
    ===================================================== */
 
-.network-header {
-  --padding-start: 12px;
-  --padding-end: 12px;
-  --min-height: 72px;          /* ⬅️ más alto para lucir el logo */
+.network-header.cdh-header {
+  --background: #ffffff;
+  --min-height: 76px;                 /* antes 64px */
+  --border-width: 0 0 2px 0;
+  --border-style: solid;
+  --border-color: #009b9b;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 
-/* Ajuste del contenedor interno del toolbar */
-.network-header .toolbar-container {
-  padding-inline-start: 8px;
-  padding-inline-end: 8px;
+/* contenedor interno del toolbar */
+.network-header.cdh-header .toolbar-container {
+  padding-inline-start: 12px;
+  padding-inline-end: 12px;
   padding-top: 6px;
   padding-bottom: 6px;
 }
 
-/* Título ocupa todo lo posible */
-.network-header ion-title {
-  text-align: left;
+/* título centrado */
+.network-header.cdh-header ion-title {
   flex: 1 1 auto;
+  text-align: center;
+  display: flex;
+  justify-content: center;   /* centra horizontal */
+  align-items: center;       /* centra vertical */
 }
 
-/* Marca CDH */
-.brand-wrap {
+/* Logo CDH */
+.cdh-header-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
 }
 
-.brand-logo {
-  width: 88px;      /* ⬅️ logo más grande */
-  height: 88px;
-  object-fit: contain;
+.cdh-header-logo img {
+  height: 42px;              /* un pelín más grande */
+  width: auto;
+  display: block;
 }
 
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
+.network-header.cdh-header ion-buttons[slot="end"] {
+  margin-right: 8px;   /* separa del borde derecho */
 }
 
-.brand-title {
-  font-size: 18px;  /* ⬅️ texto más grande */
-  font-weight: 700;
-  color: #ffffff;
-}
+/* ==== Chip de usuario adaptado a fondo blanco ==== */
 
-.brand-subtitle {
-  font-size: 12px;
-  color: #e5e7eb;
-}
-
-/* Chip de usuario lado derecho (solo circulito + chevron) */
 .user-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: rgba(17, 24, 39, 0.55);
+  border: 1px solid #d4d4d4;
+  background: #ffffff;
   padding: 5px 9px;
-  color: #ffffff;
+  color: #111827;
   cursor: pointer;
   outline: none;
+}
+
+.user-chip ion-icon {
+  font-size: 16px;
+  color: #4b5563;
 }
 
 .user-chip:active {
   transform: scale(0.97);
 }
 
+/* circulito con iniciales */
 .user-avatar {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  background: #2563eb;
+  background: #009b9b;       /* color CDH */
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 700;
+  color: #ffffff;
+}
+
+/* Botón "Iniciar sesión" se verá bien en blanco también */
+.login-mini-btn {
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --border-radius: 999px;
+  --box-shadow: none;
+
+  height: 30px;
+  font-size: 12px;
+  text-transform: none;
+  margin: 0;
 }
 
 /* Popover */
@@ -388,21 +401,50 @@ ion-popover ion-item p {
   transform: scale(0.97);
 }
 
-ion-content.promo-screen {
-  --background: #f6f7f9;
-  height: 100%;
-  padding: 0 12px;   // margen lateral
+.refresh-fab {
+  margin-right: 12px;
+  margin-bottom: 40px; // que no choque con el footer
 }
 
+.refresh-fab ion-fab-button {
+  --background: #00b894;              /* verde */
+  --background-activated: #00a37f;
+  --background-hover: #00a37f;
+  --box-shadow: 0 6px 16px rgba(0, 184, 148, 0.45);
+  --border-radius: 50%;
+}
 
-.promo-shell {
-  max-width: 560px;
-  margin: 0 auto;
+/* === Columna de textos + logo empresa mini === */
+.promo-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: stretch;
-  padding: 24px 0 120px; // espacio arriba + para la barra de botones
-  box-sizing: border-box;
-  /* ❌ NADA de min-height aquí */
+  gap: 3px;
+}
+
+/* 🔁 REACTIVA ESTO */
+.promo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.empresa-logo-mini {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empresa-logo-mini img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
 }

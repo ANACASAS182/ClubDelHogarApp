@@ -84,6 +84,7 @@ export class EmpresasNetworkPage implements OnInit {
           empresaID: x.EmpresaID,
           empresaNombre: x.EmpresaNombre,
           empresaLogotipoBase64: x.EmpresaLogotipoBase64,
+          empresaUbicacion: x.EmpresaUbicacion,
           categoriaID: x.CategoriaID,
           categoriaNombre: x.CategoriaNombre,
         }));
@@ -339,4 +340,21 @@ export class EmpresasNetworkPage implements OnInit {
   irAVende() {
     this.router.navigate(['/vende']);
   }
+
+  refreshPromos() {
+    if (!this.promociones || this.promociones.length === 0) {
+      return;
+    }
+
+    // Barajamos las promociones (Fisher–Yates)
+    const arr = [...this.promociones];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+
+    this.promociones = arr;
+    console.log('[EmpresasNetwork] promociones aleatorizadas');
+  }
+
 }

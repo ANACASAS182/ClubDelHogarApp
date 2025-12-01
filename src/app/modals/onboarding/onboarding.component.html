@@ -1,90 +1,105 @@
 <ion-header>
-  <ion-toolbar>
+  <ion-toolbar class="onb-header">
     <ion-title class="ion-text-center">Bienvenido</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding custom-content">
+<ion-content class="onb-content">
 
-  <!-- 🔹 PASO 1: Nombre / Apellidos / Celular (celular siempre readonly) -->
-  <ion-grid *ngIf="estatusDatosA === 0 || estatusDatosA === 1">
-    <ion-row>
-      <ion-col>
-        Bienvenido a Embassy, antes de iniciar, por favor compártenos más información sobre tí.
-      </ion-col>
-    </ion-row>
+  <!-- PASO 1 / 1.5: formulario -->
+  <div class="onb-shell" *ngIf="estatusDatosA === 0 || estatusDatosA === 1">
+    <div class="onb-card">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <p class="onb-intro">
+              Bienvenido a CDH, antes de iniciar, por favor compártenos más información sobre ti.
+            </p>
+          </ion-col>
+        </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <ion-input
-          class="embassy_input"
-          [readonly]="estatusDatosA !== 0"
-          labelPlacement="floating"
-          label="Ingresa aquí tu nombre (sin apellidos)"
-          [(ngModel)]="usuarioOnboarding!.nombres">
-        </ion-input>
-      </ion-col>
-    </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input
+              class="embassy_input"
+              [readonly]="estatusDatosA !== 0"
+              labelPlacement="floating"
+              label="Ingresa aquí tu nombre (sin apellidos)"
+              [(ngModel)]="usuarioOnboarding!.nombres">
+            </ion-input>
+          </ion-col>
+        </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <ion-input
-          class="embassy_input"
-          [readonly]="estatusDatosA !== 0"
-          labelPlacement="floating"
-          label="Ingresa aquí tus apellidos"
-          [(ngModel)]="usuarioOnboarding!.apellidos">
-        </ion-input>
-      </ion-col>
-    </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input
+              class="embassy_input"
+              [readonly]="estatusDatosA !== 0"
+              labelPlacement="floating"
+              label="Ingresa aquí tus apellidos"
+              [(ngModel)]="usuarioOnboarding!.apellidos">
+            </ion-input>
+          </ion-col>
+        </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <!-- 👇 SIEMPRE BLOQUEADO -->
-        <ion-input
-          class="embassy_input"
-          [readonly]="true"
-          labelPlacement="floating"
-          label="Ingresa aquí tu número de celular"
-          [(ngModel)]="usuarioOnboarding!.celular">
-        </ion-input>
-      </ion-col>
-    </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-input
+              class="embassy_input"
+              [readonly]="true"
+              labelPlacement="floating"
+              label="Ingresa aquí tu número de celular"
+              [(ngModel)]="usuarioOnboarding!.celular">
+            </ion-input>
+          </ion-col>
+        </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <app-loader *ngIf="estatusDatosA === 1"></app-loader>
-      </ion-col>
-    </ion-row>
+        <ion-row *ngIf="estatusDatosA === 1">
+          <ion-col>
+            <app-loader></app-loader>
+          </ion-col>
+        </ion-row>
 
-    <ion-row>
-      <ion-col>
-        <ion-button
-          *ngIf="estatusDatosA === 0"
-          expand="block"
-          shape="round"
-          (click)="GuardarDatosA()">
-          Continuar
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+        <ion-row *ngIf="estatusDatosA === 0">
+          <ion-col>
+            <ion-button
+              expand="block"
+              shape="round"
+              class="onb-main-btn"
+              (click)="GuardarDatosA()">
+              Continuar
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
 
-  <!-- 🔹 PASO 2: Mensaje final -->
-  <ion-grid *ngIf="estatusDatosA === 2">
-    <ion-row>
-      <ion-col>
-        {{ usuarioOnboarding!.nombres }}, tus datos han sido actualizados,
-        ahora puedes comenzar a generar referencias.
-      </ion-col>
-    </ion-row>
-    <ion-row>
-      <ion-col>
-        <ion-button expand="block" shape="round" (click)="close()">
-          OK
-        </ion-button>
-      </ion-col>
-    </ion-row>
-  </ion-grid>
+  <!-- PASO 2: mensaje final -->
+  <div class="onb-shell" *ngIf="estatusDatosA === 2">
+    <div class="onb-card">
+      <ion-grid>
+        <ion-row>
+          <ion-col>
+            <p class="onb-intro">
+              {{ usuarioOnboarding!.nombres }}, tus datos han sido actualizados,
+              ahora puedes comenzar a disfrutar de la app, gracias por tu preferencia.
+            </p>
+          </ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col>
+            <ion-button
+              expand="block"
+              shape="round"
+              class="onb-main-btn"
+              (click)="close()">
+              OK
+            </ion-button>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
 
 </ion-content>

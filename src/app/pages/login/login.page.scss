@@ -120,6 +120,38 @@ ion-button {
   margin-bottom: 8px;
 }
 
+.btn-login {
+  --background: #009b9b; 
+  --background-hover: #008b8b;
+  --background-activated: #007f7f;
+
+  --color: #ffffff;
+  --border-radius: 999px;
+
+  --box-shadow: 0 6px 16px rgba(0, 155, 155, 0.35);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+.btn-alt {
+  --background: transparent;
+  --border-radius: 999px;
+  --border-color: #009b9b;
+  --color: #009b9b;
+  --box-shadow: 0 4px 10px rgba(0, 155, 155, 0.15);
+  font-weight: 500;
+}
+
+.btn-invitado {
+  --background: transparent;
+  --border-color: transparent;
+  --box-shadow: none;
+  color: #009b9b;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+
 /* ===== FOOTER: ¿No tienes cuenta? ===== */
 
 .no-account {
@@ -141,7 +173,7 @@ ion-button {
   --box-shadow: none;
   text-transform: none;
   font-size: 13px;
-  color: #1877f2;
+  color: #009b9b;
 }
 
 /* Safe area iOS */
@@ -157,7 +189,7 @@ ion-button {
   --background: transparent;
   --border-color: transparent;
   --box-shadow: none;
-  color: #2563eb;
+  color: #009b9b;
   font-weight: 500;
   margin-top: 4px;
 }

@@ -23,8 +23,11 @@ export class PromocionComponent implements OnInit {
 
   promocion?: Promocion;
 
-  // QR generado en el back (base64)
   codigoQrBase64 = '';
+  cargandoQr = false;
+
+  yaCanjeado = false;
+  mensajeEstado = '';
 
   constructor(
     private modalCtrl: ModalController,
@@ -44,6 +47,11 @@ export class PromocionComponent implements OnInit {
       return;
     }
 
+    this.cargandoQr = true;
+    this.yaCanjeado = false;
+    this.mensajeEstado = '';
+    this.codigoQrBase64 = '';
+
     const solicitud: SolicitudCodigoQrRequest = {
       ProductoID: this.promoSeleccionada.iD,
       embajadorID: this.UsuarioID,
@@ -52,12 +60,27 @@ export class PromocionComponent implements OnInit {
     };
 
     this.promocionesService.GenerarCodigoPromocion(solicitud).subscribe({
-      next: (data) => {
-        this.codigoQrBase64 = data.qr64 || '';
+      next: (data: any) => {
+        this.cargandoQr = false;
+
+        if (data?.yaCanjeado) {
+          this.yaCanjeado = true;
+          this.mensajeEstado =
+            data.mensaje ||
+            'Esta promoción ya fue validada. Te recomendamos explorar más promociones. ¡Gracias por tu interés!';
+
+          this.codigoQrBase64 = '';
+          return;
+        }
+
+        this.codigoQrBase64 = data?.qr64 || '';
       },
       error: (err) => {
         console.error('[PromocionModal] Error generando QR', err);
+        this.cargandoQr = false;
         this.codigoQrBase64 = '';
+        this.mensajeEstado =
+          'No pudimos generar tu código en este momento. Inténtalo de nuevo más tarde.';
       }
     });
   }
@@ -125,6 +148,19 @@ export class PromocionComponent implements OnInit {
   getTituloCorto(max: number = 32): string {
     const nombre = this.promocion?.nombre || '';
     return nombre.length > max ? nombre.slice(0, max) + '…' : nombre;
+  }
+
+  get empresaUbicacion(): string {
+    const p: any = this.promocion || {};
+
+    const raw =
+      p.empresaUbicacion ||   // desde GetPromosNetwork
+      p.ubicacion ||          // por si en otro lado viene así
+      p.empresa?.ubicacion || // por si viene anidada
+      '';
+
+    const clean = String(raw || '').trim();
+    return clean || 'N/A';
   }
 
 }

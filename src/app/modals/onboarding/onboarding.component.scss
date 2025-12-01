@@ -1,0 +1,65 @@
+/* Fondo general del content */
+.onb-content {
+  --background: #f2f3f7;
+}
+
+/* Header blanco con línea verde CDH */
+.onb-header {
+  --background: #ffffff;
+  --border-width: 0 0 2px 0;
+  --border-style: solid;
+  --border-color: #009b9b;
+  color: #111827;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+/* Contenedor que centra la card */
+.onb-shell {
+  min-height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 16px 12px 24px;
+  box-sizing: border-box;
+}
+
+/* Tarjeta blanca tipo “card” */
+.onb-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  padding: 18px 18px 20px;
+}
+
+/* Texto de bienvenida / mensaje final */
+.onb-intro {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #4b5563;
+}
+
+/* Botón principal estilo CDH */
+.onb-main-btn {
+  --background: #009b9b;
+  --background-hover: #008585;
+  --background-activated: #007a7a;
+  --border-radius: 999px;
+  --box-shadow: 0 6px 16px rgba(0, 155, 155, 0.35);
+  font-weight: 600;
+}
+
+/* Inputs: que respiren un poquito hacia abajo */
+.onb-card ion-input.embassy_input {
+  margin-bottom: 10px;
+}
+
+/* Responsive pequeños */
+@media (max-width: 420px) {
+  .onb-card {
+    border-radius: 12px;
+    padding: 16px 14px 18px;
+  }
+}

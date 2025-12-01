@@ -1,18 +1,13 @@
 <ion-header>
-  <ion-toolbar class="headerColor network-header">
+  <ion-toolbar class="network-header cdh-header">
     <!-- SIN menú lateral mientras el dashboard está apagado -->
 
     <ion-title>
-      <div class="brand-wrap">
+      <div class="cdh-header-logo">
         <img
-          src="assets/logo_blancoCDH.png"
+          src="assets/logo_verdeCDH.png"
           alt="Club del Hogar"
-          class="brand-logo"
         />
-        <div class="brand-text">
-          <span class="brand-title">Club del Hogar</span>
-          <span class="brand-subtitle">Promociones para ti</span>
-        </div>
       </div>
     </ion-title>
 
@@ -25,7 +20,6 @@
         <ion-icon name="chevron-down-outline"></ion-icon>
       </button>
     </ion-buttons>
-
 
     <!-- 🔹 Si es invitado: botón INICIAR SESIÓN -->
     <ng-template #btnInvitado>
@@ -97,7 +91,7 @@
           <!-- Filtro de categorías -->
           <div class="promo-filters">
             <ion-item lines="none">
-              <ion-label position="stacked">Categorías</ion-label>
+              <ion-label position="stacked">Busca por categoría</ion-label>
               <ion-select
                 [(ngModel)]="categoriaSeleccionada"
                 interface="popover"
@@ -169,6 +163,14 @@
       </ion-col>
     </ion-row>
   </ion-grid>
+
+  <!-- 🔄 Burbuja para refrescar / aleatorizar promociones -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="refresh-fab">
+    <ion-fab-button (click)="refreshPromos()">
+      <ion-icon name="shuffle-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>
 
 <ion-footer *ngIf="esSocio">
