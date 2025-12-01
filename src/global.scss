@@ -489,7 +489,7 @@ ion-select-popover ion-item.select-interface-option[aria-selected="true"] {
 
 ion-popover.select-popover::part(content) {
   width: 100%;
-  max-width: 60%;
+  max-width: 80%;
   max-height: 600px;      /* ~8–9 opciones visibles */
   overflow-y: auto;       /* resto con scroll */
   border-radius: 20px;

@@ -38,6 +38,7 @@
 
   <!-- Popover SOLO cuando hay usuario -->
   <ion-popover
+    class="user-menu-popover"
     *ngIf="!esInvitado"
     trigger="user-menu-trigger"
     triggerAction="click"
@@ -114,7 +115,7 @@
     <!-- vacío -->
     <ion-row *ngIf="!cargandoPromociones && promocionesFiltradas.length === 0">
       <ion-col size="12" class="ion-text-center">
-        <small>No hay productos/promociones vigentes para tu Network.</small>
+        <small>No hay productos/promociones vigentes.</small>
       </ion-col>
     </ion-row>
 

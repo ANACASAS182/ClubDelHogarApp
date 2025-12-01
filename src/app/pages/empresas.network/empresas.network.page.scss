@@ -325,6 +325,9 @@ ion-popover {
   --width: 220px;
 }
 
+ion-popover.user-menu-popover {
+  --width: 220px;
+}
 ion-popover ion-list {
   padding: 4px 0;
 }
