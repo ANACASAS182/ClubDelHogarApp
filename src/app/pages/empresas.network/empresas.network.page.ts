@@ -100,30 +100,67 @@ export class EmpresasNetworkPage implements OnInit {
   // 🔁 Cada vez que entras a la pestaña
   async ionViewWillEnter() {
     console.log('[EmpresasNetwork] ionViewWillEnter');
-    this.cargarUsuarioDesdeCache();
+    await this.syncUsuario();
   }
 
-  // 👇 SOLO leemos de localStorage, nada de token ni getUsuario
-  private cargarUsuarioDesdeCache() {
-    console.log('[EmpresasNetwork] cargarUsuarioDesdeCache()');
+  // 🔹 Sincroniza usuario usando cache + backend si hay token
+  private async syncUsuario() {
+    console.log('[EmpresasNetwork] syncUsuario()');
     this.cargandoEmpresas = true;
 
+    // 1) Intentar cache primero
     const cacheRaw = localStorage.getItem('usuario-actual');
-    if (!cacheRaw) {
-      console.log('[EmpresasNetwork] sin usuario-actual -> invitado');
-      this.marcarInvitado();
+    if (cacheRaw) {
+      try {
+        const u = JSON.parse(cacheRaw) as Usuario;
+        console.log('[EmpresasNetwork] usuario desde cache:', u);
+        this.aplicarUsuario(u);
+      } catch (e) {
+        console.warn('[EmpresasNetwork] error parseando cache usuario-actual', e);
+        this.marcarInvitado();
+      }
+    } else {
+      console.log('[EmpresasNetwork] sin usuario-actual en cache');
+    }
+
+    // 2) Si hay token, refrescar desde backend para asegurarnos
+    const token = await this.tokenService.getToken?.();
+    console.log('[EmpresasNetwork] token =', token);
+
+    if (!token) {
+      // si no hay token y tampoco UsuarioID => invitado real
+      if (!this.UsuarioID) {
+        this.marcarInvitado();
+      } else {
+        this.cargandoEmpresas = false;
+      }
       return;
     }
 
-    try {
-      const u = JSON.parse(cacheRaw) as Usuario;
-      console.log('[EmpresasNetwork] usuario desde cache:', u);
-      this.aplicarUsuario(u);
-    } catch (e) {
-      console.warn('[EmpresasNetwork] error parseando usuario-actual', e);
-      this.marcarInvitado();
-    }
+    this.usuarioService.getUsuario(true).subscribe({
+      next: (resp) => {
+        console.log('[EmpresasNetwork] getUsuario resp =', resp);
+        if (resp?.data) {
+          this.aplicarUsuario(resp.data);
+          // actualizamos cache por si cambió algo
+          localStorage.setItem('usuario-actual', JSON.stringify(resp.data));
+        } else if (!this.UsuarioID) {
+          this.marcarInvitado();
+        } else {
+          this.cargandoEmpresas = false;
+        }
+      },
+      error: (err) => {
+        console.error('[EmpresasNetwork] error getUsuario', err);
+        if (!this.UsuarioID) {
+          this.marcarInvitado();
+        } else {
+          this.cargandoEmpresas = false;
+        }
+      }
+    });
   }
+
 
   private marcarInvitado() {
     this.UsuarioID = 0;
