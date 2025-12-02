@@ -24,14 +24,26 @@
 
         <div class="promo-hero-info">
           <div class="promo-company">
-            <div class="promo-company-logo" *ngIf="empresaLogo">
-              <img [src]="empresaLogo" [alt]="promocion?.empresaNombre" />
+            <div class="promo-company-main">
+              <div class="promo-company-logo" *ngIf="empresaLogo">
+                <img [src]="empresaLogo" [alt]="promocion?.empresaNombre" />
+              </div>
+              <div class="promo-company-text">
+                <span class="label">Promoción de</span>
+                <span class="name">{{ promocion?.empresaNombre }}</span>
+              </div>
             </div>
-            <div class="promo-company-text">
-              <span class="label">Promoción de</span>
-              <span class="name">{{ promocion?.empresaNombre }}</span>
-            </div>
+
+            <!-- Pin sólo icono, clickable -->
+            <img
+              *ngIf="tieneUbicacionValida"
+              class="promo-company-pin"
+              src="assets/icons/pin-ubicacion.png"
+              alt="Ver ubicación"
+              (click)="abrirUbicacion()"
+            />
           </div>
+
 
           <p class="promo-title">
             {{ promocion?.nombre }}
@@ -96,15 +108,6 @@
 
     <ion-button expand="block" shape="round" class="btn-close" (click)="close()">
       Cerrar
-    </ion-button>
-
-    <ion-button
-      *ngIf="tieneUbicacionValida"
-      expand="block"
-      shape="round"
-      class="btn-location"
-      (click)="abrirUbicacion()">
-      Ver ubicación
     </ion-button>
   </div>
 </ion-content>

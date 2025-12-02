@@ -28,8 +28,10 @@ export class HttpErrorInterceptor implements HttpInterceptor {
           errorMsg = `Error del cliente: ${error.error.message}`;
         } 
         else if (error.error?.message) { //Error proveniente del API tipo GenericResponse
-          showMessage = error.error.autoShowError;
+          // si autoShowError viene null/undefined, por default TRUE
+          showMessage = (error.error.autoShowError ?? true);
           errorMsg = error.error.message;
+
           if (Array.isArray(error.error.errors)) {
             errorMsg += `\n- ${error.error.errors.join('\n- ')}`;
           }

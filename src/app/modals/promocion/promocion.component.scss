@@ -121,7 +121,22 @@ ion-content.custom-content {
 .promo-company {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
+}
+
+.promo-company-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.promo-company-pin {
+  width: 26px;   /* un poco más grande */
+  height: 26px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .promo-company-logo {
@@ -267,4 +282,3 @@ ion-content.custom-content {
   margin: 0;
   opacity: 0.95;
 }
-

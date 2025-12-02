@@ -3,6 +3,10 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiBackServicesCDH, CodigoValidarDTO } from 'src/app/services/api.back.services.cdh/registro.service';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
+import { firstValueFrom } from 'rxjs';
+import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
+import { TokenService } from 'src/app/services/token.service';
+import { Usuario } from 'src/app/models/Usuario';
 
 @Component({
   selector: 'app-usuario-registro',
@@ -31,7 +35,9 @@ export class UsuarioRegistroPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private cdhService: ApiBackServicesCDH
+    private cdhService: ApiBackServicesCDH,
+    private usuarioService: UsuarioService,
+    private tokenService: TokenService
   ) {}
 
   // === Helpers de SweetAlert centralizados ===
@@ -128,6 +134,40 @@ export class UsuarioRegistroPage implements OnInit {
       ]);
       this.form.get('telefono')?.updateValueAndValidity();
     }
+  }
+
+  private async loginDespuesDeRegistro(telefonoNormalizado: string, password: string) {
+    // Lo formateamos como lo espera el login (+52 6561234567)
+    const digits = (telefonoNormalizado || '').replace(/\D/g, '');
+    const telefonoLogin = `+52 ${digits.slice(-10)}`;
+
+    // 1) Login al backend (mismo endpoint que usas en LoginPage)
+    const loginResp: any = await firstValueFrom(
+      this.usuarioService.login({ telefono: telefonoLogin, password }, true)
+    );
+
+    if (!loginResp?.success || !loginResp?.data) {
+      throw new Error(loginResp?.message || 'No se pudo iniciar sesión después del registro.');
+    }
+
+    // 2) Guardar token (igual que en LoginPage)
+    await this.tokenService.saveToken(loginResp.data);
+
+    // 3) Pedir perfil y guardar datos básicos
+    const pr: any = await firstValueFrom(this.usuarioService.getUsuario(true));
+    if (pr?.success && pr?.data) {
+      const u = pr.data as Usuario;
+      const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+
+      localStorage.setItem('usuario-actual', JSON.stringify(u));
+      localStorage.setItem('cdh_tel', digits);   // guardamos sin formato, solo dígitos
+
+      // Si quieres luego usar el nombre en el login “Hola, X”
+      localStorage.setItem('nombreAlmacenado', nombre);
+    }
+
+    // 4) Navegar al dashboard (ya con token y usuario cargado)
+    await this.router.navigate(['/dashboard/network'], { replaceUrl: true });
   }
 
   // ===== PASO 1 =====
@@ -235,36 +275,43 @@ export class UsuarioRegistroPage implements OnInit {
   }
 
   // ===== PASO 3 =====
-  guardarPassword() {
+  async guardarPassword() {
     if (!this.puedeGuardarPassword) {
       this.showError('Revisa tu contraseña. Debe coincidir y tener al menos 6 caracteres.');
       return;
     }
 
     const password = this.form.value.password;
-    const telefono = this.telefonoNormalizado || '';
+    const telefonoNorm = this.telefonoNormalizado || '';
+
+    if (!telefonoNorm) {
+      this.showError('No se detectó el teléfono del registro. Vuelve a empezar el proceso.');
+      return;
+    }
 
     const payload = {
-      telefono,
+      telefono: telefonoNorm,
       password
     };
 
     this.loading = true;
-    this.cdhService.crearPassword(payload).subscribe({
-      next: () => {
-        this.loading = false;
-        this.showSuccess('Cuenta creada', 'Tu contraseña se guardó correctamente.');
-        if (telefono) {
-          localStorage.setItem('cdh_tel', telefono);
-        }
-        this.router.navigate(['/dashboard/network']);
-      },
-      error: (err) => {
-        this.loading = false;
-        console.error(err);
-        this.showError('Ocurrió un error al guardar tu contraseña. Intenta nuevamente.');
-      }
-    });
+
+    try {
+      // 1️⃣ Guardar contraseña en el backend
+      await firstValueFrom(this.cdhService.crearPassword(payload));
+      this.showSuccess('Cuenta creada', 'Tu contraseña se guardó correctamente.');
+
+      // 2️⃣ Login automático con ese mismo teléfono y password
+      await this.loginDespuesDeRegistro(telefonoNorm, password);
+
+      // (la navegación al dashboard ya se hace dentro de loginDespuesDeRegistro)
+
+    } catch (err) {
+      console.error(err);
+      this.showError('Ocurrió un error al terminar tu registro. Intenta nuevamente.');
+    } finally {
+      this.loading = false;
+    }
   }
 
   volverPaso2() {
