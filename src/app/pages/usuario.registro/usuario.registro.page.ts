@@ -137,7 +137,7 @@ export class UsuarioRegistroPage implements OnInit {
   }
 
   private async loginDespuesDeRegistro(telefonoNormalizado: string, password: string) {
-    // Lo formateamos como lo espera el login (+52 6561234567)
+    // 0) Normalizar teléfono (solo dígitos)
     const digits = (telefonoNormalizado || '').replace(/\D/g, '');
     const telefonoLogin = `+52 ${digits.slice(-10)}`;
 
@@ -150,30 +150,30 @@ export class UsuarioRegistroPage implements OnInit {
       throw new Error(loginResp?.message || 'No se pudo iniciar sesión después del registro.');
     }
 
-    // 2) Guardar token (igual que en LoginPage)
+    // 2) Guardar token
     await this.tokenService.saveToken(loginResp.data);
 
-    // 3) Pedir perfil y guardar datos básicos
-    const pr: any = await firstValueFrom(this.usuarioService.getUsuario(true));
-    let requiereOnboarding = false;
+    // 3) Pedir perfil y guardar datos básicos (esto NO decide la navegación)
+    try {
+      const pr: any = await firstValueFrom(this.usuarioService.getUsuario(true));
 
-    if (pr?.success && pr?.data) {
-      const u = pr.data as Usuario;
-      const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
+      if (pr?.success && pr?.data) {
+        const u = pr.data as Usuario;
+        const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
 
-      localStorage.setItem('usuario-actual', JSON.stringify(u));
-      localStorage.setItem('cdh_tel', digits);   // guardamos sin formato, solo dígitos
-      localStorage.setItem('nombreAlmacenado', nombre);
-
-      requiereOnboarding =
-        !u.nombres || !u.nombres.trim() ||
-        !u.apellidos || !u.apellidos.trim();
+        localStorage.setItem('usuario-actual', JSON.stringify(u));
+        localStorage.setItem('cdh_tel', digits);          // solo dígitos
+        localStorage.setItem('nombreAlmacenado', nombre);
+      }
+    } catch (e) {
+      console.error('[Registro] error al obtener usuario después de login', e);
+      // no hacemos throw, para no romper el flujo
     }
 
-    // 4) Navegar según requiera Onboarding
-    const target = requiereOnboarding ? '/onboarding' : '/dashboard/network';
-    await this.router.navigate([target], { replaceUrl: true });
+    // 4) Siempre mandar al onboarding después de crear cuenta
+    await this.router.navigate(['/onboarding'], { replaceUrl: true });
   }
+
 
   // ===== PASO 1 =====
   continuarPaso1() {

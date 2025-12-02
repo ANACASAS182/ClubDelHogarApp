@@ -19,15 +19,14 @@ export class OnboardingGuard implements CanActivate {
     try {
       const tel = localStorage.getItem('cdh_tel');
 
-      // Si no hay teléfono guardado → no hacemos nada especial
       if (!tel) {
-        console.log('[OnboardingGuard] sin cdh_tel, dejo pasar');
-        return true;
+        console.log('[OnboardingGuard] sin cdh_tel, redirijo a /login');
+        await this.router.navigate(['/login'], { replaceUrl: true });
+        return false;
       }
 
-      // Llamamos usando el teléfono (el service ya arma ?tel= y lo normaliza el back)
       const resp = await firstValueFrom(
-        this.usuarioService.getUsuarioLogeado(tel)   // 👈 importante: le pasamos el tel
+        this.usuarioService.getUsuarioLogeado(tel)
       );
 
       console.log('[OnboardingGuard] resp getUsuarioLogeado', resp);
@@ -42,15 +41,18 @@ export class OnboardingGuard implements CanActivate {
         mostrar === 1 ||
         mostrar === '1';
 
+      // ✅ Si SÍ debe ver onboarding, lo dejamos entrar a /onboarding
       if (debeOnboard) {
-        await this.router.navigate(['/onboarding']);
-        return false;
+        return true;
       }
 
-      return true;
+      // ❌ Si NO debe verlo, lo mandamos al dashboard
+      await this.router.navigate(['/dashboard/network'], { replaceUrl: true });
+      return false;
+
     } catch (err) {
       console.error('[OnboardingGuard] error', err);
-      // Si truena, mejor no bloquear la navegación
+      // Ante error, mejor dejar pasar o redirigir al dashboard, pero sin bucles
       return true;
     }
   }
