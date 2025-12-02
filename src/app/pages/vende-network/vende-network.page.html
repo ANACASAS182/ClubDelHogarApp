@@ -2,10 +2,7 @@
   <ion-toolbar class="network-header cdh-header">
     <ion-title>
       <div class="cdh-header-logo">
-        <img
-          src="assets/logo_verdeCDH.png"
-          alt="Club del Hogar"
-        />
+        <img src="assets/logo_verdeCDH.png" alt="Club del Hogar" />
       </div>
     </ion-title>
 
@@ -13,7 +10,7 @@
     <ion-buttons slot="end" *ngIf="!esInvitado; else btnInvitado">
       <button
         class="user-chip"
-        id="user-menu-trigger"
+        id="vende-user-menu-trigger"
         type="button"
       >
         <div class="user-avatar">
@@ -38,10 +35,10 @@
     </ng-template>
   </ion-toolbar>
 
-  <!-- Popover de usuario IGUAL que en Empresas -->
+  <!-- Popover de usuario -->
   <ion-popover
     *ngIf="!esInvitado"
-    trigger="user-menu-trigger"
+    trigger="vende-user-menu-trigger"
     triggerAction="click"
     [dismissOnSelect]="true"
     side="bottom"
@@ -59,11 +56,6 @@
         <ion-item button detail="false" (click)="irConfiguracion()">
           <ion-icon slot="start" name="settings-outline"></ion-icon>
           <ion-label>Configuración</ion-label>
-        </ion-item>
-
-        <ion-item button detail="false" (click)="cerrarSesion()">
-          <ion-icon slot="start" name="log-out-outline" color="danger"></ion-icon>
-          <ion-label color="danger">Cerrar sesión</ion-label>
         </ion-item>
       </ion-list>
     </ng-template>
@@ -214,12 +206,18 @@
     </ng-container>
   </ion-grid>
 
-  <!-- 🟢 Burbuja flotante para escanear QR -->
-  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="qr-fab">
+ <!-- 🟢 Burbuja flotante para escanear QR -->
+  <ion-fab
+    *ngIf="!esInvitado"
+    vertical="bottom"
+    horizontal="end"
+    slot="fixed"
+    class="qr-fab">
     <ion-fab-button (click)="abrirScanQr()">
       <ion-icon name="qr-code-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+
 </ion-content>
 
 <ion-footer *ngIf="esSocio">

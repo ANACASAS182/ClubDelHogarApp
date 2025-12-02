@@ -29,6 +29,7 @@ export class ModalQRComponent implements OnInit, AfterViewInit, OnDestroy {
   promocionRelacionada?: Promocion;
 
   @Input() codigoParametro: string = '';
+  @Input() usuarioId: number = 0;   
 
   codigoPromocion: string = '';
 
@@ -128,7 +129,7 @@ export class ModalQRComponent implements OnInit, AfterViewInit, OnDestroy {
     this.EstatusActivacionDelCodigo = 2; // activando
 
     const request: ValidarPromocionQrRequest = {
-      UsuarioID: 1, // TODO: sustituir por el usuario real
+      UsuarioID: this.usuarioId,
       codigoPromocion: this.codigoPromocion
     };
 
@@ -183,7 +184,7 @@ export class ModalQRComponent implements OnInit, AfterViewInit, OnDestroy {
     this.MotivoInactividad = '';
 
     const request: ValidarPromocionQrRequest = {
-      UsuarioID: 1, // TODO: sustituir por el usuario real
+      UsuarioID: this.usuarioId,
       codigoPromocion: codigo
     };
 

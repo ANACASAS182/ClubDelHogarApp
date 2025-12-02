@@ -28,17 +28,18 @@ export class VendeNetworkPage implements OnInit {
   nombreUsuario = '';
   correoUsuario = '';
   esInvitado = true;
-  esSocio = false; // si lo sigues usando para el footer
+  esSocio = false; // para el footer
 
   // Resumen cupones
   cargando = true;
   errorMsg = '';
   resumen: CuponesResumenEmbajadorDTO | null = null;
-  popoverAbierto = false;
 
   // Segment para tabs (por canjear / canjeadas)
   segmento: 'pendientes' | 'canjeadas' = 'canjeadas';
 
+  // para no disparar doble sync
+  private syncingUsuario = false;
 
   constructor(
     private router: Router,
@@ -50,32 +51,65 @@ export class VendeNetworkPage implements OnInit {
   ) {}
 
   async ngOnInit() {
-    // 1) Intentar leer usuario rápido desde localStorage
-    const cacheRaw = localStorage.getItem('usuario-actual');
-    if (cacheRaw) {
-      try {
-        const u = JSON.parse(cacheRaw) as Usuario;
-        this.aplicarUsuario(u, false);
-      } catch {
-        // noop
-      }
-    }
+    // Primera carga
+    await this.syncUsuario();
+  }
 
-    // 2) Refrescar usuario desde backend
-    this.usuarioService.getUsuario(true).subscribe({
-      next: (resp: GenericResponseDTO<Usuario>) => {
-        if (!resp?.data) {
+  // 🔁 Cada vez que entras a la pestaña Vende
+  async ionViewWillEnter() {
+    await this.syncUsuario();
+  }
+
+  // ================= SESIÓN / USUARIO =================
+
+  private async syncUsuario() {
+    if (this.syncingUsuario) return;
+    this.syncingUsuario = true;
+    this.cargando = true;
+    this.errorMsg = '';
+
+    try {
+      // 1) Intentar cache rápido
+      const cacheRaw = localStorage.getItem('usuario-actual');
+      if (cacheRaw) {
+        try {
+          const u = JSON.parse(cacheRaw) as Usuario;
+          this.aplicarUsuario(u, false); // NO cargar cupones todavía
+        } catch {
           this.marcarInvitado();
-          return;
         }
-        this.aplicarUsuario(resp.data, true);
-      },
-      error: () => {
-        if (!this.UsuarioID) {
-          this.marcarInvitado();
-        }
-      },
-    });
+      } else {
+        this.marcarInvitado();
+      }
+
+      // 2) Revisar token
+      const token = await this.tokenService.getToken?.();
+      if (!token) {
+        // Sin token = invitado real
+        this.marcarInvitado();
+        return;
+      }
+
+      // 3) Refrescar usuario desde backend
+      this.usuarioService.getUsuario(true).subscribe({
+        next: (resp: GenericResponseDTO<Usuario>) => {
+          if (!resp?.data) {
+            this.marcarInvitado();
+            return;
+          }
+          this.aplicarUsuario(resp.data, true); // ahora sí carga cupones
+        },
+        error: () => {
+          if (!this.UsuarioID) {
+            this.marcarInvitado();
+          } else {
+            this.cargando = false;
+          }
+        },
+      });
+    } finally {
+      this.syncingUsuario = false;
+    }
   }
 
   private aplicarUsuario(user: Usuario, cargarCupones: boolean) {
@@ -100,6 +134,10 @@ export class VendeNetworkPage implements OnInit {
 
     if (cargarCupones && this.UsuarioID) {
       this.cargarCupones();
+    } else if (!this.UsuarioID) {
+      this.marcarInvitado();
+    } else {
+      this.cargando = false;
     }
   }
 
@@ -108,6 +146,7 @@ export class VendeNetworkPage implements OnInit {
     this.nombreUsuario = '';
     this.correoUsuario = '';
     this.esInvitado = true;
+    this.esSocio = false;
     this.cargando = false;
     this.resumen = {
       totalGenerados: 0,
@@ -115,14 +154,6 @@ export class VendeNetworkPage implements OnInit {
       generados: [],
       canjeados: [],
     };
-  }
-
-  togglePopover() {
-    this.popoverAbierto = !this.popoverAbierto;
-  }
-
-  cerrarPopover() {
-    this.popoverAbierto = false;
   }
 
   private cargarCupones() {
@@ -163,7 +194,7 @@ export class VendeNetworkPage implements OnInit {
     });
   }
 
-  // ========= Getters para la vista =========
+  // ================= GETTERS UI =================
 
   get inicialesUsuario(): string {
     const n = (this.nombreUsuario || this.correoUsuario || '').trim();
@@ -182,7 +213,7 @@ export class VendeNetworkPage implements OnInit {
     return this.resumen?.canjeados ?? [];
   }
 
-  // ========= Navegación / sesión =========
+  // ================= NAVEGACIÓN / SESIÓN =================
 
   irConfiguracion() {
     this.router.navigate(['/configuracion/general']);
@@ -214,7 +245,7 @@ export class VendeNetworkPage implements OnInit {
     this.router.navigate(['/vende']);
   }
 
-  // ========= QR =========
+  // ================= QR =================
 
   async abrirScanQr() {
     if (!this.UsuarioID) {
@@ -227,6 +258,7 @@ export class VendeNetworkPage implements OnInit {
       cssClass: 'modal-fullscreen',
       componentProps: {
         codigoParametro: '',
+        usuarioId: this.UsuarioID   // 👈 aquí
       },
     });
 
