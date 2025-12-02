@@ -187,8 +187,17 @@ export class UsuarioRegistroPage implements OnInit {
 
     this.loading = true;
     this.cdhService.enviarCodigo(payload).subscribe({
-      next: (resp) => {
+      next: (resp: any) => {
         this.loading = false;
+
+        // 🔴 si el back dice success = false, mostramos el mensaje y NO avanzamos
+        if (!resp?.success) {
+          const msg = resp?.message
+            || 'Ya existe una cuenta con ese número de teléfono. Ingresa otro.';
+          this.showError(msg);
+          return;
+        }
+
         console.log('Código generado:', resp.data);
 
         this.telefonoORcorreo = telefono ?? correo ?? '';
@@ -200,7 +209,10 @@ export class UsuarioRegistroPage implements OnInit {
           this.telefonoNormalizado = undefined;
         }
 
-        this.showInfo('Código enviado', 'Te enviamos un código para continuar con tu registro.');
+        this.showInfo(
+          'Código enviado',
+          'Te enviamos un código para continuar con tu registro.'
+        );
         this.step = 2;
       },
       error: (err) => {
@@ -210,6 +222,7 @@ export class UsuarioRegistroPage implements OnInit {
       }
     });
   }
+
 
   // ===== PASO 2 =====
   validarCodigo() {
