@@ -231,14 +231,14 @@ export class LoginPage implements OnInit, OnDestroy {
       // 3) Guardar token
       await this.tokenService.saveToken(loginResp.data);
 
-      // 4) Cargar perfil y guardar prefs si aplica
-      await this.cargarPerfilPostLogin(telefono, password, recordar);
+      // 4) Cargar perfil y saber si requiere onboarding
+      const requiereOnboarding = await this.cargarPerfilPostLogin(telefono, password, recordar);
 
-      // 5) Navegar al dashboard
-      const target = '/dashboard/network';
+      // 5) Navegar según corresponda
+      const target = requiereOnboarding ? '/onboarding' : '/dashboard/network';
       console.log('[Login] navegando a', target);
-      const ok = await this.router.navigateByUrl(target, { replaceUrl: true });
-      console.log('[Login] navigateByUrl result =', ok);
+      const ok = await this.router.navigate([target], { replaceUrl: true });
+      console.log('[Login] navigate result =', ok);
 
     } catch (err: any) {
       console.error('[Login] error', err);
@@ -257,12 +257,13 @@ export class LoginPage implements OnInit, OnDestroy {
     telefono: string,
     password: string,
     recordar: boolean
-  ) {
+  ): Promise<boolean> {
+
     try {
       const pr = await firstValueFrom(this.usuarioService.getUsuario(true));
       console.log('[Login] getUsuario resp =', pr);
 
-      if (!pr?.success || !pr?.data) return;
+      if (!pr?.success || !pr?.data) return false;
 
       const u = pr.data as Usuario;
 
@@ -282,10 +283,19 @@ export class LoginPage implements OnInit, OnDestroy {
         await this.clearPrefs();
       }
 
+      // 👈 AQUI definimos si requiere onboarding
+      const requiereOnboarding =
+        !u.nombres || !u.nombres.trim() ||
+        !u.apellidos || !u.apellidos.trim();
+
+      return requiereOnboarding;
+
     } catch (e) {
       console.error('[Login] error cargando perfil post-login', e);
+      return false;
     }
   }
+
 
 
 

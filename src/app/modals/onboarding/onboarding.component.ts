@@ -6,6 +6,7 @@ import { UsuarioDTO } from 'src/app/models/DTOs/UsuarioDTO';
 import { LoaderComponent } from '../../loader/loader.component';
 import { UsuarioService } from 'src/app/services/api.back.services/usuario.service';
 import { firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-onboarding',
@@ -38,7 +39,8 @@ export class OnboardingComponent implements OnInit {
   estatusDatosA = 0;
 
   constructor(
-    private usuarioService: UsuarioService
+    private usuarioService: UsuarioService,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -60,7 +62,7 @@ export class OnboardingComponent implements OnInit {
   }
 
   close() {
-    window.location.href = '/dashboard';
+    this.router.navigate(['/dashboard/network'], { replaceUrl: true });
   }
 
   GuardarDatosA() {

@@ -155,19 +155,24 @@ export class UsuarioRegistroPage implements OnInit {
 
     // 3) Pedir perfil y guardar datos básicos
     const pr: any = await firstValueFrom(this.usuarioService.getUsuario(true));
+    let requiereOnboarding = false;
+
     if (pr?.success && pr?.data) {
       const u = pr.data as Usuario;
       const nombre = `${u.nombres ?? ''} ${u.apellidos ?? ''}`.trim();
 
       localStorage.setItem('usuario-actual', JSON.stringify(u));
       localStorage.setItem('cdh_tel', digits);   // guardamos sin formato, solo dígitos
-
-      // Si quieres luego usar el nombre en el login “Hola, X”
       localStorage.setItem('nombreAlmacenado', nombre);
+
+      requiereOnboarding =
+        !u.nombres || !u.nombres.trim() ||
+        !u.apellidos || !u.apellidos.trim();
     }
 
-    // 4) Navegar al dashboard (ya con token y usuario cargado)
-    await this.router.navigate(['/dashboard/network'], { replaceUrl: true });
+    // 4) Navegar según requiera Onboarding
+    const target = requiereOnboarding ? '/onboarding' : '/dashboard/network';
+    await this.router.navigate([target], { replaceUrl: true });
   }
 
   // ===== PASO 1 =====
