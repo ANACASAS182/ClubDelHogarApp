@@ -124,46 +124,52 @@ export class ModalQRComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ActivarPromocion() {
-    console.log('[ModalQR] Activando promoción');
+  console.log('[ModalQR] Activando promoción');
 
-    this.EstatusActivacionDelCodigo = 2; // activando
+  this.EstatusActivacionDelCodigo = 2; // activando
 
-    const request: ValidarPromocionQrRequest = {
-      UsuarioID: this.usuarioId,
-      codigoPromocion: this.codigoPromocion
-    };
+  const request: ValidarPromocionQrRequest = {
+    UsuarioID: this.usuarioId,
+    codigoPromocion: this.codigoPromocion
+  };
 
-    this.promocionesService.PostHacerPromocionValida(request).subscribe({
-      next: (data) => {
-        console.log('[ModalQR] Respuesta activación:', data);
-        if (data.estatus === 1) {
-          this.EstatusActivacionDelCodigo = 1;
-          this.MotivoInactividad = '';
-        } else {
-          this.EstatusActivacionDelCodigo = -1;
-          this.MotivoInactividad = data.mensaje || 'No se pudo cerrar el código';
-        }
-      },
-      error: (err) => {
-        console.error('[ModalQR] ERROR al activar promoción:', err);
+  console.log('[ModalQR] Request a PostHacerPromocionValida:', request);
 
-        // 👇 esto te va a mostrar el mensaje del back directamente en el cel
-        const backendMsg =
-          err?.error && typeof err.error === 'object' && 'mensaje' in err.error
-            ? err.error.mensaje
-            : JSON.stringify(err.error);
+  const obs$ = this.promocionesService.PostHacerPromocionValida(request);
+  console.log('[ModalQR] Observable devuelto por PostHacerPromocionValida:', obs$);
 
-        alert('ERROR BACK:\n' + backendMsg);
-
+  obs$.subscribe({
+    next: (data) => {
+      console.log('[ModalQR] next activación:', data);
+      if (data.estatus === 1) {
+        this.EstatusActivacionDelCodigo = 1;
+        this.MotivoInactividad = '';
+      } else {
         this.EstatusActivacionDelCodigo = -1;
-        this.MotivoInactividad =
-          backendMsg || 'Ocurrió un error, por favor intente nuevamente';
-      },
-      complete: () => {
-        this.EstatusObtenerInformacionDelCodigo = 0;
+        this.MotivoInactividad = data.mensaje || 'No se pudo cerrar el código';
+        alert('RESPUESTA BACK:\n' + this.MotivoInactividad);
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('[ModalQR] ERROR al activar promoción:', err);
+
+      const backendMsg =
+        err?.error && typeof err.error === 'object' && 'mensaje' in err.error
+          ? err.error.mensaje
+          : JSON.stringify(err.error);
+
+      alert('ERROR BACK:\n' + backendMsg);
+
+      this.EstatusActivacionDelCodigo = -1;
+      this.MotivoInactividad =
+        backendMsg || 'Ocurrió un error, por favor intente nuevamente';
+    },
+    complete: () => {
+      console.log('[ModalQR] complete activación');
+      this.EstatusObtenerInformacionDelCodigo = 0;
+    }
+  });
+}
 
 
   private extraerCodigo(src: string): string | null {

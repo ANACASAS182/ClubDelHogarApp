@@ -191,17 +191,19 @@
       </ng-container>
 
       <!-- Detalles INVÁLIDO -->
-      <ng-container *ngIf="EstatusDelCodigo === -1">
-        <div class="details">
-          <div class="status-badge danger">
-            <ion-icon name="close-outline"></ion-icon>
-            Código no válido
+      <!-- Detalles INVÁLIDO / ERROR -->
+        <ng-container *ngIf="EstatusDelCodigo === -1 || EstatusActivacionDelCodigo === -1">
+          <div class="details">
+            <div class="status-badge danger">
+              <ion-icon name="close-outline"></ion-icon>
+              Código no válido o error al activarlo
+            </div>
+            <div class="error-msg" *ngIf="MotivoInactividad">
+              {{ MotivoInactividad }}
+            </div>
           </div>
-          <div class="error-msg" *ngIf="EstatusActivacionDelCodigo === -1 && MotivoInactividad">
-            {{ MotivoInactividad }}
-          </div>
-        </div>
-      </ng-container>
+        </ng-container>
+
     </div>
   </div>
 

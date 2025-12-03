@@ -27,15 +27,15 @@ export class HttpErrorInterceptor implements HttpInterceptor {
         if (error.error instanceof ErrorEvent) { //Error proveniente del client
           errorMsg = `Error del cliente: ${error.error.message}`;
         } 
-        else if (error.error?.message) { //Error proveniente del API tipo GenericResponse
-          // si autoShowError viene null/undefined, por default TRUE
-          showMessage = (error.error.autoShowError ?? true);
-          errorMsg = error.error.message;
+        else if (error.error?.message || error.error?.mensaje) {
+          const srvMsg = error.error.message ?? error.error.mensaje;
+            showMessage = (error.error.autoShowError ?? true);
+            errorMsg = srvMsg;
 
-          if (Array.isArray(error.error.errors)) {
-            errorMsg += `\n- ${error.error.errors.join('\n- ')}`;
-          }
-        } else {
+            if (Array.isArray(error.error.errors)) {
+              errorMsg += `\n- ${error.error.errors.join('\n- ')}`;
+            }
+          }else {
           // Error del lado del servidor
           if (error.status === 400 && error.error.errors) {
             const validationErrors = error.error.errors;
