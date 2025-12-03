@@ -52,9 +52,33 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		84A694402EB9219A000FF8FF /* Club Del Hogar */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Club Del Hogar"; sourceTree = "<group>"; };
-		84A6944E2EB9219C000FF8FF /* Club Del HogarTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Club Del HogarTests"; sourceTree = "<group>"; };
-		84A694582EB9219C000FF8FF /* Club Del HogarUITests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = "Club Del HogarUITests"; sourceTree = "<group>"; };
+		84A694402EB9219A000FF8FF /* Club Del Hogar */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "Club Del Hogar";
+			sourceTree = "<group>";
+		};
+		84A6944E2EB9219C000FF8FF /* Club Del HogarTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "Club Del HogarTests";
+			sourceTree = "<group>";
+		};
+		84A694582EB9219C000FF8FF /* Club Del HogarUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			explicitFileTypes = {
+			};
+			explicitFolders = (
+			);
+			path = "Club Del HogarUITests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
