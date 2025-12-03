@@ -124,34 +124,44 @@ export class ModalQRComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ActivarPromocion() {
-    console.log('[ModalQR] Activando promoción');
+  console.log('[ModalQR] Activando promoción');
 
-    this.EstatusActivacionDelCodigo = 2; // activando
+  this.EstatusActivacionDelCodigo = 2; // activando
 
-    const request: ValidarPromocionQrRequest = {
-      UsuarioID: this.usuarioId,
-      codigoPromocion: this.codigoPromocion
-    };
+  const request: ValidarPromocionQrRequest = {
+    UsuarioID: this.usuarioId,
+    codigoPromocion: this.codigoPromocion
+  };
 
-    this.promocionesService.PostHacerPromocionValida(request).subscribe({
-      next: (data) => {
-        if (data.estatus === 1) {
-          this.EstatusActivacionDelCodigo = 1;
-          this.MotivoInactividad = '';
-        } else {
-          this.EstatusActivacionDelCodigo = -1;
-          this.MotivoInactividad = data.mensaje;
-        }
-      },
-      error: () => {
+  this.promocionesService.PostHacerPromocionValida(request).subscribe({
+    next: (data) => {
+      console.log('[ModalQR] Respuesta activación:', data);
+      if (data.estatus === 1) {
+        this.EstatusActivacionDelCodigo = 1;
+        this.MotivoInactividad = '';
+      } else {
         this.EstatusActivacionDelCodigo = -1;
-        this.MotivoInactividad = 'Ocurrió un error, por favor intente nuevamente';
-      },
-      complete: () => {
-        this.EstatusObtenerInformacionDelCodigo = 0;
+        this.MotivoInactividad = data.mensaje || 'No se pudo cerrar el código';
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error('[ModalQR] ERROR al activar promoción:', err);
+      // si el back manda { estatus, mensaje } en el body:
+      const body = err?.error;
+      const msgBackend =
+        body && typeof body === 'object' && 'mensaje' in body
+          ? body.mensaje
+          : null;
+
+      this.EstatusActivacionDelCodigo = -1;
+      this.MotivoInactividad =
+        msgBackend || 'Ocurrió un error, por favor intente nuevamente';
+    },
+    complete: () => {
+      this.EstatusObtenerInformacionDelCodigo = 0;
+    }
+  });
+}
 
   private extraerCodigo(src: string): string | null {
     const s = (src || '').trim();

@@ -197,7 +197,7 @@
             <ion-icon name="close-outline"></ion-icon>
             Código no válido
           </div>
-          <div class="reason" *ngIf="MotivoInactividad">
+          <div class="error-msg" *ngIf="EstatusActivacionDelCodigo === -1 && MotivoInactividad">
             {{ MotivoInactividad }}
           </div>
         </div>
